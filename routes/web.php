@@ -64,10 +64,61 @@ Route::post('/logout', function (Request $request) { $request->session()->forget
 
 Route::middleware(RequireLogin::class)->group(function () {
     Route::get('/stock', fn () => view('stock', ['stockItems' => DB::table('stock')->orderBy('id')->get()]))->name('stock');
-    Route::get('/stock/data', fn () => DB::table('stock')->where('cantidad', '>', 0)->orderBy('producto')->get());
+    Route::get('/stock/data', fn () => DB::table('stock')->orderBy('id')->get());
+    Route::get('/stock/historial/data', fn () => DB::table('stock_historial')->orderByDesc('created_at')->limit(100)->get());
     Route::put('/stock/{id}', function (Request $r, int $id) {
         $data = $r->validate(['cantidad' => 'required|integer|min:0']);
+        $stockItem = DB::table('stock')->where('id', $id)->first();
+        abort_unless($stockItem, 404);
+
         DB::table('stock')->where('id', $id)->update(['cantidad' => $data['cantidad'], 'updated_at' => now()]);
+
+        $diff = $data['cantidad'] - $stockItem->cantidad;
+        if ($diff !== 0) {
+            DB::table('stock_historial')->insert([
+                'producto' => $stockItem->producto,
+                'unidad' => $stockItem->unidad,
+                'accion' => $diff > 0 ? 'suma' : 'resta',
+                'cantidad' => abs($diff),
+                'stock_id' => $stockItem->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        return response()->noContent();
+    });
+    Route::post('/stock', function (Request $r) {
+        $data = $r->validate([
+            'producto' => 'required|string|max:100',
+            'cantidad' => 'required|integer|min:0',
+            'unidad' => 'required|string|max:30',
+        ]);
+        $id = DB::table('stock')->insertGetId($data + ['created_at' => now(), 'updated_at' => now()]);
+        DB::table('stock_historial')->insert([
+            'producto' => $data['producto'],
+            'unidad' => $data['unidad'],
+            'accion' => 'agregado',
+            'cantidad' => $data['cantidad'],
+            'stock_id' => $id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        return response()->noContent();
+    });
+    Route::delete('/stock/{id}', function (int $id) {
+        $stockItem = DB::table('stock')->where('id', $id)->first();
+        abort_unless($stockItem, 404);
+        DB::table('stock')->where('id', $id)->delete();
+        DB::table('stock_historial')->insert([
+            'producto' => $stockItem->producto,
+            'unidad' => $stockItem->unidad,
+            'accion' => 'quitado',
+            'cantidad' => $stockItem->cantidad,
+            'stock_id' => $stockItem->id,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
         return response()->noContent();
     });
 
@@ -101,6 +152,15 @@ Route::middleware(RequireLogin::class)->group(function () {
 
         DB::table('stock')->where('id', $stockItem->id)->update([
             'cantidad' => $stockItem->cantidad - $data['cantidad'],
+            'updated_at' => now(),
+        ]);
+        DB::table('stock_historial')->insert([
+            'producto' => $stockItem->producto,
+            'unidad' => $stockItem->unidad,
+            'accion' => 'resta',
+            'cantidad' => $data['cantidad'],
+            'stock_id' => $stockItem->id,
+            'created_at' => now(),
             'updated_at' => now(),
         ]);
 
