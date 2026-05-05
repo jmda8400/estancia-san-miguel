@@ -12,44 +12,66 @@
 
 @layer base {
     body {
-        background-color: #3f444e;
-        color: #e5e7eb;
+        background: linear-gradient(180deg, #f5efe4 0%, #efe7d8 100%);
+        color: #3a3227;
     }
 }
 
 @layer components {
     .app-shell {
-        background-color: #4a4f59;
-        border-color: #666c77;
+        background-color: #8b6f4e;
+        border-color: #70563b;
+        color: #f8f2e8;
     }
 
     .app-card {
-        @apply rounded-xl border p-4 md:p-6;
-        background-color: #4a4f59;
-        border-color: #666c77;
+        @apply rounded-xl border p-4 md:p-6 shadow-sm;
+        background-color: #fbf8f1;
+        border-color: #d3c3aa;
     }
 
     .app-btn {
         @apply rounded-md border px-4 py-2 text-sm font-medium transition-colors duration-150;
-        border-color: #79808c;
-        background-color: #5a616d;
-        color: #f3f4f6;
+        border-color: #b39977;
+        background-color: #e9dcc8;
+        color: #3f3223;
     }
 
     .app-btn:hover {
-        background-color: #666e7a;
+        background-color: #dfcfb6;
     }
 
     .app-btn-active {
-        border-color: #cfd4dc;
-        background-color: #e5e7eb;
-        color: #242a33;
+        border-color: #8c6a45;
+        background-color: #8c6a45;
+        color: #f8f2e8;
     }
 
     .app-input {
         @apply rounded border px-3 py-2;
-        border-color: #79808c;
-        background-color: #5a616d;
-        color: #f3f4f6;
+        border-color: #b39977;
+        background-color: #fffdf8;
+        color: #33291d;
+    }
+
+    .app-table-btn {
+        @apply text-left rounded-lg border px-3 py-2;
+        border-color: #c7b18f;
+        background-color: #f4ecdf;
+    }
+
+    .app-table-btn.active {
+        border-color: #8c6a45;
+        background-color: #e1d0b6;
+    }
+
+    .app-trash-btn {
+        @apply rounded-md px-2 py-1 text-sm border;
+        border-color: #be8a8a;
+        background-color: #f7e6e6;
+    }
+
+    .app-trash-btn:hover {
+        background-color: #f0d2d2;
     }
 }

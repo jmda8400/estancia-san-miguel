@@ -10,7 +10,17 @@
 
 <div id="comandasTab" class="grid gap-4 md:grid-cols-2">
     <div class="app-card">
-        <h2 class="font-semibold mb-3">Mesas</h2>
+        <div class="flex items-center justify-between mb-3 gap-2">
+            <h2 class="font-semibold">Mesas</h2>
+            <label class="text-sm">Mostrar
+                <select id="visibleTables" class="app-input ml-2" onchange="setVisibleTables(this.value)">
+                    <option value="6">6</option>
+                    <option value="10" selected>10</option>
+                    <option value="14">14</option>
+                    <option value="999">Todas</option>
+                </select>
+            </label>
+        </div>
         <div id="tables" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
     </div>
     <div class="app-card">
@@ -37,38 +47,46 @@
     <div id="historialList" class="space-y-2"></div>
     <div class="mt-4 flex items-center justify-between">
         <button id="prevPage" class="app-btn" onclick="changePage(-1)">Anterior</button>
-        <span id="pageInfo" class="text-sm text-zinc-300"></span>
+        <span id="pageInfo" class="text-sm text-amber-950"></span>
         <button id="nextPage" class="app-btn" onclick="changePage(1)">Siguiente</button>
     </div>
 </div>
 @endsection
 @section('scripts')
 <script>
-let state = { selectedComandaId: null, comandas: @json($comandas), activeTab: 'comandas', stock: [], historial: { data: [], current_page: 1, last_page: 1, total: 0 } };
+let state = { selectedComandaId: null, comandas: @json($comandas), activeTab: 'comandas', stock: [], visibleTables: 10, historial: { data: [], current_page: 1, last_page: 1, total: 0 } };
 const tablesEl = document.getElementById('tables');
 const productsEl = document.getElementById('productsList');
 const titleEl = document.getElementById('selectedTitle');
 const chargeBtn = document.getElementById('chargeBtn');
 
 function renderComandas() {
- tablesEl.innerHTML = state.comandas.map(c => `<button class="text-left rounded border px-3 py-2 ${state.selectedComandaId===c.id?'border-zinc-100 bg-zinc-700':'border-zinc-500 bg-zinc-600'}" onclick="selectComanda(${c.id})">${c.nombre ?? ('Mesa ' + c.mesa_numero)}<br><small>${c.productos.length} productos</small></button>`).join('');
+ const visible = state.comandas.filter(c => c.mesa_numero <= state.visibleTables);
+ tablesEl.innerHTML = visible.map(c => `<button class="app-table-btn ${state.selectedComandaId===c.id?'active':''}" onclick="selectComanda(${c.id})">${c.nombre ?? ('Mesa ' + c.mesa_numero)}<br><small>${c.productos.length} productos</small></button>`).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
  if(!comanda){titleEl.textContent='Seleccione una mesa'; productsEl.innerHTML=''; chargeBtn.classList.add('hidden'); document.getElementById('addProductCard').classList.add('hidden'); return;}
  titleEl.textContent = `Productos de ${comanda.nombre ?? ('Mesa ' + comanda.mesa_numero)}`;
  chargeBtn.classList.remove('hidden');
  document.getElementById('addProductCard').classList.remove('hidden');
- productsEl.innerHTML = comanda.productos.map(p=>`<div class="flex gap-2 items-center"><strong>${p.nombre}</strong><input type="number" min="1" value="${p.cantidad}" onchange="updateProducto(${p.id},{cantidad:this.value})" class="w-16 rounded border border-zinc-500 bg-zinc-600 px-2 py-1"><input value="${p.notas??''}" onchange="updateProducto(${p.id},{notas:this.value})" class="rounded border border-zinc-500 bg-zinc-600 px-2 py-1"><button class="rounded px-2 py-1 bg-zinc-700 hover:bg-zinc-600" title="Quitar producto" onclick="deleteProducto(${p.id})">🗑️</button></div>`).join('');
+ productsEl.innerHTML = comanda.productos.map(p=>`<div class="rounded-lg border border-amber-200 bg-amber-50 p-3"><div class="flex flex-wrap gap-2 items-center"><strong class="min-w-44">${p.nombre}</strong><input type="number" min="1" value="${p.cantidad}" onchange="updateProducto(${p.id},{cantidad:this.value})" class="w-18 app-input"><input value="${p.notas??''}" onchange="updateProducto(${p.id},{notas:this.value})" class="app-input flex-1" placeholder="Notas"><button class="app-trash-btn" title="Quitar producto" onclick="deleteProducto(${p.id})">🗑️ Eliminar</button></div></div>`).join('');
 }
+
+window.setVisibleTables = (value) => {
+    state.visibleTables = Number(value);
+    const selected = state.comandas.find(c => c.id === state.selectedComandaId);
+    if (selected && selected.mesa_numero > state.visibleTables) state.selectedComandaId = null;
+    renderComandas();
+};
 
 function renderHistorial() {
     const historialEl = document.getElementById('historialList');
     if (state.historial.data.length === 0) {
-        historialEl.innerHTML = '<p class="text-zinc-300">No hay comandas cobradas todavía.</p>';
+        historialEl.innerHTML = '<p class="text-amber-900">No hay comandas cobradas todavía.</p>';
     } else {
         historialEl.innerHTML = state.historial.data.map(h => `
-            <details class="rounded border border-zinc-700 bg-zinc-600 p-3">
+            <details class="rounded border border-amber-200 bg-amber-50 p-3">
                 <summary class="cursor-pointer">${h.nombre ?? ('Mesa ' + h.mesa_numero)} · ${new Date(h.cobrada_en).toLocaleString()}</summary>
-                <div class="mt-2 space-y-1 text-sm text-zinc-200">
+                <div class="mt-2 space-y-1 text-sm text-amber-950">
                     ${h.productos.map(p => `<div>${p.cantidad}x ${p.nombre}${p.notas ? ` — ${p.notas}` : ''}</div>`).join('') || '<div>Sin productos.</div>'}
                 </div>
             </details>

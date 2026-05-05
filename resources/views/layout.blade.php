@@ -8,24 +8,33 @@
 </head>
 <body class="min-h-screen flex flex-col">
 <header class="app-shell border-b">
-    <nav class="mx-auto max-w-6xl px-4 py-3 flex gap-3 flex-wrap text-sm">
-        @if (request()->path() === '/')
-            <span class="text-zinc-100 font-semibold">Estancia San Miguel</span>
-        @elseif (request()->is('login'))
-            <span class="text-zinc-100 font-semibold">Acceso interno</span>
-        @else
-            <a class="app-btn" href="/">Frontpage</a>
-            <a class="app-btn" href="/stock">Stock</a>
-            <a class="app-btn" href="/comandas">Comandas</a>
-            <a class="app-btn" href="/admin">Administración</a>
-        @endif
+    <nav class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-3 flex-wrap text-sm">
+        <div class="flex items-center gap-3">
+            <span class="text-xl" aria-label="Logo">🌿</span>
+            @if (request()->path() === '/')
+                <span class="font-semibold">Estancia San Miguel</span>
+            @elseif (request()->is('login'))
+                <span class="font-semibold">Acceso interno</span>
+            @else
+                <a class="app-btn" href="/">Frontpage</a>
+                <a class="app-btn" href="/stock">Stock</a>
+                <a class="app-btn" href="/comandas">Comandas</a>
+                <a class="app-btn" href="/admin">Administración</a>
+            @endif
+        </div>
     </nav>
 </header>
 <main class="mx-auto max-w-6xl w-full px-4 py-6 flex-1">
     @yield('content')
 </main>
-<footer class="app-shell border-t text-zinc-100 text-center text-sm py-4">
-    © {{ date('Y') }} Estancia San Miguel · Sistema interno
+<footer class="app-shell border-t text-sm py-4">
+    <div class="mx-auto max-w-6xl px-4 flex items-center justify-between gap-3">
+        <span>© {{ date('Y') }} Estancia San Miguel · Sistema interno</span>
+        <div class="flex items-center gap-4 text-lg">
+            <a href="#" title="WhatsApp" aria-label="WhatsApp">🟢</a>
+            <a href="#" title="Instagram" aria-label="Instagram">📸</a>
+        </div>
+    </div>
 </footer>
 @yield('scripts')
 </body>
