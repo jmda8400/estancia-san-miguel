@@ -1,0 +1,39 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: docker/php/Dockerfile
+    container_name: estancia_app
+    working_dir: /var/www/html
+    volumes:
+      - .:/var/www/html
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql
+      - redis
+    command: sh -c "composer install && php artisan serve --host=0.0.0.0 --port=8000"
+
+  mysql:
+    image: mysql:8.4
+    container_name: estancia_mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_DATABASE: estancia
+      MYSQL_USER: estancia
+      MYSQL_PASSWORD: estancia
+      MYSQL_ROOT_PASSWORD: root
+    ports:
+      - "3307:3306"
+    volumes:
+      - estancia_mysql_data:/var/lib/mysql
+
+  redis:
+    image: redis:7-alpine
+    container_name: estancia_redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+
+volumes:
+  estancia_mysql_data:
