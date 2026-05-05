@@ -124,6 +124,41 @@ Route::middleware(RequireLogin::class)->group(function () {
 
     Route::get('/comandas', fn () => view('comandas', ['comandas' => comandasConProductos()]))->name('comandas');
     Route::get('/comandas/data', fn () => comandasConProductos());
+    Route::post('/comandas', function () {
+        $count = DB::table('comandas')->count();
+        if ($count >= 50) {
+            return response()->json(['message' => 'Se alcanzó el máximo de 50 comandas.'], 422);
+        }
+
+        $existing = DB::table('comandas')->pluck('mesa_numero')->all();
+        $mesaNumero = null;
+        for ($i = 1; $i <= 50; $i++) {
+            if (!in_array($i, $existing, true)) {
+                $mesaNumero = $i;
+                break;
+            }
+        }
+        abort_if(!$mesaNumero, 422, 'No hay números de mesa disponibles.');
+
+        DB::table('comandas')->insert([
+            'mesa_numero' => $mesaNumero,
+            'mesa' => 'Mesa ' . $mesaNumero,
+            'nombre' => 'Mesa ' . $mesaNumero,
+            'estado' => 'abierta',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return response()->noContent();
+    });
+    Route::delete('/comandas/{id}', function (int $id) {
+        $hasProducts = DB::table('productos')->where('comanda_id', $id)->exists();
+        if ($hasProducts) {
+            return response()->json(['message' => 'No se puede quitar una comanda con productos cargados.'], 422);
+        }
+        DB::table('comandas')->where('id', $id)->delete();
+        return response()->noContent();
+    });
     Route::get('/comandas/historial/data', function (Request $request) {
         return historialComandasPaginado((int) $request->query('page', 1), 10);
     });

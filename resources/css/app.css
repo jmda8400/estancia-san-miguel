@@ -74,4 +74,36 @@
     .app-trash-btn:hover {
         background-color: #f0d2d2;
     }
+
+    .app-charge-btn {
+        border-color: #2e7d32;
+        background-color: #43a047;
+        color: #f2fff3;
+    }
+
+    .app-charge-btn:hover {
+        background-color: #388e3c;
+    }
+
+    .app-remove-table-btn {
+        @apply rounded-md border px-2 py-1 text-xs;
+        border-color: #be8a8a;
+        background-color: #f7e6e6;
+        color: #5a2f2f;
+    }
+
+    .social-logo {
+        @apply inline-flex items-center justify-center rounded-md text-xs font-semibold;
+        width: 2.2rem;
+        height: 2.2rem;
+        color: #fff;
+    }
+
+    .whatsapp-logo {
+        background: #25d366;
+    }
+
+    .instagram-logo {
+        background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
+    }
 }
