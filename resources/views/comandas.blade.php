@@ -5,15 +5,15 @@
 
 <div class="mb-4 flex gap-2">
     <button id="tabComandas" class="rounded px-4 py-2 bg-zinc-100 text-zinc-900" onclick="switchTab('comandas')">Comandas</button>
-    <button id="tabHistorial" class="rounded px-4 py-2 bg-zinc-800 text-zinc-100" onclick="switchTab('historial')">Historial</button>
+    <button id="tabHistorial" class="rounded px-4 py-2 bg-zinc-600 text-zinc-100" onclick="switchTab('historial')">Historial</button>
 </div>
 
 <div id="comandasTab" class="grid gap-4 md:grid-cols-2">
-    <div class="rounded-xl border border-zinc-700 bg-zinc-900 p-4">
+    <div class="rounded-xl border border-zinc-500 bg-zinc-700 p-4">
         <h2 class="font-semibold mb-3">Mesas</h2>
         <div id="tables" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
     </div>
-    <div class="rounded-xl border border-zinc-700 bg-zinc-900 p-4">
+    <div class="rounded-xl border border-zinc-500 bg-zinc-700 p-4">
         <h2 id="selectedTitle" class="font-semibold mb-3">Seleccione una mesa</h2>
         <div id="productsList" class="space-y-2"></div>
         <div class="flex justify-end mt-4">
@@ -22,26 +22,26 @@
     </div>
 </div>
 
-<div id="addProductCard" class="rounded-xl border border-zinc-700 bg-zinc-900 p-4 mt-4">
-    <h2 class="font-semibold mb-3">Agregar producto a una comanda (desde stock)</h2>
+<div id="addProductCard" class="rounded-xl border border-zinc-500 bg-zinc-700 p-4 mt-4">
+    <h2 class="font-semibold mb-3">Agregar productos a comanda</h2>
     <form id="newProductForm" class="grid gap-2 md:grid-cols-5">
-        <select id="comandaId" class="rounded border border-zinc-600 bg-zinc-800 px-3 py-2" required>
-            <option value="">Seleccione comanda</option>
+        <select id="comandaId" class="rounded border border-zinc-500 bg-zinc-600 px-3 py-2" required>
+            <option value="">Comanda</option>
         </select>
-        <select id="stockItem" class="rounded border border-zinc-600 bg-zinc-800 px-3 py-2" required></select>
-        <input id="productQty" type="number" min="1" value="1" class="rounded border border-zinc-600 bg-zinc-800 px-3 py-2" required>
-        <input id="productNotes" class="rounded border border-zinc-600 bg-zinc-800 px-3 py-2" placeholder="Notas">
+        <select id="stockItem" class="rounded border border-zinc-500 bg-zinc-600 px-3 py-2" required></select>
+        <input id="productQty" type="number" min="1" value="1" class="rounded border border-zinc-500 bg-zinc-600 px-3 py-2" required>
+        <input id="productNotes" class="rounded border border-zinc-500 bg-zinc-600 px-3 py-2" placeholder="Notas">
         <button class="rounded bg-zinc-100 text-zinc-900 px-3 py-2">Agregar a comanda</button>
     </form>
 </div>
 
-<div id="historialTab" class="hidden rounded-xl border border-zinc-700 bg-zinc-900 p-4">
+<div id="historialTab" class="hidden rounded-xl border border-zinc-500 bg-zinc-700 p-4">
     <h2 class="font-semibold mb-3">Historial de comandas cobradas</h2>
     <div id="historialList" class="space-y-2"></div>
     <div class="mt-4 flex items-center justify-between">
-        <button id="prevPage" class="rounded bg-zinc-800 px-3 py-2" onclick="changePage(-1)">Anterior</button>
-        <span id="pageInfo" class="text-sm text-zinc-400"></span>
-        <button id="nextPage" class="rounded bg-zinc-800 px-3 py-2" onclick="changePage(1)">Siguiente</button>
+        <button id="prevPage" class="rounded bg-zinc-600 px-3 py-2" onclick="changePage(-1)">Anterior</button>
+        <span id="pageInfo" class="text-sm text-zinc-300"></span>
+        <button id="nextPage" class="rounded bg-zinc-600 px-3 py-2" onclick="changePage(1)">Siguiente</button>
     </div>
 </div>
 @endsection
@@ -54,22 +54,22 @@ const titleEl = document.getElementById('selectedTitle');
 const chargeBtn = document.getElementById('chargeBtn');
 
 function renderComandas() {
- tablesEl.innerHTML = state.comandas.map(c => `<button class="text-left rounded border px-3 py-2 ${state.selectedComandaId===c.id?'border-zinc-100 bg-zinc-700':'border-zinc-600 bg-zinc-800'}" onclick="selectComanda(${c.id})">${c.nombre ?? ('Mesa ' + c.mesa_numero)}<br><small>${c.productos.length} productos</small></button>`).join('');
- document.getElementById('comandaId').innerHTML = `<option value="">Seleccione comanda</option>` + state.comandas.map(c => `<option value="${c.id}">${c.nombre ?? ('Mesa ' + c.mesa_numero)}</option>`).join('');
+ tablesEl.innerHTML = state.comandas.map(c => `<button class="text-left rounded border px-3 py-2 ${state.selectedComandaId===c.id?'border-zinc-100 bg-zinc-700':'border-zinc-500 bg-zinc-600'}" onclick="selectComanda(${c.id})">${c.nombre ?? ('Mesa ' + c.mesa_numero)}<br><small>${c.productos.length} productos</small></button>`).join('');
+ document.getElementById('comandaId').innerHTML = `<option value="">Comanda</option>` + state.comandas.map(c => `<option value="${c.id}">${c.nombre ?? ('Mesa ' + c.mesa_numero)}</option>`).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
  if(!comanda){titleEl.textContent='Seleccione una mesa'; productsEl.innerHTML=''; chargeBtn.classList.add('hidden'); return;}
  titleEl.textContent = `Productos de ${comanda.nombre ?? ('Mesa ' + comanda.mesa_numero)}`;
  chargeBtn.classList.remove('hidden');
- productsEl.innerHTML = comanda.productos.map(p=>`<div class="flex gap-2 items-center"><strong>${p.nombre}</strong><input type="number" min="1" value="${p.cantidad}" onchange="updateProducto(${p.id},{cantidad:this.value})" class="w-16 rounded border border-zinc-600 bg-zinc-800 px-2 py-1"><input value="${p.notas??''}" onchange="updateProducto(${p.id},{notas:this.value})" class="rounded border border-zinc-600 bg-zinc-800 px-2 py-1"><button class="rounded px-2 py-1 bg-zinc-700 hover:bg-zinc-600" title="Quitar producto" onclick="deleteProducto(${p.id})">🗑️</button></div>`).join('');
+ productsEl.innerHTML = comanda.productos.map(p=>`<div class="flex gap-2 items-center"><strong>${p.nombre}</strong><input type="number" min="1" value="${p.cantidad}" onchange="updateProducto(${p.id},{cantidad:this.value})" class="w-16 rounded border border-zinc-500 bg-zinc-600 px-2 py-1"><input value="${p.notas??''}" onchange="updateProducto(${p.id},{notas:this.value})" class="rounded border border-zinc-500 bg-zinc-600 px-2 py-1"><button class="rounded px-2 py-1 bg-zinc-700 hover:bg-zinc-600" title="Quitar producto" onclick="deleteProducto(${p.id})">🗑️</button></div>`).join('');
 }
 
 function renderHistorial() {
     const historialEl = document.getElementById('historialList');
     if (state.historial.data.length === 0) {
-        historialEl.innerHTML = '<p class="text-zinc-400">No hay comandas cobradas todavía.</p>';
+        historialEl.innerHTML = '<p class="text-zinc-300">No hay comandas cobradas todavía.</p>';
     } else {
         historialEl.innerHTML = state.historial.data.map(h => `
-            <details class="rounded border border-zinc-700 bg-zinc-800 p-3">
+            <details class="rounded border border-zinc-700 bg-zinc-600 p-3">
                 <summary class="cursor-pointer">${h.nombre ?? ('Mesa ' + h.mesa_numero)} · ${new Date(h.cobrada_en).toLocaleString()}</summary>
                 <div class="mt-2 space-y-1 text-sm text-zinc-200">
                     ${h.productos.map(p => `<div>${p.cantidad}x ${p.nombre}${p.notas ? ` — ${p.notas}` : ''}</div>`).join('') || '<div>Sin productos.</div>'}
@@ -87,8 +87,8 @@ window.switchTab = (tab) => {
     document.getElementById('comandasTab').classList.toggle('hidden', tab !== 'comandas');
     document.getElementById('addProductCard').classList.toggle('hidden', tab !== 'comandas');
     document.getElementById('historialTab').classList.toggle('hidden', tab !== 'historial');
-    document.getElementById('tabComandas').className = `rounded px-4 py-2 ${tab === 'comandas' ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-800 text-zinc-100'}`;
-    document.getElementById('tabHistorial').className = `rounded px-4 py-2 ${tab === 'historial' ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-800 text-zinc-100'}`;
+    document.getElementById('tabComandas').className = `rounded px-4 py-2 ${tab === 'comandas' ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-600 text-zinc-100'}`;
+    document.getElementById('tabHistorial').className = `rounded px-4 py-2 ${tab === 'historial' ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-600 text-zinc-100'}`;
     if (tab === 'historial') refreshHistorial(state.historial.current_page);
 };
 
