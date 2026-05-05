@@ -5,6 +5,23 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
 
+function comandasConProductos()
+{
+    return DB::table('comandas')->orderBy('mesa_numero')->get()->map(function ($c) {
+        $productos = DB::table('productos as p')
+            ->leftJoin('stock as s', 's.producto', '=', 'p.nombre')
+            ->where('p.comanda_id', $c->id)
+            ->where(function ($q) {
+                $q->whereNull('s.id')->orWhere('s.cantidad', '>', 0);
+            })
+            ->orderBy('p.id')
+            ->select('p.*')
+            ->get();
+
+        return (array) $c + ['productos' => $productos];
+    });
+}
+
 Route::view('/', 'home')->name('home');
 Route::view('/login', 'login')->name('login');
 Route::post('/login', function (Request $request) {
@@ -18,10 +35,17 @@ Route::post('/login', function (Request $request) {
 Route::post('/logout', function (Request $request) { $request->session()->forget('logged_in'); return redirect()->route('home'); })->name('logout');
 
 Route::middleware(RequireLogin::class)->group(function () {
-    Route::get('/stock', fn () => view('stock', ['stockItems' => DB::table('stock')->orderBy('id')->get()]))->name('stock');
-    Route::get('/stock/data', fn () => DB::table('stock')->orderBy('producto')->get());
-    Route::get('/comandas', fn () => view('comandas', ['comandas' => DB::table('comandas')->orderBy('mesa_numero')->get()->map(fn($c)=> (array)$c + ['productos'=>DB::table('productos')->where('comanda_id',$c->id)->orderBy('id')->get()])]))->name('comandas');
-    Route::get('/comandas/data', fn () => DB::table('comandas')->orderBy('mesa_numero')->get()->map(fn($c)=> (array)$c + ['productos'=>DB::table('productos')->where('comanda_id',$c->id)->orderBy('id')->get()]));
+    Route::get('/stock', fn () => view('stock', ['stockItems' => DB::table('stock')->orderBy('id')->get(), 'comandas' => DB::table('comandas')->orderBy('mesa_numero')->get()]))->name('stock');
+    Route::get('/stock/data', fn () => DB::table('stock')->where('cantidad', '>', 0)->orderBy('producto')->get());
+    Route::put('/stock/{id}', function (Request $r, int $id) {
+        $data = $r->validate(['cantidad' => 'required|integer|min:0']);
+        DB::table('stock')->where('id', $id)->update(['cantidad' => $data['cantidad'], 'updated_at' => now()]);
+        return response()->noContent();
+    });
+
+    Route::get('/comandas', fn () => view('comandas', ['comandas' => comandasConProductos()]))->name('comandas');
+    Route::get('/comandas/data', fn () => comandasConProductos());
+
     Route::post('/productos', function (Request $r) {
         $data = $r->validate([
             'comanda_id' => 'required|exists:comandas,id',
@@ -53,5 +77,18 @@ Route::middleware(RequireLogin::class)->group(function () {
     });
     Route::put('/productos/{id}', function (Request $r, int $id) { $data=$r->validate(['cantidad'=>'nullable|integer|min:1','notas'=>'nullable|string|max:255']); DB::table('productos')->where('id',$id)->update(array_filter($data, fn($v)=>$v!==null)+['updated_at'=>now()]); return response()->noContent(); });
     Route::delete('/productos/{id}', fn (int $id) => tap(response()->noContent(), fn()=>DB::table('productos')->where('id',$id)->delete()));
+    Route::post('/comandas/{id}/cobrar', function (int $id) {
+        $comanda = DB::table('comandas')->where('id', $id)->first();
+        abort_unless($comanda, 404);
+
+        DB::table('productos')->where('comanda_id', $id)->delete();
+        DB::table('comandas')->where('id', $id)->update([
+            'nombre' => 'Mesa ' . $comanda->mesa_numero,
+            'estado' => 'abierta',
+            'updated_at' => now(),
+        ]);
+
+        return response()->noContent();
+    });
     Route::view('/admin', 'admin')->name('admin');
 });
