@@ -10,8 +10,8 @@
 
 <div id="stockTab" class="app-card">
     <table class="w-full mt-1 text-sm">
-        <thead class="text-zinc-100"><tr class="border-b border-zinc-500"><th class="text-left py-2">Producto</th><th class="text-left py-2">Cantidad</th><th class="text-left py-2">Unidad</th><th></th></tr></thead>
-        <tbody class="text-zinc-100" id="stockBody"></tbody>
+        <thead class="text-zinc-900"><tr class="border-b border-amber-200"><th class="text-left py-2">Producto</th><th class="text-left py-2">Cantidad</th><th class="text-left py-2">Unidad</th><th></th></tr></thead>
+        <tbody class="text-zinc-900" id="stockBody"></tbody>
     </table>
     <button class="mt-4 app-btn" onclick="addRow()">+ Agregar fila</button>
 </div>
@@ -69,7 +69,7 @@ async function refreshHistory(){
     const response = await fetch('/stock/historial/data');
     const data = await response.json();
     const labels = { suma: 'Suma', resta: 'Resta', agregado: 'Agregado', quitado: 'Quitado' };
-    document.getElementById('stockHistoryList').innerHTML = data.map(h => `<div class='rounded border border-zinc-500 bg-zinc-600 p-3'><strong>${labels[h.accion]}</strong> · ${h.producto} · ${h.cantidad} ${h.unidad}<div class='text-sm text-zinc-300'>${new Date(h.created_at).toLocaleString()}</div></div>`).join('') || '<p class="text-zinc-300">No hay movimientos.</p>';
+    document.getElementById('stockHistoryList').innerHTML = data.map(h => `<div class='rounded border border-amber-200 bg-amber-50 p-3'><strong>${labels[h.accion]}</strong> · ${h.producto} · ${h.cantidad} ${h.unidad}<div class='text-sm text-amber-950'>${new Date(h.created_at).toLocaleString()}</div></div>`).join('') || '<p class="text-amber-900">No hay movimientos.</p>';
 }
 
 window.switchTab = (tab) => {

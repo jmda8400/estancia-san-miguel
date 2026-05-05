@@ -8,7 +8,7 @@
 </head>
 <body class="min-h-screen flex flex-col">
 <header class="app-shell border-b">
-    <nav class="mx-auto max-w-6xl px-4 py-3 flex items-center justify-between gap-3 flex-wrap text-sm">
+    <nav class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between gap-3 flex-wrap text-sm">
         <div class="flex items-center gap-3">
             <span class="text-xl" aria-label="Logo">🌿</span>
             @if (request()->path() === '/')
@@ -24,15 +24,15 @@
         </div>
     </nav>
 </header>
-<main class="mx-auto max-w-6xl w-full px-4 py-6 flex-1">
+<main class="mx-auto max-w-7xl w-full px-4 py-6 flex-1">
     @yield('content')
 </main>
 <footer class="app-shell border-t text-sm py-4">
-    <div class="mx-auto max-w-6xl px-4 flex items-center justify-between gap-3">
+    <div class="mx-auto max-w-7xl px-4 flex items-center justify-between gap-3">
         <span>© {{ date('Y') }} Estancia San Miguel · Sistema interno</span>
         <div class="flex items-center gap-4 text-lg">
-            <a href="#" title="WhatsApp" aria-label="WhatsApp">🟢</a>
-            <a href="#" title="Instagram" aria-label="Instagram">📸</a>
+            <a href="#" title="WhatsApp" aria-label="WhatsApp" class="social-logo whatsapp-logo">WA</a>
+            <a href="#" title="Instagram" aria-label="Instagram" class="social-logo instagram-logo">IG</a>
         </div>
     </div>
 </footer>
