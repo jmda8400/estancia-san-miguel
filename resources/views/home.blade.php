@@ -7,14 +7,6 @@
         <p style="margin:8px 0 0;">Bienvenido al sistema de gestión.</p>
     </header>
 
-    <nav style="display:flex; gap:10px; flex-wrap:wrap; border-top:1px solid #e5e7eb; border-bottom:1px solid #e5e7eb; padding:10px 0;">
-        <a href="/">Inicio</a>
-        <a href="/stock">Stock</a>
-        <a href="/comandas">Comandas</a>
-        <a href="/admin">Administración</a>
-        <a href="/login">Login</a>
-    </nav>
-
     <section>
         <h2 style="margin-top:0;">Acerca del sistema</h2>
         <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras laoreet feugiat nisi, ac interdum est mattis non. Aenean vel urna vitae lorem commodo ultrices non id lacus.</p>
