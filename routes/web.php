@@ -1,28 +1,11 @@
 <?php
 
+use App\Http\Middleware\RequireLogin;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Route;
 
-Route::view('/', 'home');
-
-$requireLogin = function (Request $request, \Closure $next) {
-    if (! $request->session()->get('logged_in')) {
-        return redirect('/login');
-    }
-
-    return $next($request);
-};
-
-Route::get('/stock', function () {
-    $stockItems = DB::table('stock')->orderBy('id')->get();
-
-    return view('stock', ['stockItems' => $stockItems]);
-})->middleware($requireLogin);
-
-Route::view('/comandas', 'comandas')->middleware($requireLogin);
-Route::view('/admin', 'admin')->middleware($requireLogin);
+Route::view('/', 'home')->name('home');
 
 Route::view('/login', 'login')->name('login');
 
@@ -32,15 +15,33 @@ Route::post('/login', function (Request $request) {
         'password' => ['required', 'string'],
     ]);
 
-    $user = DB::table('users')->where('name', $credentials['username'])->first();
-
-    if (! $user || ! Hash::check($credentials['password'], $user->password)) {
+    if (
+        $credentials['username'] !== env('ADMIN_USERNAME', 'admin') ||
+        $credentials['password'] !== env('ADMIN_PASSWORD', 'admin')
+    ) {
         return back()->withErrors([
-            'username' => 'Usuario o contraseña inválidos.',
-        ])->onlyInput('username');
+            'username' => 'Credenciales incorrectas.',
+        ]);
     }
 
     $request->session()->put('logged_in', true);
 
-    return redirect('/stock');
+    return redirect()->route('stock');
+})->name('login.submit');
+
+Route::post('/logout', function (Request $request) {
+    $request->session()->forget('logged_in');
+
+    return redirect()->route('home');
+})->name('logout');
+
+Route::middleware(RequireLogin::class)->group(function () {
+    Route::get('/stock', function () {
+        $stockItems = DB::table('stock')->orderBy('id')->get();
+
+        return view('stock', ['stockItems' => $stockItems]);
+    })->name('stock');
+
+    Route::view('/comandas', 'comandas')->name('comandas');
+    Route::view('/admin', 'admin')->name('admin');
 });
