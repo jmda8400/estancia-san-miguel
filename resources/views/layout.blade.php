@@ -19,11 +19,14 @@
 <body>
 <header>
     <nav>
-        <a href="/">Frontpage</a>
-        <a href="/stock">Stock</a>
-        <a href="/comandas">Comandas</a>
-        <a href="/admin">Administración</a>
-        <a href="/login">Login</a>
+        @if (request()->is('login'))
+            <span>Acceso interno</span>
+        @else
+            <a href="/">Frontpage</a>
+            <a href="/stock">Stock</a>
+            <a href="/comandas">Comandas</a>
+            <a href="/admin">Administración</a>
+        @endif
     </nav>
 </header>
 <div class="container">
