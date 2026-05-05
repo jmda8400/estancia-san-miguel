@@ -4,38 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Estancia San Miguel')</title>
-    <style>
-        body { font-family: Arial, sans-serif; margin: 0; background: #f7f7f7; color: #1f2937; min-height: 100vh; display:flex; flex-direction:column; }
-        header { background: #111827; color: white; padding: 12px 20px; }
-        nav { display: flex; gap: 12px; flex-wrap: wrap; }
-        nav a { color: #e5e7eb; text-decoration: none; padding: 6px 10px; border-radius: 6px; }
-        nav a:hover { background: #374151; }
-        .container { max-width: 1100px; margin: 20px auto; padding: 0 16px; width: 100%; flex: 1; box-sizing:border-box; }
-        .card { background: #fff; border-radius: 10px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
-        footer { background:#111827; color:#e5e7eb; padding:14px 20px; text-align:center; font-size:14px; }
-        button { cursor: pointer; }
-    </style>
-    @yield('styles')
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body>
-<header>
-    <nav>
+<body class="min-h-screen bg-zinc-900 text-zinc-100 flex flex-col">
+<header class="bg-zinc-950 border-b border-zinc-800">
+    <nav class="mx-auto max-w-6xl px-4 py-3 flex gap-3 flex-wrap text-sm">
         @if (request()->path() === '/')
-            <span>Estancia San Miguel</span>
+            <span class="text-zinc-300 font-semibold">Estancia San Miguel</span>
         @elseif (request()->is('login'))
-            <span>Acceso interno</span>
+            <span class="text-zinc-300 font-semibold">Acceso interno</span>
         @else
-            <a href="/">Frontpage</a>
-            <a href="/stock">Stock</a>
-            <a href="/comandas">Comandas</a>
-            <a href="/admin">Administración</a>
+            <a class="px-3 py-1 rounded-md hover:bg-zinc-800 text-zinc-300" href="/">Frontpage</a>
+            <a class="px-3 py-1 rounded-md hover:bg-zinc-800 text-zinc-300" href="/stock">Stock</a>
+            <a class="px-3 py-1 rounded-md hover:bg-zinc-800 text-zinc-300" href="/comandas">Comandas</a>
+            <a class="px-3 py-1 rounded-md hover:bg-zinc-800 text-zinc-300" href="/admin">Administración</a>
         @endif
     </nav>
 </header>
-<div class="container">
+<main class="mx-auto max-w-6xl w-full px-4 py-6 flex-1">
     @yield('content')
-</div>
-<footer>
+</main>
+<footer class="bg-zinc-950 border-t border-zinc-800 text-zinc-400 text-center text-sm py-4">
     © {{ date('Y') }} Estancia San Miguel · Sistema interno
 </footer>
 @yield('scripts')
