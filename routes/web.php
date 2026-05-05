@@ -22,6 +22,34 @@ function comandasConProductos()
     });
 }
 
+function historialComandasPaginado(int $page = 1, int $perPage = 10)
+{
+    $page = max(1, $page);
+    $total = DB::table('comandas_historial')->count();
+    $lastPage = max(1, (int) ceil($total / $perPage));
+    $page = min($page, $lastPage);
+
+    $items = DB::table('comandas_historial')
+        ->orderByDesc('cobrada_en')
+        ->forPage($page, $perPage)
+        ->get()
+        ->map(function ($h) {
+            $h->productos = DB::table('productos_historial')
+                ->where('comanda_historial_id', $h->id)
+                ->orderBy('id')
+                ->get();
+            return $h;
+        });
+
+    return [
+        'data' => $items,
+        'current_page' => $page,
+        'per_page' => $perPage,
+        'total' => $total,
+        'last_page' => $lastPage,
+    ];
+}
+
 Route::view('/', 'home')->name('home');
 Route::view('/login', 'login')->name('login');
 Route::post('/login', function (Request $request) {
@@ -35,7 +63,7 @@ Route::post('/login', function (Request $request) {
 Route::post('/logout', function (Request $request) { $request->session()->forget('logged_in'); return redirect()->route('home'); })->name('logout');
 
 Route::middleware(RequireLogin::class)->group(function () {
-    Route::get('/stock', fn () => view('stock', ['stockItems' => DB::table('stock')->orderBy('id')->get(), 'comandas' => DB::table('comandas')->orderBy('mesa_numero')->get()]))->name('stock');
+    Route::get('/stock', fn () => view('stock', ['stockItems' => DB::table('stock')->orderBy('id')->get()]))->name('stock');
     Route::get('/stock/data', fn () => DB::table('stock')->where('cantidad', '>', 0)->orderBy('producto')->get());
     Route::put('/stock/{id}', function (Request $r, int $id) {
         $data = $r->validate(['cantidad' => 'required|integer|min:0']);
@@ -45,6 +73,9 @@ Route::middleware(RequireLogin::class)->group(function () {
 
     Route::get('/comandas', fn () => view('comandas', ['comandas' => comandasConProductos()]))->name('comandas');
     Route::get('/comandas/data', fn () => comandasConProductos());
+    Route::get('/comandas/historial/data', function (Request $request) {
+        return historialComandasPaginado((int) $request->query('page', 1), 10);
+    });
 
     Route::post('/productos', function (Request $r) {
         $data = $r->validate([
@@ -80,6 +111,28 @@ Route::middleware(RequireLogin::class)->group(function () {
     Route::post('/comandas/{id}/cobrar', function (int $id) {
         $comanda = DB::table('comandas')->where('id', $id)->first();
         abort_unless($comanda, 404);
+
+        $productos = DB::table('productos')->where('comanda_id', $id)->orderBy('id')->get();
+        $historialId = DB::table('comandas_historial')->insertGetId([
+            'comanda_id' => $comanda->id,
+            'nombre' => $comanda->nombre,
+            'mesa_numero' => $comanda->mesa_numero,
+            'estado' => $comanda->estado,
+            'cobrada_en' => now(),
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        foreach ($productos as $producto) {
+            DB::table('productos_historial')->insert([
+                'comanda_historial_id' => $historialId,
+                'nombre' => $producto->nombre,
+                'cantidad' => $producto->cantidad,
+                'notas' => $producto->notas,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         DB::table('productos')->where('comanda_id', $id)->delete();
         DB::table('comandas')->where('id', $id)->update([
