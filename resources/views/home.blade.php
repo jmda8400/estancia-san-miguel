@@ -1,7 +1,7 @@
 @extends('layout')
 @section('title', 'Frontpage')
 @section('content')
-<div class="rounded-xl border border-zinc-500 bg-zinc-700 p-6 space-y-6">
+<div class="app-card space-y-6">
     <header class="space-y-2">
         <h1 class="text-2xl font-semibold">Estancia San Miguel</h1>
         <p class="text-zinc-100">Bienvenido al sistema de gestión.</p>
