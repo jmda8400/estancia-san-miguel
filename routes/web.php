@@ -5,17 +5,17 @@ use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'home');
 
-Route::middleware(function (Request $request, \Closure $next) {
+$requireLogin = function (Request $request, \Closure $next) {
     if (! $request->session()->get('logged_in')) {
         return redirect('/login');
     }
 
     return $next($request);
-})->group(function () {
-    Route::view('/stock', 'stock');
-    Route::view('/comandas', 'comandas');
-    Route::view('/admin', 'admin');
-});
+};
+
+Route::view('/stock', 'stock')->middleware($requireLogin);
+Route::view('/comandas', 'comandas')->middleware($requireLogin);
+Route::view('/admin', 'admin')->middleware($requireLogin);
 
 Route::view('/login', 'login')->name('login');
 
