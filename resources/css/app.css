@@ -9,3 +9,47 @@
     --font-sans: 'Instrument Sans', ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
+
+@layer base {
+    body {
+        background-color: #3f444e;
+        color: #e5e7eb;
+    }
+}
+
+@layer components {
+    .app-shell {
+        background-color: #4a4f59;
+        border-color: #666c77;
+    }
+
+    .app-card {
+        @apply rounded-xl border p-4 md:p-6;
+        background-color: #4a4f59;
+        border-color: #666c77;
+    }
+
+    .app-btn {
+        @apply rounded-md border px-4 py-2 text-sm font-medium transition-colors duration-150;
+        border-color: #79808c;
+        background-color: #5a616d;
+        color: #f3f4f6;
+    }
+
+    .app-btn:hover {
+        background-color: #666e7a;
+    }
+
+    .app-btn-active {
+        border-color: #cfd4dc;
+        background-color: #e5e7eb;
+        color: #242a33;
+    }
+
+    .app-input {
+        @apply rounded border px-3 py-2;
+        border-color: #79808c;
+        background-color: #5a616d;
+        color: #f3f4f6;
+    }
+}

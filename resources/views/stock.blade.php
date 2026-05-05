@@ -4,19 +4,19 @@
 <h1 class="text-2xl font-semibold mb-4">Vista de stock</h1>
 
 <div class="mb-4 flex gap-2">
-    <button id="tabStock" class="rounded px-4 py-2 bg-zinc-100 text-zinc-900" onclick="switchTab('stock')">Stock</button>
-    <button id="tabHistorial" class="rounded px-4 py-2 bg-zinc-700 text-zinc-100" onclick="switchTab('historial')">Historial</button>
+    <button id="tabStock" class="app-btn app-btn-active" onclick="switchTab('stock')">Stock</button>
+    <button id="tabHistorial" class="app-btn" onclick="switchTab('historial')">Historial</button>
 </div>
 
-<div id="stockTab" class="rounded-xl border border-zinc-500 bg-zinc-700 p-6">
+<div id="stockTab" class="app-card">
     <table class="w-full mt-1 text-sm">
         <thead class="text-zinc-100"><tr class="border-b border-zinc-500"><th class="text-left py-2">Producto</th><th class="text-left py-2">Cantidad</th><th class="text-left py-2">Unidad</th><th></th></tr></thead>
         <tbody class="text-zinc-100" id="stockBody"></tbody>
     </table>
-    <button class="mt-4 rounded bg-zinc-100 text-zinc-900 px-3 py-2" onclick="addRow()">+ Agregar fila</button>
+    <button class="mt-4 app-btn" onclick="addRow()">+ Agregar fila</button>
 </div>
 
-<div id="historialTab" class="hidden rounded-xl border border-zinc-500 bg-zinc-700 p-6">
+<div id="historialTab" class="hidden app-card">
     <h2 class="font-semibold mb-3">Historial de cambios de stock</h2>
     <div id="stockHistoryList" class="space-y-2"></div>
 </div>
@@ -26,7 +26,7 @@
 let stockItems = @json($stockItems);
 
 function rowTemplate(item){
-    return `<tr class="border-b border-zinc-600"><td class="py-2">${item.id ? item.producto : `<input class='w-full rounded border border-zinc-500 bg-zinc-600 px-2 py-1' placeholder='Producto' id='p_${item.tmpId}'>`}</td><td>${item.id ? `<input type='number' min='0' value='${item.cantidad}' class='w-24 rounded border border-zinc-500 bg-zinc-600 px-2 py-1' onchange='updateStock(${item.id}, this.value)'>` : `<input type='number' min='0' value='0' class='w-24 rounded border border-zinc-500 bg-zinc-600 px-2 py-1' id='c_${item.tmpId}'>`}</td><td>${item.id ? item.unidad : `<input class='w-full rounded border border-zinc-500 bg-zinc-600 px-2 py-1' placeholder='Unidad' id='u_${item.tmpId}'>`}</td><td class='text-right'>${item.id ? `<button class='rounded px-2 py-1 bg-zinc-600 hover:bg-zinc-500' onclick='removeStock(${item.id})'>Quitar</button>` : `<button class='rounded px-2 py-1 bg-green-600 hover:bg-green-500' onclick='saveRow(${item.tmpId})'>Guardar</button>`}</td></tr>`;
+    return `<tr class="border-b border-zinc-600"><td class="py-2">${item.id ? item.producto : `<input class='app-input w-full' placeholder='Producto' id='p_${item.tmpId}'>`}</td><td>${item.id ? `<input type='number' min='0' value='${item.cantidad}' class='app-input w-24' onchange='updateStock(${item.id}, this.value)'>` : `<input type='number' min='0' value='0' class='app-input w-24' id='c_${item.tmpId}'>`}</td><td>${item.id ? item.unidad : `<input class='app-input w-full' placeholder='Unidad' id='u_${item.tmpId}'>`}</td><td class='text-right'>${item.id ? `<button class='app-btn' onclick='removeStock(${item.id})'>Quitar</button>` : `<button class='app-btn' onclick='saveRow(${item.tmpId})'>Guardar</button>`}</td></tr>`;
 }
 
 function renderStock(){
@@ -75,8 +75,8 @@ async function refreshHistory(){
 window.switchTab = (tab) => {
     document.getElementById('stockTab').classList.toggle('hidden', tab !== 'stock');
     document.getElementById('historialTab').classList.toggle('hidden', tab !== 'historial');
-    document.getElementById('tabStock').className = `rounded px-4 py-2 ${tab === 'stock' ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-700 text-zinc-100'}`;
-    document.getElementById('tabHistorial').className = `rounded px-4 py-2 ${tab === 'historial' ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-700 text-zinc-100'}`;
+    document.getElementById('tabStock').className = `app-btn ${tab === 'stock' ? 'app-btn-active' : ''}`;
+    document.getElementById('tabHistorial').className = `app-btn ${tab === 'historial' ? 'app-btn-active' : ''}`;
     if (tab === 'historial') refreshHistory();
 };
 

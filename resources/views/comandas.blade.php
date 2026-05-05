@@ -4,44 +4,41 @@
 <h1 class="text-2xl font-semibold mb-4">Sistema de comandas</h1>
 
 <div class="mb-4 flex gap-2">
-    <button id="tabComandas" class="rounded px-4 py-2 bg-zinc-100 text-zinc-900" onclick="switchTab('comandas')">Comandas</button>
-    <button id="tabHistorial" class="rounded px-4 py-2 bg-zinc-600 text-zinc-100" onclick="switchTab('historial')">Historial</button>
+    <button id="tabComandas" class="app-btn app-btn-active" onclick="switchTab('comandas')">Comandas</button>
+    <button id="tabHistorial" class="app-btn" onclick="switchTab('historial')">Historial</button>
 </div>
 
 <div id="comandasTab" class="grid gap-4 md:grid-cols-2">
-    <div class="rounded-xl border border-zinc-500 bg-zinc-700 p-4">
+    <div class="app-card">
         <h2 class="font-semibold mb-3">Mesas</h2>
         <div id="tables" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
     </div>
-    <div class="rounded-xl border border-zinc-500 bg-zinc-700 p-4">
+    <div class="app-card">
         <h2 id="selectedTitle" class="font-semibold mb-3">Seleccione una mesa</h2>
         <div id="productsList" class="space-y-2"></div>
         <div class="flex justify-end mt-4">
-            <button id="chargeBtn" class="hidden rounded bg-green-600 hover:bg-green-500 text-white px-4 py-2" onclick="cobrarComanda()">Cobrar</button>
+            <button id="chargeBtn" class="hidden app-btn" onclick="cobrarComanda()">Cobrar</button>
         </div>
     </div>
 </div>
 
-<div id="addProductCard" class="rounded-xl border border-zinc-500 bg-zinc-700 p-4 mt-4">
+<div id="addProductCard" class="app-card mt-4 hidden">
     <h2 class="font-semibold mb-3">Agregar productos a comanda</h2>
-    <form id="newProductForm" class="grid gap-2 md:grid-cols-5">
-        <select id="comandaId" class="rounded border border-zinc-500 bg-zinc-600 px-3 py-2" required>
-            <option value="">Comanda</option>
-        </select>
-        <select id="stockItem" class="rounded border border-zinc-500 bg-zinc-600 px-3 py-2" required></select>
-        <input id="productQty" type="number" min="1" value="1" class="rounded border border-zinc-500 bg-zinc-600 px-3 py-2" required>
-        <input id="productNotes" class="rounded border border-zinc-500 bg-zinc-600 px-3 py-2" placeholder="Notas">
-        <button class="rounded bg-zinc-100 text-zinc-900 px-3 py-2">Agregar a comanda</button>
+    <form id="newProductForm" class="grid gap-2 md:grid-cols-4">
+        <select id="stockItem" class="app-input" required></select>
+        <input id="productQty" type="number" min="1" value="1" class="app-input" required>
+        <input id="productNotes" class="app-input" placeholder="Notas">
+        <button class="app-btn">Agregar a comanda</button>
     </form>
 </div>
 
-<div id="historialTab" class="hidden rounded-xl border border-zinc-500 bg-zinc-700 p-4">
+<div id="historialTab" class="hidden app-card">
     <h2 class="font-semibold mb-3">Historial de comandas cobradas</h2>
     <div id="historialList" class="space-y-2"></div>
     <div class="mt-4 flex items-center justify-between">
-        <button id="prevPage" class="rounded bg-zinc-600 px-3 py-2" onclick="changePage(-1)">Anterior</button>
+        <button id="prevPage" class="app-btn" onclick="changePage(-1)">Anterior</button>
         <span id="pageInfo" class="text-sm text-zinc-300"></span>
-        <button id="nextPage" class="rounded bg-zinc-600 px-3 py-2" onclick="changePage(1)">Siguiente</button>
+        <button id="nextPage" class="app-btn" onclick="changePage(1)">Siguiente</button>
     </div>
 </div>
 @endsection
@@ -55,11 +52,11 @@ const chargeBtn = document.getElementById('chargeBtn');
 
 function renderComandas() {
  tablesEl.innerHTML = state.comandas.map(c => `<button class="text-left rounded border px-3 py-2 ${state.selectedComandaId===c.id?'border-zinc-100 bg-zinc-700':'border-zinc-500 bg-zinc-600'}" onclick="selectComanda(${c.id})">${c.nombre ?? ('Mesa ' + c.mesa_numero)}<br><small>${c.productos.length} productos</small></button>`).join('');
- document.getElementById('comandaId').innerHTML = `<option value="">Comanda</option>` + state.comandas.map(c => `<option value="${c.id}">${c.nombre ?? ('Mesa ' + c.mesa_numero)}</option>`).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
- if(!comanda){titleEl.textContent='Seleccione una mesa'; productsEl.innerHTML=''; chargeBtn.classList.add('hidden'); return;}
+ if(!comanda){titleEl.textContent='Seleccione una mesa'; productsEl.innerHTML=''; chargeBtn.classList.add('hidden'); document.getElementById('addProductCard').classList.add('hidden'); return;}
  titleEl.textContent = `Productos de ${comanda.nombre ?? ('Mesa ' + comanda.mesa_numero)}`;
  chargeBtn.classList.remove('hidden');
+ document.getElementById('addProductCard').classList.remove('hidden');
  productsEl.innerHTML = comanda.productos.map(p=>`<div class="flex gap-2 items-center"><strong>${p.nombre}</strong><input type="number" min="1" value="${p.cantidad}" onchange="updateProducto(${p.id},{cantidad:this.value})" class="w-16 rounded border border-zinc-500 bg-zinc-600 px-2 py-1"><input value="${p.notas??''}" onchange="updateProducto(${p.id},{notas:this.value})" class="rounded border border-zinc-500 bg-zinc-600 px-2 py-1"><button class="rounded px-2 py-1 bg-zinc-700 hover:bg-zinc-600" title="Quitar producto" onclick="deleteProducto(${p.id})">🗑️</button></div>`).join('');
 }
 
@@ -87,8 +84,8 @@ window.switchTab = (tab) => {
     document.getElementById('comandasTab').classList.toggle('hidden', tab !== 'comandas');
     document.getElementById('addProductCard').classList.toggle('hidden', tab !== 'comandas');
     document.getElementById('historialTab').classList.toggle('hidden', tab !== 'historial');
-    document.getElementById('tabComandas').className = `rounded px-4 py-2 ${tab === 'comandas' ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-600 text-zinc-100'}`;
-    document.getElementById('tabHistorial').className = `rounded px-4 py-2 ${tab === 'historial' ? 'bg-zinc-100 text-zinc-900' : 'bg-zinc-600 text-zinc-100'}`;
+    document.getElementById('tabComandas').className = `app-btn ${tab === 'comandas' ? 'app-btn-active' : ''}`;
+    document.getElementById('tabHistorial').className = `app-btn ${tab === 'historial' ? 'app-btn-active' : ''}`;
     if (tab === 'historial') refreshHistorial(state.historial.current_page);
 };
 
@@ -128,7 +125,8 @@ window.cobrarComanda=async()=>{
 
 document.getElementById('newProductForm').onsubmit=async(e)=>{
  e.preventDefault();
- const response = await fetch('/productos',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({comanda_id:comandaId.value,stock_id:stockItem.value,cantidad:productQty.value,notas:productNotes.value})});
+ if(!state.selectedComandaId){ alert('Seleccione una comanda primero.'); return; }
+ const response = await fetch('/productos',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({comanda_id:state.selectedComandaId,stock_id:stockItem.value,cantidad:productQty.value,notas:productNotes.value})});
  if(!response.ok){ const data = await response.json(); alert(data.message ?? 'No se pudo agregar el producto.'); return; }
  e.target.reset(); productQty.value=1;
  await refreshComandas();
