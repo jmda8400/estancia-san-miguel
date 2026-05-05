@@ -1,31 +1,14 @@
 @extends('layout')
 @section('title', 'Stock')
 @section('content')
-<div class="card">
-    <h1>Vista de stock</h1>
-    <p>Sección inicial para gestionar inventario.</p>
-
-    <table style="width:100%; border-collapse:collapse; margin-top:16px;">
-        <thead>
-            <tr>
-                <th style="text-align:left; border-bottom:1px solid #d1d5db; padding:8px;">Producto</th>
-                <th style="text-align:left; border-bottom:1px solid #d1d5db; padding:8px;">Cantidad</th>
-                <th style="text-align:left; border-bottom:1px solid #d1d5db; padding:8px;">Unidad</th>
-            </tr>
-        </thead>
-        <tbody>
-            @forelse($stockItems as $item)
-                <tr>
-                    <td style="padding:8px; border-bottom:1px solid #e5e7eb;">{{ $item->producto }}</td>
-                    <td style="padding:8px; border-bottom:1px solid #e5e7eb;">{{ $item->cantidad }}</td>
-                    <td style="padding:8px; border-bottom:1px solid #e5e7eb;">{{ $item->unidad }}</td>
-                </tr>
-            @empty
-                <tr>
-                    <td colspan="3" style="padding:8px;">No hay registros de stock cargados.</td>
-                </tr>
-            @endforelse
-        </tbody>
-    </table>
+<div class="rounded-xl border border-zinc-800 bg-zinc-950 p-6">
+<h1 class="text-2xl font-semibold">Vista de stock</h1>
+<table class="w-full mt-4 text-sm">
+<thead class="text-zinc-300"><tr class="border-b border-zinc-700"><th class="text-left py-2">Producto</th><th class="text-left py-2">Cantidad</th><th class="text-left py-2">Unidad</th></tr></thead>
+<tbody class="text-zinc-400">
+@foreach($stockItems as $item)
+<tr class="border-b border-zinc-800"><td class="py-2">{{ $item->producto }}</td><td>{{ $item->cantidad }}</td><td>{{ $item->unidad }}</td></tr>
+@endforeach
+</tbody></table>
 </div>
 @endsection

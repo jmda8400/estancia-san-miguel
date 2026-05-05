@@ -1,21 +1,20 @@
 @extends('layout')
 @section('title', 'Login')
 @section('content')
-<div class="card" style="max-width: 420px; margin:auto;">
-    <h1>Acceso al sistema</h1>
-    <p>Esta pantalla es el punto de entrada a las vistas internas.</p>
-
+<div class="max-w-md mx-auto rounded-xl border border-zinc-800 bg-zinc-950 p-6">
+    <h1 class="text-2xl font-semibold mb-2">Acceso al sistema</h1>
     @if ($errors->any())
-        <div style="background:#fee2e2;color:#991b1b;padding:10px;border-radius:6px;margin-bottom:12px;">
-            {{ $errors->first() }}
-        </div>
+        <div class="mb-4 rounded-md border border-red-900 bg-red-950/40 p-3 text-red-200">{{ $errors->first() }}</div>
     @endif
-
-    <form action="/login" method="post">
+    <form action="/login" method="post" class="space-y-4">
         @csrf
-        <label>Usuario<br><input name="username" type="text" value="{{ old('username') }}" style="width:100%;padding:8px;margin:6px 0 12px;"></label><br>
-        <label>Contraseña<br><input name="password" type="password" style="width:100%;padding:8px;margin:6px 0 12px;"></label><br>
-        <button type="submit" style="background:#111827;color:#fff;border:none;padding:10px 12px;border-radius:6px;">Ingresar</button>
+        <label class="block text-sm">Usuario
+            <input name="username" type="text" value="{{ old('username') }}" class="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2">
+        </label>
+        <label class="block text-sm">Contraseña
+            <input name="password" type="password" class="mt-1 w-full rounded-md border border-zinc-700 bg-zinc-900 px-3 py-2">
+        </label>
+        <button type="submit" class="rounded-md bg-zinc-200 text-zinc-900 px-4 py-2 font-medium">Ingresar</button>
     </form>
 </div>
 @endsection
