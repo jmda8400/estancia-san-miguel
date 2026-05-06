@@ -77,8 +77,7 @@ Route::middleware(RequireLogin::class)->group(function () {
         if ($diff !== 0) {
             DB::table('stock_historial')->insert([
                 'producto' => $stockItem->producto,
-                'unidad' => $stockItem->unidad,
-                'accion' => $diff > 0 ? 'suma' : 'resta',
+                                'accion' => $diff > 0 ? 'suma' : 'resta',
                 'cantidad' => abs($diff),
                 'stock_id' => $stockItem->id,
                 'created_at' => now(),
@@ -92,13 +91,11 @@ Route::middleware(RequireLogin::class)->group(function () {
         $data = $r->validate([
             'producto' => 'required|string|max:100',
             'cantidad' => 'required|integer|min:0',
-            'unidad' => 'required|string|max:30',
-        ]);
+                    ]);
         $id = DB::table('stock')->insertGetId($data + ['created_at' => now(), 'updated_at' => now()]);
         DB::table('stock_historial')->insert([
             'producto' => $data['producto'],
-            'unidad' => $data['unidad'],
-            'accion' => 'agregado',
+                        'accion' => 'agregado',
             'cantidad' => $data['cantidad'],
             'stock_id' => $id,
             'created_at' => now(),
@@ -112,8 +109,7 @@ Route::middleware(RequireLogin::class)->group(function () {
         DB::table('stock')->where('id', $id)->delete();
         DB::table('stock_historial')->insert([
             'producto' => $stockItem->producto,
-            'unidad' => $stockItem->unidad,
-            'accion' => 'quitado',
+                        'accion' => 'quitado',
             'cantidad' => $stockItem->cantidad,
             'stock_id' => $stockItem->id,
             'created_at' => now(),
@@ -191,8 +187,7 @@ Route::middleware(RequireLogin::class)->group(function () {
         ]);
         DB::table('stock_historial')->insert([
             'producto' => $stockItem->producto,
-            'unidad' => $stockItem->unidad,
-            'accion' => 'resta',
+                        'accion' => 'resta',
             'cantidad' => $data['cantidad'],
             'stock_id' => $stockItem->id,
             'created_at' => now(),
@@ -238,5 +233,28 @@ Route::middleware(RequireLogin::class)->group(function () {
 
         return response()->noContent();
     });
+
+    Route::get('/admin/graficas/data', function () {
+        $from = now()->subDays(29)->startOfDay();
+        $raw = DB::table('stock_historial')
+            ->selectRaw('producto, DATE(created_at) as fecha, SUM(cantidad) as total')
+            ->where('accion', 'resta')
+            ->where('created_at', '>=', $from)
+            ->groupBy('producto', DB::raw('DATE(created_at)'))
+            ->orderBy('producto')
+            ->orderBy('fecha')
+            ->get();
+
+        $productos = $raw->pluck('producto')->unique()->values();
+        return $productos->map(function ($producto) use ($raw, $from) {
+            $rows = $raw->where('producto', $producto)->keyBy('fecha');
+            $series = collect(range(0, 29))->map(function ($offset) use ($from, $rows) {
+                $date = $from->copy()->addDays($offset)->toDateString();
+                return ['fecha' => $date, 'cantidad' => (int) optional($rows->get($date))->total];
+            });
+            return ['producto' => $producto, 'series' => $series];
+        })->values();
+    });
+
     Route::view('/admin', 'admin')->name('admin');
 });
