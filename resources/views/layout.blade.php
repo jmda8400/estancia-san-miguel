@@ -7,19 +7,19 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen flex flex-col">
-<header class="app-shell border-b">
+<header class="app-shell border-b {{ request()->path() === '/' ? 'app-shell-transparent' : '' }}">
     <nav class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between gap-3 flex-wrap text-sm">
         <div class="flex items-center gap-3">
-            <span class="brand-logo" aria-label="Logo">
-                <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
-                    <circle cx="32" cy="32" r="30" fill="#f5efe4"></circle>
-                    <path d="M32 12c10 4 16 14 16 24 0 9-6 16-16 18-10-2-16-9-16-18 0-10 6-20 16-24z" fill="#8b6f4e"></path>
-                    <path d="M32 18v28" stroke="#f5efe4" stroke-width="4" stroke-linecap="round"></path>
-                    <path d="M32 30c-5-2-8-6-9-10M32 36c5-2 8-6 9-10" stroke="#f5efe4" stroke-width="3" stroke-linecap="round"></path>
-                </svg>
-            </span>
+            <img src="/logo.svg" alt="Estancia San Miguel" class="brand-logo">
             @if (request()->path() === '/')
-                <span class="font-semibold">Estancia San Miguel</span>
+                <div class="flex flex-wrap gap-2">
+                    <a class="app-btn" href="#hosteria">Hostería</a>
+                    <a class="app-btn" href="#habitaciones">Habitaciones</a>
+                    <a class="app-btn" href="#cabanas">Cabañas</a>
+                    <a class="app-btn" href="#gastronomia">Gastronomía</a>
+                    <a class="app-btn" href="#servicios">Servicios & Actividades</a>
+                    <a class="app-btn" href="#contacto">Contacto</a>
+                </div>
             @elseif (request()->is('login'))
                 <span class="font-semibold">Acceso interno</span>
             @else
@@ -36,7 +36,10 @@
 </main>
 <footer class="app-shell border-t text-sm py-4">
     <div class="mx-auto max-w-7xl px-4 flex items-center justify-between gap-3">
-        <span>© {{ date('Y') }} Estancia San Miguel · Sistema interno</span>
+        <div class="flex items-center gap-3">
+            <img src="/logo_footer.svg" alt="Logo footer Estancia San Miguel" class="h-8 w-auto">
+            <span>© {{ date('Y') }} Estancia San Miguel · Sistema interno</span>
+        </div>
         <div class="flex items-center gap-4 text-lg">
             <a href="#" title="WhatsApp" aria-label="WhatsApp" class="social-logo whatsapp-logo">WA</a>
             <a href="#" title="Instagram" aria-label="Instagram" class="social-logo instagram-logo">IG</a>

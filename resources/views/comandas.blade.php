@@ -6,6 +6,7 @@
 <div class="mb-4 flex gap-2">
     <button id="tabComandas" class="app-btn app-btn-active" onclick="switchTab('comandas')">Comandas</button>
     <button id="tabHistorial" class="app-btn" onclick="switchTab('historial')">Historial</button>
+    <button id="tabGraficas" class="app-btn" onclick="switchTab('graficas')">Graficas</button>
 </div>
 
 <div id="comandasTab" class="grid gap-4 md:grid-cols-2">
@@ -47,10 +48,15 @@
         <button id="nextPage" class="app-btn" onclick="changePage(1)">Siguiente</button>
     </div>
 </div>
+
+<div id="graficasTab" class="hidden app-card">
+    <h2 class="font-semibold mb-3">Consumo de comandas en el tiempo</h2>
+    <div id="comandasChart" class="app-chart-wrap"></div>
+</div>
 @endsection
 @section('scripts')
 <script>
-let state = { selectedComandaId: null, comandas: @json($comandas), activeTab: 'comandas', stock: [], historial: { data: [], current_page: 1, last_page: 1, total: 0 } };
+let state = { selectedComandaId: null, comandas: @json($comandas), activeTab: 'comandas', stock: [], historial: { data: [], current_page: 1, last_page: 1, total: 0 }, chartData: [] };
 const tablesEl = document.getElementById('tables');
 const productsEl = document.getElementById('productsList');
 const titleEl = document.getElementById('selectedTitle');
@@ -86,14 +92,54 @@ function renderHistorial() {
     document.getElementById('nextPage').disabled = state.historial.current_page >= state.historial.last_page;
 }
 
+function renderComandasChart() {
+    const chartEl = document.getElementById('comandasChart');
+    if (!state.chartData.length) {
+        chartEl.innerHTML = '<p class="text-amber-900">No hay comandas cobradas para graficar.</p>';
+        return;
+    }
+    const pointsByDate = state.chartData.reduce((acc, item) => {
+        const key = new Date(item.cobrada_en).toLocaleDateString();
+        acc[key] = (acc[key] ?? 0) + item.productos.reduce((sum, prod) => sum + Number(prod.cantidad || 0), 0);
+        return acc;
+    }, {});
+    const labels = Object.keys(pointsByDate);
+    const values = Object.values(pointsByDate);
+    const maxValue = Math.max(...values, 1);
+    const width = 720;
+    const height = 260;
+    const padding = 36;
+    const stepX = labels.length > 1 ? (width - padding * 2) / (labels.length - 1) : 0;
+    const points = values.map((value, idx) => {
+        const x = padding + (idx * stepX);
+        const y = height - padding - ((value / maxValue) * (height - padding * 2));
+        return { x, y, value, label: labels[idx] };
+    });
+    const polyline = points.map(point => `${point.x},${point.y}`).join(' ');
+    chartEl.innerHTML = `
+        <svg viewBox="0 0 ${width} ${height}" class="app-chart-svg" role="img" aria-label="Gráfico de consumo de comandas">
+            <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" class="app-chart-axis"></line>
+            <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" class="app-chart-axis"></line>
+            <polyline points="${polyline}" class="app-chart-line"></polyline>
+            ${points.map(point => `<circle cx="${point.x}" cy="${point.y}" r="4" class="app-chart-dot"><title>${point.label}: ${point.value} consumos</title></circle>`).join('')}
+        </svg>
+        <div class="app-chart-legend">
+            ${points.map(point => `<span>${point.label}: <strong>${point.value}</strong></span>`).join('')}
+        </div>
+    `;
+}
+
 window.switchTab = (tab) => {
     state.activeTab = tab;
     document.getElementById('comandasTab').classList.toggle('hidden', tab !== 'comandas');
     document.getElementById('addProductCard').classList.toggle('hidden', tab !== 'comandas');
     document.getElementById('historialTab').classList.toggle('hidden', tab !== 'historial');
+    document.getElementById('graficasTab').classList.toggle('hidden', tab !== 'graficas');
     document.getElementById('tabComandas').className = `app-btn ${tab === 'comandas' ? 'app-btn-active' : ''}`;
     document.getElementById('tabHistorial').className = `app-btn ${tab === 'historial' ? 'app-btn-active' : ''}`;
+    document.getElementById('tabGraficas').className = `app-btn ${tab === 'graficas' ? 'app-btn-active' : ''}`;
     if (tab === 'historial') refreshHistorial(state.historial.current_page);
+    if (tab === 'graficas') refreshHistorial(1, true);
 };
 
 window.selectComanda=(id)=>{state.selectedComandaId=id;renderComandas();}
@@ -126,9 +172,15 @@ async function refreshStock(){
     document.getElementById('stockItem').innerHTML = state.stock.map(s => `<option value="${s.id}">${s.producto} (${s.cantidad} ${s.unidad})</option>`).join('');
 }
 
-async function refreshHistorial(page = 1) {
+async function refreshHistorial(page = 1, forChart = false) {
     const response = await fetch(`/comandas/historial/data?page=${page}`);
-    state.historial = await response.json();
+    const data = await response.json();
+    if (forChart) {
+        state.chartData = data.data;
+        renderComandasChart();
+        return;
+    }
+    state.historial = data;
     renderHistorial();
 }
 
