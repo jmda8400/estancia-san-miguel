@@ -235,15 +235,20 @@ Route::middleware(RequireLogin::class)->group(function () {
     });
 
     Route::get('/admin/graficas/data', function (Request $request) {
-        $days = max(1, min(120, (int) $request->query('days', 30)));
-        $from = now()->subDays($days - 1)->startOfDay();
-        $dates = collect(range(0, $days - 1))->map(fn ($offset) => $from->copy()->addDays($offset)->toDateString());
+        $end = $request->query('end') ? \Carbon\Carbon::parse($request->query('end'))->endOfDay() : now()->endOfDay();
+        $start = $request->query('start') ? \Carbon\Carbon::parse($request->query('start'))->startOfDay() : $end->copy()->subDays(29)->startOfDay();
+        if ($start->greaterThan($end)) {
+            [$start, $end] = [$end->copy()->startOfDay(), $start->copy()->endOfDay()];
+        }
+        $days = max(1, min(120, (int) $start->diffInDays($end) + 1));
+        $start = $end->copy()->subDays($days - 1)->startOfDay();
+        $dates = collect(range(0, $days - 1))->map(fn ($offset) => $start->copy()->addDays($offset)->toDateString());
 
         $stockItems = DB::table('stock')->select('id', 'producto', 'cantidad')->orderBy('id')->get();
         $history = DB::table('stock_historial')
             ->selectRaw('stock_id, DATE(created_at) as fecha, accion, SUM(cantidad) as total')
             ->whereIn('accion', ['suma', 'resta'])
-            ->where('created_at', '>=', $from)
+            ->whereBetween('created_at', [$start, $end])
             ->groupBy('stock_id', DB::raw('DATE(created_at)'), 'accion')
             ->orderBy('fecha')
             ->get();
@@ -276,7 +281,7 @@ Route::middleware(RequireLogin::class)->group(function () {
             ];
         })->values();
 
-        return ['days' => $days, 'series' => $series];
+        return ['days' => $days, 'start' => $start->toDateString(), 'end' => $end->toDateString(), 'series' => $series];
     });
 
     Route::view('/admin', 'admin')->name('admin');

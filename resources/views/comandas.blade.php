@@ -105,11 +105,10 @@ window.addComanda=async()=>{
 }
 window.removeLastComanda=async()=>{
  const last = state.comandas[state.comandas.length - 1];
- if(!last){ alert('No hay comandas para quitar.'); return; }
+ if(!last){ return; }
  await removeComanda(last.id);
 }
 window.removeComanda=async(id)=>{
- if(!confirm('¿Seguro que querés quitar esta comanda?')) return;
  const response = await fetch(`/comandas/${id}`,{method:'DELETE',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}});
  if(!response.ok){ const data = await response.json(); alert(data.message ?? 'No se pudo quitar la comanda.'); return; }
  if(state.selectedComandaId===id) state.selectedComandaId = null;
