@@ -13,19 +13,8 @@
         <div class="flex items-center justify-between mb-3 gap-2 flex-wrap">
             <h2 class="font-semibold">Mesas</h2>
             <div class="flex items-center gap-2">
-            <label class="text-sm">Mostrar
-                <select id="visibleTables" class="app-input ml-2" onchange="setVisibleTables(this.value)">
-                    <option value="6">6</option>
-                    <option value="10" selected>10</option>
-                    <option value="14">14</option>
-                    <option value="20">20</option>
-                    <option value="30">30</option>
-                    <option value="40">40</option>
-                    <option value="50">50</option>
-                    <option value="999">Todas</option>
-                </select>
-            </label>
             <button class="app-btn" onclick="addComanda()">+ Agregar comanda</button>
+            <button class="app-btn" onclick="removeLastComanda()">- Quitar comanda</button>
             </div>
         </div>
         <div id="tables" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
@@ -61,14 +50,14 @@
 @endsection
 @section('scripts')
 <script>
-let state = { selectedComandaId: null, comandas: @json($comandas), activeTab: 'comandas', stock: [], visibleTables: 10, historial: { data: [], current_page: 1, last_page: 1, total: 0 } };
+let state = { selectedComandaId: null, comandas: @json($comandas), activeTab: 'comandas', stock: [], historial: { data: [], current_page: 1, last_page: 1, total: 0 } };
 const tablesEl = document.getElementById('tables');
 const productsEl = document.getElementById('productsList');
 const titleEl = document.getElementById('selectedTitle');
 const chargeBtn = document.getElementById('chargeBtn');
 
 function renderComandas() {
- const visible = state.comandas.filter(c => c.mesa_numero <= state.visibleTables);
+ const visible = state.comandas;
  tablesEl.innerHTML = visible.map(c => `<div class="app-table-btn ${state.selectedComandaId===c.id?'active':''}"><button class="w-full text-left" onclick="selectComanda(${c.id})">${c.nombre ?? ('Mesa ' + c.mesa_numero)}<br><small>${c.productos.length} productos</small></button><button class="app-remove-table-btn mt-2" onclick="removeComanda(${c.id})">Quitar</button></div>`).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
  if(!comanda){titleEl.textContent='Seleccione una mesa'; productsEl.innerHTML=''; chargeBtn.classList.add('hidden'); document.getElementById('addProductCard').classList.add('hidden'); return;}
@@ -77,13 +66,6 @@ function renderComandas() {
  document.getElementById('addProductCard').classList.remove('hidden');
  productsEl.innerHTML = comanda.productos.map(p=>`<div class="rounded-lg border border-amber-200 bg-amber-50 p-3"><div class="flex flex-wrap gap-2 items-center"><strong class="min-w-44">${p.nombre}</strong><input type="number" min="1" value="${p.cantidad}" onchange="updateProducto(${p.id},{cantidad:this.value})" class="w-18 app-input"><input value="${p.notas??''}" onchange="updateProducto(${p.id},{notas:this.value})" class="app-input flex-1" placeholder="Notas"><button class="app-trash-btn" title="Quitar producto" onclick="deleteProducto(${p.id})">🗑️ Eliminar</button></div></div>`).join('');
 }
-
-window.setVisibleTables = (value) => {
-    state.visibleTables = Number(value);
-    const selected = state.comandas.find(c => c.id === state.selectedComandaId);
-    if (selected && selected.mesa_numero > state.visibleTables) state.selectedComandaId = null;
-    renderComandas();
-};
 
 function renderHistorial() {
     const historialEl = document.getElementById('historialList');
@@ -119,6 +101,11 @@ window.addComanda=async()=>{
  const response = await fetch('/comandas',{method:'POST',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}});
  if(!response.ok){ const data = await response.json(); alert(data.message ?? 'No se pudo crear la comanda.'); return; }
  await refreshComandas();
+}
+window.removeLastComanda=async()=>{
+ const last = state.comandas[state.comandas.length - 1];
+ if(!last){ alert('No hay comandas para quitar.'); return; }
+ await removeComanda(last.id);
 }
 window.removeComanda=async(id)=>{
  if(!confirm('¿Seguro que querés quitar esta comanda?')) return;

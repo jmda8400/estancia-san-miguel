@@ -10,7 +10,14 @@
 <header class="app-shell border-b">
     <nav class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between gap-3 flex-wrap text-sm">
         <div class="flex items-center gap-3">
-            <span class="text-xl" aria-label="Logo">🌿</span>
+            <span class="brand-logo" aria-label="Logo">
+                <svg viewBox="0 0 64 64" role="img" aria-hidden="true">
+                    <circle cx="32" cy="32" r="30" fill="#f5efe4"></circle>
+                    <path d="M32 12c10 4 16 14 16 24 0 9-6 16-16 18-10-2-16-9-16-18 0-10 6-20 16-24z" fill="#8b6f4e"></path>
+                    <path d="M32 18v28" stroke="#f5efe4" stroke-width="4" stroke-linecap="round"></path>
+                    <path d="M32 30c-5-2-8-6-9-10M32 36c5-2 8-6 9-10" stroke="#f5efe4" stroke-width="3" stroke-linecap="round"></path>
+                </svg>
+            </span>
             @if (request()->path() === '/')
                 <span class="font-semibold">Estancia San Miguel</span>
             @elseif (request()->is('login'))
