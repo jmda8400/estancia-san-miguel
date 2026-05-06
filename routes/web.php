@@ -234,26 +234,28 @@ Route::middleware(RequireLogin::class)->group(function () {
         return response()->noContent();
     });
 
-    Route::get('/admin/graficas/data', function () {
-        $from = now()->subDays(29)->startOfDay();
+    Route::get('/admin/graficas/data', function (Request $request) {
+        $days = max(1, min(120, (int) $request->query('days', 30)));
+        $from = now()->subDays($days - 1)->startOfDay();
         $raw = DB::table('stock_historial')
-            ->selectRaw('producto, DATE(created_at) as fecha, SUM(cantidad) as total')
-            ->where('accion', 'resta')
+            ->selectRaw('DATE(created_at) as fecha, accion, SUM(cantidad) as total')
+            ->whereIn('accion', ['suma', 'resta'])
             ->where('created_at', '>=', $from)
-            ->groupBy('producto', DB::raw('DATE(created_at)'))
-            ->orderBy('producto')
+            ->groupBy(DB::raw('DATE(created_at)'), 'accion')
             ->orderBy('fecha')
             ->get();
 
-        $productos = $raw->pluck('producto')->unique()->values();
-        return $productos->map(function ($producto) use ($raw, $from) {
-            $rows = $raw->where('producto', $producto)->keyBy('fecha');
-            $series = collect(range(0, 29))->map(function ($offset) use ($from, $rows) {
-                $date = $from->copy()->addDays($offset)->toDateString();
-                return ['fecha' => $date, 'cantidad' => (int) optional($rows->get($date))->total];
-            });
-            return ['producto' => $producto, 'series' => $series];
+        $series = collect(range(0, $days - 1))->map(function ($offset) use ($from, $raw) {
+            $date = $from->copy()->addDays($offset)->toDateString();
+            $daily = $raw->where('fecha', $date);
+            return [
+                'fecha' => $date,
+                'sube' => (int) optional($daily->firstWhere('accion', 'suma'))->total,
+                'baja' => (int) optional($daily->firstWhere('accion', 'resta'))->total,
+            ];
         })->values();
+
+        return ['days' => $days, 'series' => $series];
     });
 
     Route::view('/admin', 'admin')->name('admin');

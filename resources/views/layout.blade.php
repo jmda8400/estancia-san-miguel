@@ -6,8 +6,8 @@
     <title>@yield('title', 'Estancia San Miguel')</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen flex flex-col">
-<header class="app-shell border-b {{ request()->path() === '/' ? 'app-shell-transparent' : '' }}">
+<body class="min-h-screen flex flex-col app-has-fixed-bars">
+<header class="app-shell app-fixed-header border-b {{ request()->path() === '/' ? 'app-shell-transparent' : '' }}">
     <nav class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between gap-3 flex-wrap text-sm">
         <div class="flex items-center gap-3">
             <img src="/logo.svg" alt="Estancia San Miguel" class="brand-logo" loading="eager" decoding="async">
@@ -31,10 +31,10 @@
         </div>
     </nav>
 </header>
-<main class="mx-auto max-w-7xl w-full px-4 py-6 flex-1">
+<main class="mx-auto max-w-7xl w-full px-4 py-6 flex-1 app-main-content">
     @yield('content')
 </main>
-<footer class="app-shell border-t text-sm py-4">
+<footer class="app-shell app-fixed-footer border-t text-sm py-4">
     <div class="mx-auto max-w-7xl px-4 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
             <img src="/logo_footer.svg" alt="Logo footer Estancia San Miguel" class="h-8 w-auto">
