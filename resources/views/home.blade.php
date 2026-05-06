@@ -3,43 +3,36 @@
 @section('content')
 <div class="hotel-landing">
     <section class="hotel-hero app-card">
-        <h1 class="text-4xl font-semibold mb-3">Estancia San Miguel</h1>
-        <p class="text-lg">Un refugio de montaña diseñado para el descanso, la naturaleza y la experiencia patagónica.</p>
+        <span class="front-badge">Patagonia · Experiencia Premium</span>
+        <h1 class="text-4xl md:text-5xl font-semibold mb-3">Estancia San Miguel</h1>
+        <p class="text-lg md:text-xl max-w-3xl">Un refugio de montaña inspirado en hospitalidad boutique: naturaleza, calidez y diseño para descansar en cualquier estación.</p>
     </section>
 
-    @php
-        $lorem = [
-            'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer luctus magna sed placerat fermentum.',
-            'Vivamus non sem eros. Aenean ultrices magna ut dictum congue, lorem justo eleifend tortor.',
-            'Suspendisse potenti. Quisque placerat, dolor ut tempus feugiat, est est dictum libero, non imperdiet nisi purus a odio.',
-            'Mauris quis consequat velit. Integer nec lacus sodales, aliquet nisl quis, dictum urna.',
-            'Donec viverra orci vitae malesuada ultrices. Curabitur et sem in velit facilisis congue.'
-        ];
-    @endphp
-
-    <section id="hosteria" class="app-card">
-        <h2 class="text-2xl font-semibold mb-4">Hostería</h2>
-        @foreach ($lorem as $paragraph) <p class="mb-3">{{ $paragraph }}</p> @endforeach
-    </section>
-    <section id="habitaciones" class="app-card">
-        <h2 class="text-2xl font-semibold mb-4">Habitaciones</h2>
-        @foreach ($lorem as $paragraph) <p class="mb-3">{{ $paragraph }}</p> @endforeach
-    </section>
-    <section id="cabanas" class="app-card">
-        <h2 class="text-2xl font-semibold mb-4">Cabañas</h2>
-        @foreach ($lorem as $paragraph) <p class="mb-3">{{ $paragraph }}</p> @endforeach
-    </section>
-    <section id="gastronomia" class="app-card">
-        <h2 class="text-2xl font-semibold mb-4">Gastronomía</h2>
-        @foreach ($lorem as $paragraph) <p class="mb-3">{{ $paragraph }}</p> @endforeach
-    </section>
-    <section id="servicios" class="app-card">
-        <h2 class="text-2xl font-semibold mb-4">Servicios & Actividades</h2>
-        @foreach ($lorem as $paragraph) <p class="mb-3">{{ $paragraph }}</p> @endforeach
-    </section>
-    <section id="contacto" class="app-card">
-        <h2 class="text-2xl font-semibold mb-4">Contacto</h2>
-        @foreach ($lorem as $paragraph) <p class="mb-3">{{ $paragraph }}</p> @endforeach
+    <section class="front-grid">
+        <article id="hosteria" class="front-split">
+            <h2 class="front-block-title">Hostería</h2>
+            <p>Lobby cálido, arquitectura de materiales nobles y atención personalizada durante toda la estadía.</p>
+        </article>
+        <article id="habitaciones" class="front-split">
+            <h2 class="front-block-title">Habitaciones</h2>
+            <p>Suites amplias con vistas abiertas, ropa de cama premium y detalles pensados para descanso profundo.</p>
+        </article>
+        <article id="cabanas" class="front-split">
+            <h2 class="front-block-title">Cabañas</h2>
+            <p>Privacidad y confort para familias o grupos, con cocina equipada, living y conexión con el paisaje.</p>
+        </article>
+        <article id="gastronomia" class="front-split">
+            <h2 class="front-block-title">Gastronomía</h2>
+            <p>Cocina de estación con productos locales, panificados artesanales y menú de autor.</p>
+        </article>
+        <article id="servicios" class="front-split md:col-span-2">
+            <h2 class="front-block-title">Servicios & Actividades</h2>
+            <p>Spa, caminatas guiadas, experiencias al aire libre y propuestas para disfrutar todo el mes.</p>
+        </article>
+        <article id="contacto" class="front-split md:col-span-2">
+            <h2 class="front-block-title">Contacto</h2>
+            <p>Reservas y consultas por WhatsApp, email o redes. Respuesta rápida para organizar tu estadía ideal.</p>
+        </article>
     </section>
 </div>
 @endsection

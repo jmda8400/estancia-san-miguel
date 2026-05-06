@@ -10,7 +10,7 @@
 <header class="app-shell border-b {{ request()->path() === '/' ? 'app-shell-transparent' : '' }}">
     <nav class="mx-auto max-w-7xl px-4 py-3 flex items-center justify-between gap-3 flex-wrap text-sm">
         <div class="flex items-center gap-3">
-            <img src="/logo.svg" alt="Estancia San Miguel" class="brand-logo">
+            <img src="/logo.svg" alt="Estancia San Miguel" class="brand-logo" loading="eager" decoding="async">
             @if (request()->path() === '/')
                 <div class="flex flex-wrap gap-2">
                     <a class="app-btn" href="#hosteria">Hostería</a>

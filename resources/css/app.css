@@ -28,7 +28,7 @@
         backdrop-filter: blur(6px);
         border-color: rgba(255, 248, 239, 0.2);
     }
-    .brand-logo { @apply inline-flex items-center justify-center rounded-md overflow-hidden; width: 2.1rem; height: 2.1rem; box-shadow: 0 1px 6px rgba(0,0,0,.2); object-fit: cover; }
+    .brand-logo { width: auto; height: 2.8rem; max-width: 11rem; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,.28)); }
 
     .app-card {
         @apply rounded-xl border p-4 md:p-6 shadow-sm;
@@ -135,4 +135,11 @@
         color: #fff8ef;
         background: linear-gradient(120deg, rgba(66, 43, 23, 0.7), rgba(111, 84, 52, 0.75));
     }
+}
+
+@layer components {
+    .front-grid { @apply grid gap-6 md:grid-cols-2; }
+    .front-block-title { @apply text-xl font-semibold mb-3; color: #4e371f; }
+    .front-badge { @apply inline-flex rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase mb-3; background: #f4dfbf; color: #6e4d2f; }
+    .front-split { @apply rounded-xl border p-5 md:p-6; border-color: #d9c2a0; background: linear-gradient(145deg, #fff9ef 0%, #f3e3ca 100%); }
 }
