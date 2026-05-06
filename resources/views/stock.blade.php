@@ -9,8 +9,8 @@
 </div>
 
 <div id="stockTab" class="app-card">
-    <table class="w-full mt-1 text-sm">
-        <thead class="text-zinc-900"><tr class="border-b border-amber-200"><th class="text-left py-2">Producto</th><th class="text-left py-2">Cantidad</th><th class="text-left py-2">Unidad</th><th></th></tr></thead>
+    <table class="w-full mt-1 text-sm app-list-table">
+        <thead><tr><th class="text-left py-2">Producto</th><th class="text-left py-2">Cantidad</th><th class="text-left py-2">Unidad</th><th></th></tr></thead>
         <tbody class="text-zinc-900" id="stockBody"></tbody>
     </table>
     <button class="mt-4 app-btn" onclick="addRow()">+ Agregar fila</button>
@@ -26,7 +26,7 @@
 let stockItems = @json($stockItems);
 
 function rowTemplate(item){
-    return `<tr class="border-b border-zinc-600"><td class="py-2">${item.id ? item.producto : `<input class='app-input w-full' placeholder='Producto' id='p_${item.tmpId}'>`}</td><td>${item.id ? `<input type='number' min='0' value='${item.cantidad}' class='app-input w-24' onchange='updateStock(${item.id}, this.value)'>` : `<input type='number' min='0' value='0' class='app-input w-24' id='c_${item.tmpId}'>`}</td><td>${item.id ? item.unidad : `<input class='app-input w-full' placeholder='Unidad' id='u_${item.tmpId}'>`}</td><td class='text-right'>${item.id ? `<button class='app-btn' onclick='removeStock(${item.id})'>Quitar</button>` : `<button class='app-btn' onclick='saveRow(${item.tmpId})'>Guardar</button>`}</td></tr>`;
+    return `<tr><td class="py-2">${item.id ? item.producto : `<input class='app-input w-full' placeholder='Producto' id='p_${item.tmpId}'>`}</td><td>${item.id ? `<input type='number' min='0' value='${item.cantidad}' class='app-input w-24' onchange='updateStock(${item.id}, this.value)'>` : `<input type='number' min='0' value='0' class='app-input w-24' id='c_${item.tmpId}'>`}</td><td>${item.id ? item.unidad : `<input class='app-input w-full' placeholder='Unidad' id='u_${item.tmpId}'>`}</td><td class='text-right'>${item.id ? `<button class='app-btn' onclick='removeStock(${item.id})'>Quitar</button>` : `<button class='app-btn' onclick='saveRow(${item.tmpId})'>Guardar</button>`}</td></tr>`;
 }
 
 function renderStock(){
