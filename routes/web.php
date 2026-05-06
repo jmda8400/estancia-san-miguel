@@ -237,21 +237,42 @@ Route::middleware(RequireLogin::class)->group(function () {
     Route::get('/admin/graficas/data', function (Request $request) {
         $days = max(1, min(120, (int) $request->query('days', 30)));
         $from = now()->subDays($days - 1)->startOfDay();
-        $raw = DB::table('stock_historial')
-            ->selectRaw('DATE(created_at) as fecha, accion, SUM(cantidad) as total')
+        $dates = collect(range(0, $days - 1))->map(fn ($offset) => $from->copy()->addDays($offset)->toDateString());
+
+        $stockItems = DB::table('stock')->select('id', 'producto', 'cantidad')->orderBy('id')->get();
+        $history = DB::table('stock_historial')
+            ->selectRaw('stock_id, DATE(created_at) as fecha, accion, SUM(cantidad) as total')
             ->whereIn('accion', ['suma', 'resta'])
             ->where('created_at', '>=', $from)
-            ->groupBy(DB::raw('DATE(created_at)'), 'accion')
+            ->groupBy('stock_id', DB::raw('DATE(created_at)'), 'accion')
             ->orderBy('fecha')
             ->get();
 
-        $series = collect(range(0, $days - 1))->map(function ($offset) use ($from, $raw) {
-            $date = $from->copy()->addDays($offset)->toDateString();
-            $daily = $raw->where('fecha', $date);
+        $series = $stockItems->map(function ($item) use ($dates, $history) {
+            $productHistory = $history->where('stock_id', $item->id);
+            $initial = (int) $item->cantidad;
+
+            foreach ($productHistory as $entry) {
+                $delta = (int) $entry->total;
+                $initial += $entry->accion === 'resta' ? $delta : -$delta;
+            }
+
+            $running = $initial;
+            $points = $dates->map(function ($date) use (&$running, $productHistory) {
+                $daily = $productHistory->where('fecha', $date);
+                $plus = (int) optional($daily->firstWhere('accion', 'suma'))->total;
+                $minus = (int) optional($daily->firstWhere('accion', 'resta'))->total;
+                $running += $plus - $minus;
+
+                return [
+                    'fecha' => $date,
+                    'cantidad' => $running,
+                ];
+            })->values();
+
             return [
-                'fecha' => $date,
-                'sube' => (int) optional($daily->firstWhere('accion', 'suma'))->total,
-                'baja' => (int) optional($daily->firstWhere('accion', 'resta'))->total,
+                'producto' => $item->producto,
+                'puntos' => $points,
             ];
         })->values();
 
