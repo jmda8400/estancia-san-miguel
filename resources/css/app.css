@@ -12,72 +12,75 @@
 
 @layer base {
     body {
-        background: linear-gradient(180deg, #f8f3eb 0%, #efe4d1 100%);
-        color: #33291d;
+        background: linear-gradient(180deg, #f1f1f1 0%, #d9d9d9 100%);
+        color: #1f1f1f;
     }
 }
 
 @layer components {
     .app-shell {
-        background: linear-gradient(90deg, #7c5f40 0%, #8b6f4e 60%, #997a57 100%);
-        border-color: #624a34;
-        color: #fff8ef;
+        background: #1f3b2d;
+        border-color: #152a20;
+        color: #f5f7f6;
     }
     .app-shell-transparent {
-        background: rgba(65, 47, 31, 0.45);
+        background: rgba(31, 59, 45, 0.84);
         backdrop-filter: blur(6px);
-        border-color: rgba(255, 248, 239, 0.2);
+        border-color: rgba(245, 247, 246, 0.25);
     }
+    .app-fixed-header { @apply fixed top-0 inset-x-0 z-50; }
+    .app-fixed-footer { @apply fixed bottom-0 inset-x-0 z-50; }
+    .app-main-content { padding-top: 5.6rem; padding-bottom: 6rem; }
     .brand-logo { width: auto; height: 2.8rem; max-width: 11rem; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,.28)); }
 
     .app-card {
         @apply rounded-xl border p-4 md:p-6 shadow-sm;
-        background-color: #fffaf2;
-        border-color: #d3c3aa;
+        background-color: #f7f7f7;
+        border-color: #b0b0b0;
     }
 
     .app-btn {
         @apply rounded-md border px-4 py-2 text-sm font-medium transition-colors duration-150;
-        border-color: #b39977;
-        background-color: #e9dcc8;
-        color: #3f3223;
+        border-color: #9a9a9a;
+        background-color: #d9d9d9;
+        color: #222;
     }
 
     .app-btn:hover {
-        background-color: #dfcfb6;
+        background-color: #c8c8c8;
     }
 
     .app-btn-active {
-        border-color: #8c6a45;
-        background-color: #8c6a45;
-        color: #f8f2e8;
+        border-color: #4f4f4f;
+        background-color: #4f4f4f;
+        color: #f4f4f4;
     }
 
     .app-input {
         @apply rounded border px-3 py-2;
-        border-color: #b39977;
-        background-color: #fffdf8;
-        color: #33291d;
+        border-color: #999;
+        background-color: #fff;
+        color: #222;
     }
 
     .app-table-btn {
         @apply text-left rounded-lg border px-3 py-2;
-        border-color: #c7b18f;
-        background-color: #f8efe2;
-        color: #3d2f1f;
+        border-color: #acacac;
+        background-color: #ececec;
+        color: #232323;
     }
 
     .app-table-btn.active {
-        border-color: #8c6a45;
-        background-color: #e4d1b4;
-        color: #2f2418;
+        border-color: #4f4f4f;
+        background-color: #cbcbcb;
+        color: #1a1a1a;
     }
     .app-list-table { border-collapse: separate; border-spacing: 0 .35rem; }
-    .app-list-table thead th { color: #5b432b; font-weight: 700; }
-    .app-list-table tbody tr { background: #fbf2e4; color: #2f2418; }
-    .app-list-table tbody tr td { padding: .55rem .6rem; border-top: 1px solid #e0cba8; border-bottom: 1px solid #e0cba8; }
-    .app-list-table tbody tr td:first-child { border-left: 1px solid #e0cba8; border-radius: .6rem 0 0 .6rem; }
-    .app-list-table tbody tr td:last-child { border-right: 1px solid #e0cba8; border-radius: 0 .6rem .6rem 0; }
+    .app-list-table thead th { color: #3b3b3b; font-weight: 700; }
+    .app-list-table tbody tr { background: #f2f2f2; color: #1c1c1c; }
+    .app-list-table tbody tr td { padding: .55rem .6rem; border-top: 1px solid #c7c7c7; border-bottom: 1px solid #c7c7c7; }
+    .app-list-table tbody tr td:first-child { border-left: 1px solid #c7c7c7; border-radius: .6rem 0 0 .6rem; }
+    .app-list-table tbody tr td:last-child { border-right: 1px solid #c7c7c7; border-radius: 0 .6rem .6rem 0; }
 
     .app-trash-btn {
         @apply rounded-md px-2 py-1 text-sm border;
@@ -90,13 +93,13 @@
     }
 
     .app-charge-btn {
-        border-color: #2e7d32;
-        background-color: #43a047;
-        color: #f2fff3;
+        border-color: #2e5e46;
+        background-color: #3f7c5e;
+        color: #f2fff8;
     }
 
     .app-charge-btn:hover {
-        background-color: #388e3c;
+        background-color: #356a51;
     }
 
     .app-remove-table-btn {
@@ -113,18 +116,15 @@
         color: #fff;
     }
 
-    .whatsapp-logo {
-        background: #25d366;
-    }
-
-    .instagram-logo {
-        background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045);
-    }
-    .app-chart-wrap { @apply rounded-lg border p-3; border-color: #ddc8a6; background: #fff7ea; }
+    .whatsapp-logo { background: #4b4b4b; }
+    .instagram-logo { background: #6a6a6a; }
+    .app-chart-wrap { @apply rounded-lg border p-3; border-color: #c4c4c4; background: #f8f8f8; }
     .app-chart-svg { width: 100%; height: auto; min-height: 220px; }
-    .app-chart-axis { stroke: #8d7151; stroke-width: 1.2; }
-    .app-chart-line { fill: none; stroke: #8c6a45; stroke-width: 3; }
-    .app-chart-dot { fill: #b57f45; }
+    .app-chart-axis { stroke: #6d6d6d; stroke-width: 1.2; }
+    .app-chart-line-up { fill: none; stroke: #1f3b2d; stroke-width: 3; }
+    .app-chart-line-down { fill: none; stroke: #5f5f5f; stroke-width: 3; }
+    .app-chart-dot-up { fill: #1f3b2d; }
+    .app-chart-dot-down { fill: #5f5f5f; }
     .app-chart-legend { @apply mt-3 grid gap-2 text-sm; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); }
     .hotel-landing { @apply space-y-6; }
     .hotel-hero {
@@ -132,14 +132,14 @@
         display: flex;
         flex-direction: column;
         justify-content: flex-end;
-        color: #fff8ef;
-        background: linear-gradient(120deg, rgba(66, 43, 23, 0.7), rgba(111, 84, 52, 0.75));
+        color: #f8f8f8;
+        background: linear-gradient(120deg, rgba(40, 40, 40, 0.74), rgba(76, 76, 76, 0.78));
     }
 }
 
 @layer components {
     .front-grid { @apply grid gap-6 md:grid-cols-2; }
-    .front-block-title { @apply text-xl font-semibold mb-3; color: #4e371f; }
-    .front-badge { @apply inline-flex rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase mb-3; background: #f4dfbf; color: #6e4d2f; }
-    .front-split { @apply rounded-xl border p-5 md:p-6; border-color: #d9c2a0; background: linear-gradient(145deg, #fff9ef 0%, #f3e3ca 100%); }
+    .front-block-title { @apply text-xl font-semibold mb-3; color: #2f2f2f; }
+    .front-badge { @apply inline-flex rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase mb-3; background: #d8d8d8; color: #2f2f2f; }
+    .front-split { @apply rounded-xl border p-5 md:p-6; border-color: #bfbfbf; background: linear-gradient(145deg, #f7f7f7 0%, #dfdfdf 100%); }
 }
