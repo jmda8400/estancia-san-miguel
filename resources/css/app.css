@@ -12,7 +12,7 @@
 
 @layer base {
     body {
-        background: linear-gradient(180deg, #f4efe6 0%, #e5dccd 55%, #d3c6b2 100%);
+        background: linear-gradient(180deg, #234333 0%, #1f3b2e 45%, #1a3227 100%);
         color: #2b251c;
     }
 }
@@ -24,7 +24,7 @@
         color: #f8f2e8;
     }
     .app-shell-transparent {
-        background: rgba(58, 47, 35, 0.88);
+        background: rgba(17, 40, 30, 0.88);
         backdrop-filter: blur(6px);
         border-color: rgba(248, 242, 232, 0.3);
     }
@@ -41,20 +41,22 @@
     }
 
     .app-btn {
-        @apply rounded-md border px-4 py-2 text-sm font-medium transition-colors duration-150;
-        border-color: #a68960;
-        background-color: #e7dccb;
-        color: #362b20;
+        @apply rounded-full border px-4 py-2 text-sm font-semibold transition-all duration-200;
+        border-color: rgba(210, 234, 222, 0.6);
+        background: linear-gradient(145deg, rgba(233, 247, 239, 0.92), rgba(176, 206, 188, 0.92));
+        color: #173026;
+        box-shadow: 0 4px 14px rgba(7, 24, 16, 0.2);
     }
 
     .app-btn:hover {
-        background-color: #dcccb5;
+        background: linear-gradient(145deg, rgba(245, 255, 250, 0.95), rgba(199, 226, 210, 0.95));
+        transform: translateY(-1px);
     }
 
     .app-btn-active {
-        border-color: #6f5538;
-        background-color: #6f5538;
-        color: #fff8ec;
+        border-color: #bfe7cf;
+        background: linear-gradient(145deg, #23573f, #1b4733);
+        color: #ecfff5;
     }
 
     .app-input {
@@ -204,4 +206,46 @@
     .front-highlight-card { @apply rounded-xl border p-5; border-color: #cfbea7; background: linear-gradient(145deg, #f5eddf 0%, #e9dbc5 100%); }
     .front-highlight-card h3 { @apply text-lg font-semibold mb-2; color: #4a3725; }
     .front-highlight-card p { color: #5c4934; }
+}
+
+
+@layer components {
+    .internal-header-links { @apply flex items-center gap-1 md:gap-2; }
+    .app-fixed-footer {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        transform: translateY(100%);
+        opacity: 0;
+        pointer-events: none;
+        transition: transform .35s ease, opacity .35s ease;
+    }
+    body.frontpage.show-footer .app-fixed-footer {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+    }
+    body.internal-page .app-fixed-footer {
+        transform: translateY(0);
+        opacity: 1;
+        pointer-events: auto;
+        position: sticky;
+    }
+    .floating-whatsapp {
+        position: fixed;
+        right: 1.25rem;
+        bottom: 1.25rem;
+        width: 3.2rem;
+        height: 3.2rem;
+        border-radius: 9999px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: #25d366;
+        color: #ffffff;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+        z-index: 70;
+    }
+    .floating-whatsapp svg { width: 1.7rem; height: 1.7rem; fill: currentColor; }
 }
