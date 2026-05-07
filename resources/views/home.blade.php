@@ -8,6 +8,18 @@
         <p class="text-lg md:text-xl max-w-3xl">Un refugio de montaña inspirado en hospitalidad boutique: naturaleza, calidez y diseño para descansar en cualquier estación.</p>
     </section>
 
+    <section class="front-gallery" aria-label="Galería de Estancia San Miguel">
+        <figure class="front-photo front-photo-main">
+            <img src="/picture_1.png" alt="Vista general de la estancia" loading="lazy" decoding="async">
+        </figure>
+        <figure class="front-photo"><img src="/picture_2.png" alt="Detalles del interior" loading="lazy" decoding="async"></figure>
+        <figure class="front-photo"><img src="/picture_3.png" alt="Habitación con vista abierta" loading="lazy" decoding="async"></figure>
+        <figure class="front-photo"><img src="/picture_4.png" alt="Espacios comunes del hotel" loading="lazy" decoding="async"></figure>
+        <figure class="front-photo"><img src="/picture_5.png" alt="Experiencia gastronómica" loading="lazy" decoding="async"></figure>
+        <figure class="front-photo"><img src="/picture_6.png" alt="Servicios y actividades al aire libre" loading="lazy" decoding="async"></figure>
+        <figure class="front-photo"><img src="/picture_7.png" alt="Atardecer en Estancia San Miguel" loading="lazy" decoding="async"></figure>
+    </section>
+
     <section class="front-grid">
         <article id="hosteria" class="front-split">
             <h2 class="front-block-title">Hostería</h2>
