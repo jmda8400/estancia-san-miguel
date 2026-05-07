@@ -3,9 +3,28 @@
 @section('content')
 <div class="hotel-landing">
     <section class="hotel-hero app-card">
-        <span class="front-badge">Valle de Calamuchita · Naturaleza viva</span>
+        <p class="front-kicker">Bienvenidos a la sierra</p>
         <h1 class="text-4xl md:text-5xl font-semibold mb-3">Estancia San Miguel</h1>
         <p class="text-lg md:text-xl max-w-3xl">Hostería de montaña al pie del Champaquí, rodeada de bosque nativo, río y experiencias auténticas.</p>
+        <div class="front-hero-cta">
+            <a href="#hosteria" class="app-btn app-btn-active">Conocer la hostería</a>
+            <a href="#servicios" class="app-btn">Ver servicios</a>
+        </div>
+    </section>
+
+    <section class="front-highlights">
+        <article class="front-highlight-card">
+            <h3>Naturaleza inmersiva</h3>
+            <p>500 metros de río, bosque nativo y senderos para reconectar con el entorno serrano.</p>
+        </article>
+        <article class="front-highlight-card">
+            <h3>Descanso con identidad</h3>
+            <p>Habitaciones de estilo de montaña y atención personalizada para una estadía serena.</p>
+        </article>
+        <article class="front-highlight-card">
+            <h3>Cocina regional</h3>
+            <p>Sabores locales, productos de estación y recetas que cuentan la historia de la zona.</p>
+        </article>
     </section>
 
     <section id="hosteria" class="front-section front-section-split">
@@ -14,8 +33,9 @@
         </figure>
         <article class="front-section-copy front-split">
             <h2 class="front-block-title">Sobre la Hostería</h2>
-            <p>La hostería está ubicada en el Paraje de San Miguel de los Rios, dentro del municipio de Villa Yacanto, en el corazón del Valle de Calamuchita rodeada de sierras, en medio de una añosa arboleda de bosques de distintas especies. A la vera del parque corre el río Tabaquillos a lo largo de 500 m, con acceso a una playa de arena con aguas cristalinas.</p>
-            <p>Se encuentra a 8 km del pueblo, al pie del Cerro Champaquí. Cuenta con 7 habitaciones con estilo de montaña con baño privado. En el salón podrán disfrutar de un delicioso desayuno con panes y dulces caseros. La atención es personalizada y se cuida cada detalle para que todos los huéspedes disfruten de una estadía placentera.</p>
+            <p>La hostería está ubicada en el Paraje de San Miguel de los Ríos, dentro del municipio de Villa Yacanto, rodeada de sierras y una añosa arboleda de distintas especies.</p>
+            <p>A la vera del parque corre el río Tabaquillos con acceso a playa de arena y aguas cristalinas. Estamos a 8 km del pueblo, al pie del Cerro Champaquí.</p>
+            <p>Contamos con 7 habitaciones con baño privado, desayunos con panes y dulces caseros y un servicio dedicado a cada huésped.</p>
         </article>
     </section>
 
@@ -25,10 +45,10 @@
 
     <section id="sustentabilidad" class="front-section front-section-split front-section-reverse">
         <article class="front-section-copy front-split">
-            <h2 class="front-block-title">Sustentabilidad</h2>
-            <p>Desde que conocimos este maravilloso lugar en 2016, entendimos lo importante que era protegerlo y por eso decidimos adoptar prácticas sustentables.</p>
-            <p>¿Qué es para nosotros ser sustentable? Cuidar los recursos naturales, utilizar energía solar, reducir, reciclar o reutilizar nuestros residuos, reducir la huella de carbono, poner en valor nuestro entorno cultural y natural.</p>
-            <p>Mirá nuestra política de calidad y gestión sustentable; ¡observá que es posible vivir en armonía con la naturaleza!</p>
+            <h2 class="front-block-title">Sustentabilidad activa</h2>
+            <p>Desde 2016 trabajamos para preservar este entorno con decisiones diarias y medibles.</p>
+            <p>Implementamos energía solar, reducción y reutilización de residuos y prácticas para disminuir la huella de carbono.</p>
+            <p>También promovemos la valoración cultural y natural del territorio en cada experiencia ofrecida.</p>
         </article>
         <figure class="front-section-photo">
             <img src="/picture_4.png" alt="Prácticas sustentables en la hostería" loading="lazy" decoding="async">
@@ -44,10 +64,10 @@
             <img src="/picture_6.png" alt="Propuesta gastronómica regional" loading="lazy" decoding="async">
         </figure>
         <article class="front-section-copy front-split">
-            <h2 class="front-block-title">Gastronomía</h2>
-            <p>La gastronomía de nuestra Hostería está especialmente pensada en los huéspedes que nos visitan, desde el desayuno servido con panes y dulces caseros al almuerzo y la cena. Como parte de nuestra sustentabilidad ponemos en valor los productos locales y originales de esta zona.</p>
-            <p>En nuestros platos se encuentran productos como jabalí, ciervo, zapallo, maíz, algarrobo, quinoa, zarzamora, higos y frutas secas, entre otros productos locales y de los pueblos originarios combinados en recetas originales y tradicionales.</p>
-            <p>En el menú siempre encontrarás un plato con productos regionales y otro plato saludable para satisfacer todos los gustos. La cava cuenta con una importante variedad de vinos de distintas bodegas para maridar los diferentes platos ofrecidos en el menú.</p>
+            <h2 class="front-block-title">Gastronomía de origen</h2>
+            <p>La propuesta gastronómica está pensada para huéspedes que buscan sabores locales desde el desayuno hasta la cena.</p>
+            <p>Trabajamos con productos regionales como zapallo, maíz, quinoa, frutos secos y carnes de la zona para crear platos auténticos.</p>
+            <p>El menú integra opciones regionales y saludables, acompañado por una cava seleccionada para cada maridaje.</p>
         </article>
     </section>
 
@@ -57,19 +77,14 @@
 
     <section id="servicios" class="front-section">
         <article class="front-split">
-            <h2 class="front-block-title">Estancia San Miguel</h2>
-            <h3 class="front-subtitle">Servicios y actividades</h3>
-            <h4 class="front-subtitle-small">Servicios</h4>
+            <h2 class="front-block-title">Servicios y actividades</h2>
             <ul class="front-services-list">
-                <li>Desayuno</li>
+                <li>Desayuno con productos caseros</li>
                 <li>Blanco de habitación</li>
-                <li>Trekking libre</li>
-                <li>Trekking a las Tres cascadas revalorizando el valor cultural y natural del lugar</li>
-                <li>Libros</li>
-                <li>Juegos de mesa</li>
-                <li>Visita a la huerta</li>
-                <li>Visita al criadero de jabalí</li>
-                <li>Lugar de oración</li>
+                <li>Trekking libre y guiado a las Tres Cascadas</li>
+                <li>Libros y juegos de mesa</li>
+                <li>Visita a huerta y criadero</li>
+                <li>Espacios de contemplación y oración</li>
             </ul>
         </article>
     </section>
