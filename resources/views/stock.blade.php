@@ -10,7 +10,7 @@
 
 <div id="stockTab" class="app-card">
     <table class="w-full mt-1 text-sm app-list-table">
-        <thead><tr><th class="text-left py-2">Producto</th><th class="text-left py-2">Cantidad</th><th></th></tr></thead>
+        <thead><tr><th class="text-left py-2">Producto</th><th class="text-left py-2">Cantidad</th><th class="text-left py-2">Precio</th><th></th></tr></thead>
         <tbody class="text-zinc-900" id="stockBody"></tbody>
     </table>
     <button class="mt-4 app-btn" onclick="addRow()">+ Agregar fila</button>
@@ -27,7 +27,7 @@
 let stockItems = @json($stockItems);
 
 function rowTemplate(item){
-    return `<tr><td class="py-2">${item.id ? item.producto : `<input class='app-input w-full' placeholder='Producto' id='p_${item.tmpId}'>`}</td><td>${item.id ? `<input type='number' min='0' value='${item.cantidad}' class='app-input w-24' onchange='updateStock(${item.id}, this.value)'>` : `<input type='number' min='0' value='0' class='app-input w-24' id='c_${item.tmpId}'>`}</td><td class='text-right'>${item.id ? `<button class='app-btn' onclick='removeStock(${item.id})'>Quitar</button>` : `<button class='app-btn' onclick='saveRow(${item.tmpId})'>Guardar</button>`}</td></tr>`;
+    return `<tr><td class="py-2">${item.id ? item.producto : `<input class='app-input w-full' placeholder='Producto' id='p_${item.tmpId}'>`}</td><td>${item.id ? `<input data-field='cantidad' type='number' min='0' value='${item.cantidad}' class='app-input w-24' onchange='updateStock(${item.id}, this)'>` : `<input type='number' min='0' value='0' class='app-input w-24' id='c_${item.tmpId}'>`}</td><td>${item.id ? `<input data-field='precio' type='number' min='0' step='0.01' value='${item.precio ?? 0}' class='app-input w-28' onchange='updateStock(${item.id}, this)'>` : `<input type='number' min='0' step='0.01' value='0' class='app-input w-28' id='pr_${item.tmpId}'>`}</td><td class='text-right'>${item.id ? `<button class='app-btn' onclick='removeStock(${item.id})'>Quitar</button>` : `<button class='app-btn' onclick='saveRow(${item.tmpId})'>Guardar</button>`}</td></tr>`;
 }
 
 function renderStock(){
@@ -42,7 +42,8 @@ window.addRow = () => {
 window.saveRow = async (tmpId) => {
     const producto = document.getElementById(`p_${tmpId}`).value;
     const cantidad = document.getElementById(`c_${tmpId}`).value;
-    await fetch('/stock',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({producto,cantidad})});
+    const precio = document.getElementById(`pr_${tmpId}`).value;
+    await fetch('/stock',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({producto,cantidad,precio})});
     await refreshStock();
     await refreshHistory();
 };
@@ -53,8 +54,11 @@ window.removeStock = async (id) => {
     await refreshHistory();
 };
 
-window.updateStock=async(id,cantidad)=>{
-    await fetch(`/stock/${id}`,{method:'PUT',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({cantidad})});
+window.updateStock=async(id,input)=>{
+    const row = input.closest('tr');
+    const cantidad = row.querySelector("input[data-field='cantidad']").value;
+    const precio = row.querySelector("input[data-field='precio']").value;
+    await fetch(`/stock/${id}`,{method:'PUT',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({cantidad,precio})});
     await refreshStock();
     await refreshHistory();
 }
