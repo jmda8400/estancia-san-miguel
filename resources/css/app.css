@@ -33,7 +33,7 @@
         border-color: rgba(166, 196, 182, 0.35);
     }
     .app-fixed-header { @apply sticky top-0 inset-x-0 z-50; }
-        .app-main-content { padding-top: .9rem; padding-bottom: 1.1rem; min-height: 0; }
+        .app-main-content { padding-top: .75rem; padding-bottom: 2.6rem; min-height: 0; }
     .app-brand-wrap { margin-left: -0.65rem; }
     .brand-logo {
         height: clamp(3.5rem, 4.4vw, 4.9rem);
@@ -208,11 +208,11 @@
     }
 
     .app-nav-btn {
-        padding: 0.35rem 2rem;
-        font-size: 0.73rem;
+        padding: 0.4rem 1.5rem;
+        font-size: 0.7rem;
         letter-spacing: 0.08em;
         text-transform: uppercase;
-        min-height: 3.05rem;
+        min-height: 2.7rem;
         white-space: nowrap;
         flex: 0 0 auto;
         width: auto;
@@ -222,8 +222,25 @@
         box-shadow: none;
     }
     .app-nav-btn:last-child { border-right: 0; }
-    .app-nav-btn:hover { background: rgba(116, 159, 140, 0.28); transform: none; }
-    .app-nav-btn-active { background: rgba(171, 208, 188, 0.24); }
+    .app-nav-btn:hover { background: rgba(116, 159, 140, 0.24); transform: none; }
+    .app-nav-btn-active { background: rgba(171, 208, 188, 0.22); }
+
+    .internal-header-links {
+        border-color: rgba(186, 207, 195, 0.52);
+        background: linear-gradient(145deg, rgba(22, 50, 39, 0.95), rgba(15, 36, 28, 0.97));
+    }
+
+    .internal-header-links .app-nav-btn {
+        padding: 0.36rem 1.25rem;
+        font-size: 0.66rem;
+        min-height: 2.55rem;
+        letter-spacing: 0.075em;
+        border-right: 1px solid rgba(191, 210, 198, 0.3);
+    }
+
+    .internal-header-links .app-nav-btn-active {
+        background: rgba(187, 220, 202, 0.24);
+    }
 
     .app-stock-card { box-shadow: 0 8px 18px rgba(19, 34, 28, 0.08); }
     .app-stock-tab { min-width: 7rem; min-height: 2.25rem; border-radius: 0.85rem; }
@@ -239,11 +256,12 @@
     .app-stock-add-btn { min-height: 2.25rem; padding-inline: 1rem; border-radius: .95rem; }
 
     .footer-legend {
-        color: #ffffff;
-        font-weight: 500;
+        color: rgba(241, 248, 244, 0.88);
+        font-weight: 450;
         text-align: left;
         width: 100%;
-        font-size: .79rem;
+        font-size: .69rem;
+        letter-spacing: 0.02em;
     }
 
     .front-gallery {

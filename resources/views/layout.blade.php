@@ -12,7 +12,7 @@
 </head>
 <body class="min-h-screen flex flex-col {{ request()->path() === '/' ? 'frontpage' : 'internal-page' }}">
 <header class="app-shell app-fixed-header border-b app-shell-transparent">
-    <nav class="mx-auto max-w-[78rem] w-full px-4 py-2 md:py-1.5 flex items-center justify-between gap-3 text-sm">
+    <nav class="mx-auto max-w-[78rem] w-full px-4 py-1.5 md:py-1 flex items-center justify-between gap-2.5 text-sm">
         <a href="/" aria-label="Volver a la Frontpage"><img src="/logo.png" alt="Estancia San Miguel" class="brand-logo" loading="eager" decoding="async"></a>
         @if (request()->path() === '/')
             <div class="front-header-links app-nav-wrap">
@@ -33,7 +33,7 @@
         @endif
     </nav>
 </header>
-<main class="{{ request()->path() === '/' ? 'w-full p-0' : 'mx-auto max-w-[78rem] w-full px-4 py-4' }} flex-1 app-main-content">
+<main class="{{ request()->path() === '/' ? 'w-full p-0' : 'mx-auto max-w-[78rem] w-full px-4 py-4 md:pb-14 lg:pb-20' }} flex-1 app-main-content">
     @yield('content')
 </main>
 
