@@ -1,7 +1,7 @@
 @extends('layout')
 
 @section('content')
-<section class="internal-layout">
+<section class="internal-layout flex h-full flex-col">
     <div class="internal-page-head">
         <h1 class="internal-page-title">@yield('internal_title', 'Panel interno')</h1>
         @hasSection('internal_subtitle')
@@ -11,4 +11,6 @@
 
     @yield('internal_content')
 </section>
+
+@include('partials.internal-footer')
 @endsection
