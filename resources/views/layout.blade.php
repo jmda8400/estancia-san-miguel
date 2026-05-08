@@ -26,10 +26,10 @@
                 <span class="font-semibold">Acceso interno</span>
             @else
                 <div class="internal-header-links">
-                    <a class="app-btn" href="/">Frontpage</a>
-                    <a class="app-btn" href="/stock">Stock</a>
-                    <a class="app-btn" href="/comandas">Comandas</a>
-                    <a class="app-btn" href="/admin">Administración</a>
+                    <a class="app-btn app-nav-btn" href="/">Frontpage</a>
+                    <a class="app-btn app-nav-btn" href="/stock">Stock</a>
+                    <a class="app-btn app-nav-btn" href="/comandas">Comandas</a>
+                    <a class="app-btn app-nav-btn" href="/admin">Administración</a>
                 </div>
             @endif
         </div>
@@ -39,16 +39,8 @@
     @yield('content')
 </main>
 <footer id="footer" class="app-shell app-fixed-footer border-t text-sm py-4">
-    <div class="mx-auto max-w-7xl px-4 flex items-center justify-between gap-3">
-        <div class="flex items-center gap-3">
-            <img src="/logo_3.png" alt="Logo Estancia San Miguel" class="h-8 w-auto">
-            <span>© Estancia San Miguel</span>
-        </div>
-        <div class="flex items-center gap-4">
-            <a href="#inicio" class="underline-offset-4 hover:underline">Inicio</a>
-            <a href="#estancia" class="underline-offset-4 hover:underline">La Estancia</a>
-            <a href="#footer" class="underline-offset-4 hover:underline">Contacto</a>
-        </div>
+    <div class="mx-auto max-w-7xl px-4 flex items-center justify-center gap-3 footer-legend">
+        <span>2026 - El Casco, Estancia San Miguel</span>
     </div>
 </footer>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
