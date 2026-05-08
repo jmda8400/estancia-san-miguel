@@ -9,7 +9,7 @@
 </div>
 
 <div id="stockTab" class="app-card">
-    <table class="w-full mt-1 text-sm app-list-table">
+    <table class="w-full mt-1 text-sm app-list-table app-list-table-grid">
         <thead><tr><th class="text-left py-2">Producto</th><th class="text-left py-2">Cantidad</th><th class="text-left py-2">Precio</th><th></th></tr></thead>
         <tbody class="text-zinc-900" id="stockBody"></tbody>
     </table>
