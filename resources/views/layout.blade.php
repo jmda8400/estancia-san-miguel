@@ -23,7 +23,7 @@
                 <a class="app-btn app-nav-btn" href="#reservar">Reservar</a>
             </div>
         @elseif (request()->is('login'))
-            <span class="font-semibold">Acceso interno</span>
+            {{-- Header sin etiqueta en login --}}
         @else
             <div class="internal-header-links app-nav-wrap" aria-label="Navegación interna">
                 <a class="app-btn app-nav-btn {{ request()->is('stock*') ? 'app-nav-btn-active' : '' }}" href="/stock">Stock</a>
