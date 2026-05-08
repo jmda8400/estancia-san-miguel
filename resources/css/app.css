@@ -469,10 +469,6 @@
     outline-offset: -6px;
     border-radius: 999px;
 }
-.internal-header-links .app-nav-btn + .app-nav-btn {
-    border-left: 1px solid rgba(255, 255, 255, 0.2);
-}
-
 .internal-page .app-fixed-header nav {
     padding-top: .4rem;
     padding-bottom: .4rem;
@@ -566,14 +562,57 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
 }
 
 .internal-page .internal-header-links {
-    background: transparent;
-    border-radius: 0.72rem;
-    padding: 0;
-    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 0;
+    width: min(980px, 100%);
+    margin: 0 0 0 auto;
+    min-height: 3.2rem;
+    padding: 0 0.9rem;
+    border-radius: 999px;
+    border: 1px solid rgba(201, 166, 82, 0.42);
+    background: linear-gradient(145deg, #1f513a, #133a29);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
-.internal-page .app-btn {
-    border-radius: 0.72rem;
+.internal-page .internal-header-links .app-nav-btn {
+    position: relative;
+    flex: 1 1 0;
+    min-height: 3.2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    color: #f9f7ef !important;
+    font-weight: 600;
+    font-size: 0.78rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+}
+
+.internal-page .internal-header-links .app-nav-btn:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 28%;
+    height: 44%;
+    width: 1px;
+    background: rgba(190, 165, 90, 0.35);
+    pointer-events: none;
+}
+
+.internal-page .internal-header-links .app-nav-btn:hover {
+    background: rgba(255, 255, 255, 0.035);
+    color: #d8bd6a !important;
+}
+
+.internal-page .internal-header-links .app-nav-btn.app-nav-btn-active {
+    background: rgba(171, 208, 188, 0.2);
+    color: #e7ca76 !important;
 }
 
 .app-remove-table-btn {
@@ -639,7 +678,7 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
     }
 
     .internal-page-title {
-        @apply text-2xl md:text-[1.65rem] font-semibold tracking-tight;
+        @apply text-xl md:text-[1.35rem] font-semibold tracking-tight;
         color: #1f3b2d;
     }
 

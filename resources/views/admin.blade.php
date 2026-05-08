@@ -1,7 +1,6 @@
 @extends('layouts.internal')
 @section('title', 'Administración')
 @section('internal_title', 'Vista de administración')
-@section('internal_subtitle', 'Evolución del stock por producto: cada curva muestra cómo fluctúa la cantidad a lo largo del tiempo.')
 @section('internal_content')
 <div class="app-card">
     <div class="mb-4 grid gap-3 md:grid-cols-4">
