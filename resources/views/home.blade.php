@@ -23,7 +23,7 @@
         </div>
         <div class="front-section-content">
             <h2><span>01</span> La Estancia</h2>
-            <p>Tradición, calma y paisaje serrano en una experiencia de campo auténtica.</p>
+            <p>La Estancia está ubicada en el Paraje de San Miguel de los Rios, dentro del municipio de Villa Yacanto, en el corazón del Valle de Calamuchita rodeada de sierras, en medio  de una añosa arboleda de bosques de distintas especies. A la vera del parque corre el río Tabaquillos a lo largo de 500 m, con acceso a una playa de arena con aguas cristalinas. Se encuentra a 8 km del pueblo, al pie del Cerro Champaquí. Cuenta con 7 habitaciones con estilo de montaña con baño privado. En el salón podrán disfrutar de un delicioso desayuno con panes y dulces caseros. La atención es personalizada y se cuida cada detalle para que todos los huéspedes disfruten de una estadía placentera.</p>
             <a href="#" class="front-internal-btn">Ver más</a>
         </div>
     </section>
@@ -35,7 +35,7 @@
         </div>
         <div class="front-section-content">
             <h2><span>02</span> Gastronomía</h2>
-            <p>Sabores regionales y cocina de estación con identidad local.</p>
+            <p>La gastronomía de nuestra Hostería está especialmente pensada en los huéspedes que nos visitan, desde el desayuno servido con panes y dulces caseros al almuerzo y la cena. Como parte de nuestra sustentabilidad ponemos en valor los productos locales y originales de esta zona, por eso en nuestros platos se encuentran productos como jabalí, ciervo, zapallo, maíz, algarrobo, quinoa, zarzamora, higos, frutas secas entre otros productos locales y de los pueblos originarios combinados en recetas originales y tradicionales. En el menú siempre encontrarás un plato con productos regionales y otro plato saludable para satisfacer todos los gustos. La cava cuenta con una importante variedad de vinos de distintas bodegas para maridar los diferentes platos ofrecidos en el menú.</p>
             <a href="#" class="front-internal-btn">Ver más</a>
         </div>
     </section>
@@ -47,7 +47,8 @@
         </div>
         <div class="front-section-content">
             <h2><span>03</span> Sustentabilidad</h2>
-            <p>Compromiso con el entorno natural, el uso responsable de recursos y la comunidad.</p>
+            <p>Desde que conocimos este maravilloso lugar en 2016, entendimos lo importante que era protegerlo y por eso decidimos adoptar prácticas sustentables.</p>
+            <p>¿Qué es para nosotros ser sustentable? Cuidar los recursos naturales, utilizar energía solar, reducir, reciclar o reutilizar nuestros residuos, reducir la huella de carbono, poner en valor nuestro entorno cultural y natural. Mirá nuestra política de calidad y gestión sustentable;¡Observá que es posible vivir en armonía con la naturaleza!</p>
             <a href="#" class="front-internal-btn">Ver más</a>
         </div>
     </section>
@@ -74,6 +75,11 @@
             <a href="#" class="front-internal-btn">Reservar</a>
         </div>
     </section>
+
+    <div class="front-footer-separator" aria-hidden="true"></div>
+    <footer class="frontpage-footer">
+        <div class="frontpage-footer-inner">2026 - El Casco, Estancia San Miguel</div>
+    </footer>
 
     <a href="https://wa.me/5490000000000" class="floating-whatsapp" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
         <svg viewBox="0 0 24 24" aria-hidden="true">

@@ -12,7 +12,7 @@
 @endif
 <header class="app-shell app-fixed-header border-b app-shell-transparent">
     <nav class="mx-auto max-w-7xl w-full px-4 py-3 flex items-center justify-between gap-4 flex-wrap text-sm">
-            <a href="/" aria-label="Volver a la Frontpage"><img src="/logo_2.png" alt="Estancia San Miguel" class="brand-logo" loading="eager" decoding="async"></a>
+            <a href="/" aria-label="Volver a la Frontpage"><img src="/logo.png" alt="Estancia San Miguel" class="brand-logo" loading="eager" decoding="async"></a>
             @if (request()->path() === '/')
                 <div class="front-header-links">
                     <a class="app-btn app-nav-btn" href="#estancia">01 La Estancia</a>
