@@ -20,12 +20,9 @@
             <a href="/" aria-label="Volver a la Frontpage"><img src="/logo_3.png" alt="Estancia San Miguel" class="brand-logo" loading="eager" decoding="async"></a>
             @if (request()->path() === '/')
                 <div class="front-header-links">
-                    <a class="app-btn app-nav-btn" href="#hosteria">Hostería</a>
-                    <a class="app-btn app-nav-btn" href="#habitaciones">Habitaciones</a>
-                    <a class="app-btn app-nav-btn" href="#cabanas">Cabañas</a>
-                    <a class="app-btn app-nav-btn" href="#gastronomia">Gastronomía</a>
-                    <a class="app-btn app-nav-btn" href="#servicios">Servicios & Actividades</a>
-                    <a class="app-btn app-nav-btn" href="#contacto">Contacto</a>
+                    <a class="app-btn app-nav-btn" href="#inicio">Inicio</a>
+                    <a class="app-btn app-nav-btn" href="#estancia">La Estancia</a>
+                    <a class="app-btn app-nav-btn" href="#footer">Footer</a>
                 </div>
             @elseif (request()->is('login'))
                 <span class="font-semibold">Acceso interno</span>
@@ -43,18 +40,16 @@
 <main class="mx-auto max-w-7xl w-full px-4 py-6 flex-1 app-main-content">
     @yield('content')
 </main>
-<footer id="page-footer" class="app-shell app-fixed-footer border-t text-sm py-4">
+<footer id="footer" class="app-shell app-fixed-footer border-t text-sm py-4">
     <div class="mx-auto max-w-7xl px-4 flex items-center justify-between gap-3">
         <div class="flex items-center gap-3">
-            <img src="/logo_footer.svg" alt="Logo footer Estancia San Miguel" class="h-8 w-auto">
-            <span>© {{ date('Y') }} Estancia San Miguel</span>
+            <img src="/logo_3.png" alt="Logo Estancia San Miguel" class="h-8 w-auto">
+            <span>© Estancia San Miguel</span>
         </div>
-        <div class="flex items-center gap-4 text-lg">
-            <a href="https://www.instagram.com/" title="Instagram" aria-label="Instagram" class="social-logo instagram-logo" target="_blank" rel="noopener">
-                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                    <path fill="currentColor" d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4c0 3.2-2.6 5.8-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8C2 4.6 4.6 2 7.8 2Zm-.2 2A3.6 3.6 0 0 0 4 7.6v8.8A3.6 3.6 0 0 0 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6A3.6 3.6 0 0 0 16.4 4H7.6Zm9.65 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/>
-                </svg>
-            </a>
+        <div class="flex items-center gap-4">
+            <a href="#inicio" class="underline-offset-4 hover:underline">Inicio</a>
+            <a href="#estancia" class="underline-offset-4 hover:underline">La Estancia</a>
+            <a href="#footer" class="underline-offset-4 hover:underline">Contacto</a>
         </div>
     </div>
 </footer>
