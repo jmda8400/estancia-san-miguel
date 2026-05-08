@@ -434,7 +434,7 @@
     justify-content: center;
     min-height: 3.45rem;
     padding: 0.2rem 0.55rem;
-    border-radius: 999px;
+    border-radius: 0;
     border: none;
     background: transparent;
     color: #f9f7ef !important;
@@ -582,7 +582,7 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
 
 .front-footer-separator {
     width: 100%;
-    height: 190px;
+    height: 260px;
     background: #202020;
 }
 .frontpage-footer {
