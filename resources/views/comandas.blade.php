@@ -3,27 +3,27 @@
 @section('internal_title', 'Sistema de comandas')
 
 @section('internal_content')
-<div class="mb-4 flex gap-2">
+<div class="mb-3 flex gap-2">
     <button id="tabComandas" class="app-btn app-btn-active" onclick="switchTab('comandas')">Comandas</button>
     <button id="tabHistorial" class="app-btn" onclick="switchTab('historial')">Historial</button>
 </div>
 
-<div id="comandasTab" class="grid gap-4 xl:grid-cols-[minmax(260px,1fr)_minmax(380px,1.4fr)_minmax(300px,1fr)] items-start">
+<div id="comandasTab" class="grid gap-4 xl:grid-cols-[330px_minmax(420px,1fr)_380px] 2xl:grid-cols-[340px_minmax(440px,1fr)_400px] items-start">
     <div class="app-card h-full">
         <div class="flex items-center justify-between mb-3 gap-2 flex-wrap">
             <h2 class="font-semibold">Mesas</h2>
-            <div class="flex items-center gap-2">
-            <button class="app-btn" onclick="addComanda()">+ Agregar comanda</button>
-            <button class="app-btn" onclick="removeLastComanda()">- Quitar comanda</button>
+            <div class="flex w-full sm:w-auto items-center gap-1.5">
+            <button class="app-btn text-xs px-2.5 py-1.5 sm:text-sm" onclick="addComanda()">+ Agregar comanda</button>
+            <button class="app-btn text-xs px-2.5 py-1.5 sm:text-sm" onclick="removeLastComanda()">- Quitar comanda</button>
             </div>
         </div>
         <div id="tables" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-2"></div>
     </div>
 
-    <div class="app-card h-full flex flex-col min-h-[28rem]">
+    <div class="app-card h-full flex flex-col min-h-[28rem] max-h-[calc(100vh-14rem)]">
         <h2 id="selectedTitle" class="font-semibold mb-3">Seleccione una mesa</h2>
-        <div id="productsList" class="space-y-2 flex-1 overflow-y-auto pr-1"></div>
-        <div class="border-t border-amber-200 mt-3 pt-3 flex items-center justify-between gap-3 bg-[#f3f5ef] sticky bottom-0">
+        <div id="productsList" class="space-y-2 flex-1 overflow-y-auto pr-1 min-h-[16rem]"></div>
+        <div class="border-t border-amber-200 mt-3 pt-3 flex items-center justify-between gap-3 bg-[#f3f5ef]">
             <p id="selectedTotal" class="text-sm font-semibold text-amber-950">Total: $0.00</p>
             <button id="chargeBtn" class="hidden app-btn app-charge-btn" onclick="cobrarComanda()">Cobrar</button>
         </div>
@@ -31,20 +31,20 @@
 
     <div id="addProductCard" class="app-card h-full hidden xl:sticky xl:top-4">
         <h2 class="font-semibold mb-3">Agregar productos a comanda</h2>
-        <form id="newProductForm" class="grid gap-3">
+        <form id="newProductForm" class="grid gap-3 content-start">
             <div>
                 <label for="stockItem" class="text-sm text-amber-900">Producto</label>
-                <select id="stockItem" class="app-input mt-1" required></select>
+                <select id="stockItem" class="app-input mt-1 w-full" required></select>
             </div>
             <div>
                 <label for="productQty" class="text-sm text-amber-900">Cantidad</label>
-                <input id="productQty" type="number" min="1" value="1" class="app-input mt-1" required>
+                <input id="productQty" type="number" min="1" value="1" class="app-input mt-1 w-full" required>
             </div>
             <div>
                 <label for="productNotes" class="text-sm text-amber-900">Notas</label>
-                <input id="productNotes" class="app-input mt-1" placeholder="Notas">
+                <input id="productNotes" class="app-input mt-1 w-full" placeholder="Notas">
             </div>
-            <button class="app-btn w-full">Agregar a comanda</button>
+            <button class="app-btn app-btn-active w-full">Agregar a comanda</button>
         </form>
     </div>
 </div>
@@ -76,10 +76,12 @@ function renderComandas() {
     return `<div class="app-table-btn ${state.selectedComandaId===c.id?'active':''}">
         <button class="w-full text-left" onclick="selectComanda(${c.id})">
             <p class="font-semibold">${c.nombre ?? ('Mesa ' + c.mesa_numero)}</p>
-            <p class="text-xs text-amber-800 mt-1">${c.productos.length} producto(s)</p>
-            <p class="text-sm font-semibold mt-1">$${totalMesa.toFixed(2)}</p>
+            <div class="mt-1 flex items-center justify-between gap-2">
+                <p class="text-xs text-amber-800">${c.productos.length} producto(s)</p>
+                <p class="text-sm font-semibold">$${totalMesa.toFixed(2)}</p>
+            </div>
         </button>
-        <button class="app-remove-table-btn mt-2" onclick="removeComanda(${c.id})">Quitar</button>
+        <button class="app-remove-table-btn mt-1.5 text-xs px-2.5 py-1" onclick="removeComanda(${c.id})">Quitar</button>
     </div>`;
  }).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
@@ -104,7 +106,9 @@ function renderComandas() {
             <button class="app-trash-btn text-xs" title="Quitar producto" onclick="deleteProducto(${p.id})">Eliminar</button>
         </div>
     </div>`).join('')
-    : '<p class="text-sm text-amber-900">Esta comanda no tiene productos aún.</p>';
+    : `<div class="h-full min-h-[14rem] flex items-center justify-center">
+        <p class="text-sm text-amber-900 text-center">Esta comanda no tiene productos aún.</p>
+      </div>`;
 }
 
 function renderHistorial() {
