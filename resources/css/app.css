@@ -225,21 +225,9 @@
     .app-nav-btn:hover { background: rgba(116, 159, 140, 0.24); transform: none; }
     .app-nav-btn-active { background: rgba(171, 208, 188, 0.22); }
 
-    .internal-header-links {
-        border-color: rgba(186, 207, 195, 0.52);
-        background: linear-gradient(145deg, rgba(22, 50, 39, 0.95), rgba(15, 36, 28, 0.97));
-    }
-
     .internal-header-links .app-nav-btn {
-        padding: 0.36rem 1.25rem;
-        font-size: 0.66rem;
-        min-height: 2.55rem;
-        letter-spacing: 0.075em;
-        border-right: 1px solid rgba(191, 210, 198, 0.3);
-    }
-
-    .internal-header-links .app-nav-btn-active {
-        background: rgba(187, 220, 202, 0.24);
+        font-size: 0.62rem;
+        padding-inline: 1rem;
     }
     .internal-view-tabs {
         display: inline-flex;

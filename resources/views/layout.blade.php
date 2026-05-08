@@ -26,9 +26,9 @@
             <span class="font-semibold">Acceso interno</span>
         @else
             <div class="internal-header-links app-nav-wrap" aria-label="Navegación interna">
-                <a class="app-btn app-nav-btn {{ request()->is('stock*') ? 'app-nav-btn-active' : '' }}" href="/stock">Stock</a>
-                <a class="app-btn app-nav-btn {{ request()->is('comandas*') ? 'app-nav-btn-active' : '' }}" href="/comandas">Comandas</a>
-                <a class="app-btn app-nav-btn {{ request()->is('admin*') ? 'app-nav-btn-active' : '' }}" href="/admin">Administración</a>
+                <a class="app-btn app-nav-btn {{ request()->is('stock*') ? 'app-nav-btn-active' : '' }}" href="/stock">Vista de stock</a>
+                <a class="app-btn app-nav-btn {{ request()->is('comandas*') ? 'app-nav-btn-active' : '' }}" href="/comandas">Sistema de comandas</a>
+                <a class="app-btn app-nav-btn {{ request()->is('admin*') ? 'app-nav-btn-active' : '' }}" href="/admin">Vista de administración</a>
             </div>
         @endif
     </nav>
