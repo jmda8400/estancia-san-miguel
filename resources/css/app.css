@@ -12,21 +12,21 @@
 
 @layer base {
     body {
-        background: linear-gradient(180deg, #234333 0%, #1f3b2e 45%, #1a3227 100%);
-        color: #2b251c;
+        background: linear-gradient(180deg, #e6ede8 0%, #dde6df 48%, #d5dfd8 100%);
+        color: #1f2f27;
     }
 }
 
 @layer components {
     .app-shell {
-        background: #3a2f23;
-        border-color: #2a2118;
-        color: #f8f2e8;
+        background: #f2f6f3;
+        border-color: #afc1b6;
+        color: #1f2f27;
     }
     .app-shell-transparent {
-        background: rgba(17, 40, 30, 0.88);
+        background: rgba(236, 243, 238, 0.95);
         backdrop-filter: blur(6px);
-        border-color: rgba(248, 242, 232, 0.3);
+        border-color: rgba(90, 111, 99, 0.3);
     }
     .app-fixed-header { @apply sticky top-0 inset-x-0 z-50; }
     .app-fixed-footer { @apply sticky bottom-0 inset-x-0 z-40; }
@@ -36,15 +36,15 @@
 
     .app-card {
         @apply rounded-xl border p-4 md:p-6 shadow-sm;
-        background-color: #f6f1e8;
-        border-color: #cdbfa9;
+        background-color: #f5f8f5;
+        border-color: #bfcdc4;
     }
 
     .app-btn {
         @apply rounded-full border px-4 py-2 text-sm font-semibold transition-all duration-200;
         border-color: rgba(210, 234, 222, 0.6);
-        background: linear-gradient(145deg, rgba(233, 247, 239, 0.92), rgba(176, 206, 188, 0.92));
-        color: #173026;
+        background: linear-gradient(145deg, rgba(241, 246, 243, 0.97), rgba(201, 215, 206, 0.97));
+        color: #1b3229;
         box-shadow: 0 4px 14px rgba(7, 24, 16, 0.2);
     }
 
@@ -54,8 +54,8 @@
     }
 
     .app-btn-active {
-        border-color: #bfe7cf;
-        background: linear-gradient(145deg, #23573f, #1b4733);
+        border-color: #89ae98;
+        background: linear-gradient(145deg, #355f4b, #274636);
         color: #ecfff5;
     }
 
@@ -137,17 +137,21 @@
         min-height: 18rem;
         display: flex;
         flex-direction: column;
-        justify-content: flex-end;
-        color: #f8f8f8;
-        background: linear-gradient(125deg, rgba(47, 35, 22, 0.82), rgba(124, 94, 60, 0.78));
+        justify-content: center;
+        color: #f8fbf9;
+        background:
+            linear-gradient(120deg, rgba(20, 39, 30, 0.72), rgba(43, 77, 61, 0.55)),
+            url('/picture_hero.png') center/cover no-repeat;
+        position: relative;
+        overflow: hidden;
     }
 }
 
 @layer components {
     .front-grid { @apply grid gap-6 md:grid-cols-2; }
-    .front-block-title { @apply text-xl font-semibold mb-3; color: #3d2f20; }
+    .front-block-title { @apply text-xl font-semibold mb-3; color: #244033; }
     .front-badge { @apply inline-flex rounded-full px-3 py-1 text-xs font-semibold tracking-wide uppercase mb-3; background: #d8d8d8; color: #2f2f2f; }
-    .front-split { @apply rounded-xl border p-5 md:p-6; border-color: #d2c3ac; background: linear-gradient(145deg, #f8f3ea 0%, #ecdfcd 100%); }
+    .front-split { @apply rounded-xl border p-5 md:p-6; border-color: #c2d2c8; background: linear-gradient(145deg, #f3f7f4 0%, #e3ece6 100%); }
 }
 
 @layer components {
@@ -161,8 +165,8 @@
 
     .front-photo {
         @apply rounded-xl overflow-hidden border;
-        border-color: #cdbda6;
-        background: #efe6d7;
+        border-color: #c2d2c8;
+        background: #e6eee9;
         min-height: 12rem;
     }
 
@@ -188,24 +192,24 @@
     .front-section { @apply space-y-4; }
     .front-section-split { @apply grid gap-5 md:grid-cols-2 md:items-stretch; }
     .front-section-reverse .front-section-photo { @apply md:order-2; }
-    .front-section-photo { @apply rounded-xl overflow-hidden border; border-color: #cdbda6; background: #efe6d7; min-height: 16rem; }
+    .front-section-photo { @apply rounded-xl overflow-hidden border; border-color: #c2d2c8; background: #e6eee9; min-height: 16rem; }
     .front-section-photo img { width: 100%; height: 100%; object-fit: cover; }
     .front-section-copy { @apply space-y-4; }
-    .front-divider { @apply rounded-xl overflow-hidden border; border-color: #cdbda6; height: 8rem; }
+    .front-divider { @apply rounded-xl overflow-hidden border; border-color: #c2d2c8; height: 8rem; }
     .front-divider img { width: 100%; height: 100%; object-fit: cover; }
-    .front-subtitle { @apply text-lg font-semibold; color: #2f2f2f; }
-    .front-subtitle-small { @apply text-base font-semibold; color: #4a4a4a; }
+    .front-subtitle { @apply text-lg font-semibold; color: #24372e; }
+    .front-subtitle-small { @apply text-base font-semibold; color: #3f5550; }
     .front-services-list { @apply grid gap-2 pl-5; list-style: disc; }
 }
 
 
 @layer components {
-    .front-kicker { @apply uppercase text-xs md:text-sm font-semibold tracking-[0.2em] mb-3; color: #f3e4ce; }
+    .front-kicker { @apply uppercase text-xs md:text-sm font-semibold tracking-[0.2em] mb-3; color: #d9e7df; }
     .front-hero-cta { @apply mt-5 flex flex-wrap gap-3; }
     .front-highlights { @apply grid gap-4 md:grid-cols-3; }
-    .front-highlight-card { @apply rounded-xl border p-5; border-color: #cfbea7; background: linear-gradient(145deg, #f5eddf 0%, #e9dbc5 100%); }
-    .front-highlight-card h3 { @apply text-lg font-semibold mb-2; color: #4a3725; }
-    .front-highlight-card p { color: #5c4934; }
+    .front-highlight-card { @apply rounded-xl border p-5; border-color: #c2d2c8; background: linear-gradient(145deg, #f0f6f2 0%, #e0ebe4 100%); }
+    .front-highlight-card h3 { @apply text-lg font-semibold mb-2; color: #2c483b; }
+    .front-highlight-card p { color: #3e5a4d; }
 }
 
 

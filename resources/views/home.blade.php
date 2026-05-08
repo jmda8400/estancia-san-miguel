@@ -4,7 +4,7 @@
 <div class="hotel-landing">
     <section class="hotel-hero app-card">
         <p class="front-kicker">Bienvenidos a la sierra</p>
-        <h1 class="text-4xl md:text-5xl font-semibold mb-3">Estancia San Miguel</h1>
+        <h1 class="text-4xl md:text-5xl font-semibold mb-3">El Casco - Estancia San Miguel</h1>
         <p class="text-lg md:text-xl max-w-3xl">Hostería de montaña al pie del Champaquí, rodeada de bosque nativo, río y experiencias auténticas.</p>
         <div class="front-hero-cta">
             <a href="#hosteria" class="app-btn app-btn-active">Conocer la hostería</a>
