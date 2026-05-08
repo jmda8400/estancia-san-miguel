@@ -1,25 +1,29 @@
 @extends('layout')
 @section('title', 'Stock')
 @section('content')
-<h1 class="text-2xl font-semibold mb-4">Vista de stock</h1>
+<section class="stock-view mx-auto w-full max-w-[78rem] space-y-4">
+<h1 class="text-2xl md:text-[1.65rem] font-semibold tracking-tight text-emerald-950">Vista de stock</h1>
 
-<div class="mb-4 flex gap-2">
-    <button id="tabStock" class="app-btn app-btn-active" onclick="switchTab('stock')">Stock</button>
-    <button id="tabHistorial" class="app-btn" onclick="switchTab('historial')">Historial</button>
+<div class="stock-tabs flex gap-2">
+    <button id="tabStock" class="app-btn app-stock-tab app-btn-active" onclick="switchTab('stock')">Stock</button>
+    <button id="tabHistorial" class="app-btn app-stock-tab" onclick="switchTab('historial')">Historial</button>
 </div>
 
-<div id="stockTab" class="app-card">
-    <table class="w-full mt-1 text-sm app-list-table app-list-table-grid">
-        <thead><tr><th class="text-left py-2">Producto</th><th class="text-left py-2">Cantidad</th><th class="text-left py-2">Precio</th><th></th></tr></thead>
+<div id="stockTab" class="app-card app-stock-card">
+    <div class="app-stock-table-wrap">
+    <table class="w-full text-sm app-list-table">
+        <thead><tr><th class="text-left">Producto</th><th class="text-left">Cantidad</th><th class="text-left">Precio</th><th></th></tr></thead>
         <tbody class="text-zinc-900" id="stockBody"></tbody>
     </table>
-    <button class="mt-4 app-btn" onclick="addRow()">+ Agregar fila</button>
+    </div>
+    <button class="mt-4 app-btn app-stock-add-btn" onclick="addRow()">+ Agregar fila</button>
 </div>
 
-<div id="historialTab" class="hidden app-card">
+<div id="historialTab" class="hidden app-card app-stock-card">
     <h2 class="font-semibold mb-3">Historial de cambios de stock</h2>
     <div id="stockHistoryList" class="space-y-2"></div>
 </div>
+</section>
 
 @endsection
 @section('scripts')
@@ -27,7 +31,7 @@
 let stockItems = @json($stockItems);
 
 function rowTemplate(item){
-    return `<tr><td class="py-2">${item.id ? item.producto : `<input class='app-input w-full' placeholder='Producto' id='p_${item.tmpId}'>`}</td><td>${item.id ? `<input data-field='cantidad' type='number' min='0' value='${item.cantidad}' class='app-input w-24' onchange='updateStock(${item.id}, this)'>` : `<input type='number' min='0' value='0' class='app-input w-24' id='c_${item.tmpId}'>`}</td><td>${item.id ? `<input data-field='precio' type='number' min='0' step='0.01' value='${item.precio ?? 0}' class='app-input w-28' onchange='updateStock(${item.id}, this)'>` : `<input type='number' min='0' step='0.01' value='0' class='app-input w-28' id='pr_${item.tmpId}'>`}</td><td class='text-right'>${item.id ? `<button class='app-btn' onclick='removeStock(${item.id})'>Quitar</button>` : `<button class='app-btn' onclick='saveRow(${item.tmpId})'>Guardar</button>`}</td></tr>`;
+    return `<tr><td>${item.id ? item.producto : `<input class='app-input w-full' placeholder='Producto' id='p_${item.tmpId}'>`}</td><td>${item.id ? `<input data-field='cantidad' type='number' min='0' value='${item.cantidad}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)'>` : `<input type='number' min='0' value='0' class='app-input app-stock-input' id='c_${item.tmpId}'>`}</td><td>${item.id ? `<input data-field='precio' type='number' min='0' step='0.01' value='${item.precio ?? 0}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)'>` : `<input type='number' min='0' step='0.01' value='0' class='app-input app-stock-input' id='pr_${item.tmpId}'>`}</td><td class='text-right'>${item.id ? `<button class='app-btn app-stock-row-btn' onclick='removeStock(${item.id})'>Quitar</button>` : `<button class='app-btn app-stock-row-btn' onclick='saveRow(${item.tmpId})'>Guardar</button>`}</td></tr>`;
 }
 
 function renderStock(){

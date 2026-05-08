@@ -14,7 +14,7 @@
 @if (request()->path() === '/')
 @endif
 <header class="app-shell app-fixed-header border-b app-shell-transparent">
-    <nav class="mx-auto max-w-7xl w-full px-4 py-3 flex items-center justify-between gap-4 flex-wrap text-sm">
+    <nav class="mx-auto max-w-[78rem] w-full px-4 py-2 flex items-center justify-between gap-3 flex-wrap text-sm">
             <a href="/" aria-label="Volver a la Frontpage"><img src="/logo.png" alt="Estancia San Miguel" class="brand-logo" loading="eager" decoding="async"></a>
             @if (request()->path() === '/')
                 <div class="front-header-links">
@@ -27,16 +27,16 @@
             @elseif (request()->is('login'))
                 <span class="font-semibold">Acceso interno</span>
             @else
-                <div class="internal-header-links">
-                    <a class="app-btn app-nav-btn" href="/">Frontpage</a>
-                    <a class="app-btn app-nav-btn" href="/stock">Stock</a>
-                    <a class="app-btn app-nav-btn" href="/comandas">Comandas</a>
-                    <a class="app-btn app-nav-btn" href="/admin">Administración</a>
+                <div class="internal-header-links app-nav-wrap">
+                    <a class="app-btn app-nav-btn {{ request()->is('/') ? 'app-nav-btn-active' : '' }}" href="/">Frontpage</a>
+                    <a class="app-btn app-nav-btn {{ request()->is('stock*') ? 'app-nav-btn-active' : '' }}" href="/stock">Stock</a>
+                    <a class="app-btn app-nav-btn {{ request()->is('comandas*') ? 'app-nav-btn-active' : '' }}" href="/comandas">Comandas</a>
+                    <a class="app-btn app-nav-btn {{ request()->is('admin*') ? 'app-nav-btn-active' : '' }}" href="/admin">Administración</a>
                 </div>
             @endif
     </nav>
 </header>
-<main class="{{ request()->path() === '/' ? 'w-full p-0' : 'mx-auto max-w-7xl w-full px-4 py-6' }} flex-1 app-main-content">
+<main class="{{ request()->path() === '/' ? 'w-full p-0' : 'mx-auto max-w-[78rem] w-full px-4 py-4' }} flex-1 app-main-content">
     @yield('content')
 </main>
 @if (request()->path() !== '/')
