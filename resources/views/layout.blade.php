@@ -10,7 +10,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen flex flex-col app-has-fixed-bars {{ request()->path() === '/' ? 'frontpage' : 'internal-page' }}">
+<body class="min-h-screen flex flex-col {{ request()->path() === '/' ? 'frontpage' : 'internal-page' }}">
 @if (request()->path() === '/')
 @endif
 <header class="app-shell app-fixed-header border-b app-shell-transparent">
@@ -38,14 +38,7 @@
 <main class="{{ request()->path() === '/' ? 'w-full p-0' : 'mx-auto max-w-[78rem] w-full px-4 py-4' }} flex-1 app-main-content">
     @yield('content')
 </main>
-@if (request()->path() !== '/')
-<footer id="footer" class="app-shell app-fixed-footer border-t text-sm py-3 app-shell-transparent">
-    <div class="mx-auto max-w-[78rem] w-full px-4 flex flex-wrap items-center justify-between gap-1.5 footer-legend">
-        <span>El Casco · Estancia San Miguel</span>
-        <span>Sistema interno de gestión · {{ now()->year }}</span>
-    </div>
-</footer>
-@endif
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 @yield('scripts')
 </body>
