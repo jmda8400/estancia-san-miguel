@@ -12,14 +12,14 @@
 
 @layer base {
     body {
-        background: linear-gradient(180deg, #edf3ef 0%, #e4ede8 55%, #dbe7e1 100%);
+        background: linear-gradient(180deg, #dbe8e1 0%, #cfe0d8 55%, #c4d8cf 100%);
         color: #1f342b;
     }
 }
 
 @layer components {
     .app-shell {
-        background: #a78254;
+        background: #0d2e1e;
         border-color: #6b8f7f;
         color: #f1f8f4;
     }
@@ -36,12 +36,12 @@
 
     .app-card {
         @apply rounded-xl border p-4 md:p-6 shadow-sm;
-        background-color: #f5f8f5;
-        border-color: #bfcdc4;
+        background-color: #e7f0eb;
+        border-color: #a8c0b4;
     }
 
     .app-btn {
-        @apply inline-flex items-center justify-center rounded-full border px-5 py-2.5 text-sm font-semibold transition-all duration-200;
+        @apply inline-flex items-center justify-center rounded-full border px-6 py-2.5 text-sm font-semibold transition-all duration-200;
         border-color: rgba(203, 224, 214, 0.55);
         background: linear-gradient(145deg, rgba(53, 95, 78, 0.97), rgba(41, 73, 61, 0.97));
         color: #ffffff !important;
@@ -79,10 +79,10 @@
     }
 
     .app-table-btn {
-        @apply text-left rounded-2xl border px-3 py-2;
-        border-color: #acacac;
-        background-color: #ececec;
-        color: #232323;
+        @apply text-left rounded-3xl border px-4 py-3;
+        border-color: #9ab4a7;
+        background-color: #dce9e2;
+        color: #1f342b;
     }
 
     .app-table-btn.active {
@@ -92,10 +92,10 @@
     }
     .app-list-table { border-collapse: separate; border-spacing: 0 .35rem; }
     .app-list-table thead th { color: #3b3b3b; font-weight: 700; }
-    .app-list-table tbody tr { background: #f2f2f2; color: #1c1c1c; }
-    .app-list-table tbody tr td { padding: .55rem .6rem; border-top: 1px solid #c7c7c7; border-bottom: 1px solid #c7c7c7; }
-    .app-list-table tbody tr td:first-child { border-left: 1px solid #c7c7c7; border-radius: .6rem 0 0 .6rem; }
-    .app-list-table tbody tr td:last-child { border-right: 1px solid #c7c7c7; border-radius: 0 .6rem .6rem 0; }
+    .app-list-table tbody tr { background: #e5efe9; color: #1d3229; }
+    .app-list-table tbody tr td { padding: .55rem .6rem; border-top: 1px solid #b6cbc0; border-bottom: 1px solid #b6cbc0; }
+    .app-list-table tbody tr td:first-child { border-left: 1px solid #b6cbc0; border-radius: .6rem 0 0 .6rem; }
+    .app-list-table tbody tr td:last-child { border-right: 1px solid #b6cbc0; border-radius: 0 .6rem .6rem 0; }
 
     .app-trash-btn {
         @apply rounded-xl px-3 py-1.5 text-sm border;
@@ -137,7 +137,7 @@
         box-shadow: 0 6px 15px rgba(18, 18, 18, 0.28);
     }
     .instagram-logo svg { width: 1.15rem; height: 1.15rem; }
-    .app-chart-wrap { @apply rounded-lg border p-3; border-color: #c4c4c4; background: #f8f8f8; }
+    .app-chart-wrap { @apply rounded-lg border p-3; border-color: #aac0b5; background: #e1ece6; }
     .app-chart-scroll { overflow-x: auto; }
     .app-chart-svg { width: 100%; height: auto; min-height: 220px; min-width: 900px; }
     .app-chart-axis { stroke: #6d6d6d; stroke-width: 1.2; }
@@ -321,6 +321,7 @@
     top: 0;
     left: 0;
     right: 0;
+    z-index: 90;
     transform: translateY(-110%);
     opacity: 0;
     pointer-events: none;
@@ -351,9 +352,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    transform: none;
-    opacity: 1;
-    pointer-events: auto;
+    background: #0d2e1e;
 }
 .frontpage-simple { background: #f6f4ef; }
 .frontpage-preloader {
@@ -368,9 +367,9 @@
 .frontpage-preloader-logo { width: min(46vw, 260px); }
 body.frontpage:not(.page-loaded) .frontpage-simple > :not(#frontpagePreloader) { visibility: hidden; }
 body.frontpage.page-loaded .frontpage-preloader { display: none; }
-.front-hero { position: relative; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
+.front-hero { position: relative; z-index: 1; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
 .front-hero-image, .front-hero-overlay { position: absolute; inset: 0; }
-.front-hero-image { width: 100%; height: 100%; object-fit: cover; }
+.front-hero-image { width: 100%; height: 100%; object-fit: cover; z-index: 0; }
 .front-hero-overlay { background: rgba(0,0,0,.35); }
 .front-hero-content { position: relative; z-index: 2; text-align: center; color: #fff; }
 .front-hero-logo { width: min(48vw, 340px); margin: 0 auto 1rem; }

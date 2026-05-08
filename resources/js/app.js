@@ -11,10 +11,19 @@ if (body.classList.contains('frontpage')) {
         window.addEventListener('load', onReady);
     }
 
-    const toggleHeader = () => {
-        body.classList.toggle('header-visible', window.scrollY > 20);
+    let lastScrollY = window.scrollY;
+
+    const toggleHeaderAndFooter = () => {
+        const currentScrollY = window.scrollY;
+        const isScrollingDown = currentScrollY > lastScrollY;
+        const nearBottom = window.innerHeight + currentScrollY >= document.documentElement.scrollHeight - 8;
+
+        body.classList.toggle('header-visible', currentScrollY > 20);
+        body.classList.toggle('show-footer', nearBottom && isScrollingDown);
+
+        lastScrollY = currentScrollY;
     };
 
-    window.addEventListener('scroll', toggleHeader, { passive: true });
-    toggleHeader();
+    window.addEventListener('scroll', toggleHeaderAndFooter, { passive: true });
+    toggleHeaderAndFooter();
 }
