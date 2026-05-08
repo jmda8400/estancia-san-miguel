@@ -64,6 +64,7 @@
             <a href="#" class="front-internal-btn">Ver más</a>
         </div>
     </section>
+    <div class="front-section-separator"><img src="/picture_11.jpg" alt="Separador visual"></div>
 
     <section id="reservar" class="front-section-block front-section-row">
         <div class="front-section-media">

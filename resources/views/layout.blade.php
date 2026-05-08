@@ -38,7 +38,7 @@
 </main>
 @if (request()->path() !== '/')
 <footer id="footer" class="app-shell app-fixed-footer border-t text-sm py-3 app-shell-transparent">
-    <div class="mx-auto max-w-7xl px-4 flex items-center justify-center gap-3 footer-legend">
+    <div class="mx-auto max-w-7xl px-4 flex items-center justify-start gap-3 footer-legend">
         <span>2026 - El Casco, Estancia San Miguel</span>
     </div>
 </footer>
