@@ -19,7 +19,7 @@
 
 @layer components {
     .app-shell {
-        background: #29493d;
+        background: #a78254;
         border-color: #6b8f7f;
         color: #f1f8f4;
     }
@@ -241,6 +241,22 @@
         pointer-events: none;
     }
     body.frontpage.hide-hero-bg .frontpage-hero-bg { opacity: 0; }
+    body.frontpage .app-fixed-header,
+    body.frontpage .app-main-content {
+        opacity: 0;
+        transform: translateY(1rem);
+        pointer-events: none;
+        transition: opacity .35s ease, transform .35s ease;
+    }
+    body.frontpage .app-main-content {
+        margin-top: calc(100vh - 7rem);
+    }
+    body.frontpage.reveal-content .app-fixed-header,
+    body.frontpage.reveal-content .app-main-content {
+        opacity: 1;
+        transform: translateY(0);
+        pointer-events: auto;
+    }
     .frontpage-center-logo {
         position: fixed;
         inset: 0;

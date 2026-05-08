@@ -7,6 +7,7 @@ const toggleFooter = () => {
 
     if (body.classList.contains('frontpage')) {
         body.classList.toggle('hide-hero-bg', window.scrollY > 80);
+        body.classList.toggle('reveal-content', window.scrollY > 40);
     }
 };
 
