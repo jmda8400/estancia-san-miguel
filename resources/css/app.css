@@ -226,8 +226,14 @@
     .app-nav-btn-active { background: rgba(171, 208, 188, 0.22); }
 
     .internal-header-links .app-nav-btn {
-        font-size: 0.62rem;
-        padding-inline: 1rem;
+        font-size: 0.66rem;
+        padding-inline: 1.25rem;
+        min-height: 2.7rem;
+    }
+
+    .internal-nav-label {
+        font-size: 0.58rem;
+        letter-spacing: 0.06em;
     }
     .internal-view-tabs {
         display: inline-flex;

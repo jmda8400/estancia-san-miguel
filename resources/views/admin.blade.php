@@ -22,7 +22,7 @@
         </div>
     </div>
     <section class="app-chart-wrap">
-        <h2 class="font-semibold mb-3">Fluctuación de cantidad por producto</h2>
+        <h2 class="font-semibold mb-3">Stock por producto</h2>
         <div id="adminCharts"></div>
     </section>
 </div>
