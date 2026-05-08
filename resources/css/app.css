@@ -37,26 +37,26 @@
     .app-main-content { padding-top: 1.5rem; padding-bottom: 1.5rem; min-height: 0; }
     .app-brand-wrap { margin-left: -0.65rem; }
     .brand-logo {
-        height: clamp(3.7rem, 5vw, 5.85rem);
+        height: clamp(4.1rem, 5.2vw, 6.1rem);
         width: auto;
-        max-height: 5.85rem;
+        max-height: 6.1rem;
         object-fit: contain;
         display: block;
         filter: drop-shadow(0 2px 4px rgba(0,0,0,.28));
     }
 
     .app-card {
-        @apply rounded-xl border p-4 md:p-6 shadow-sm;
-        background-color: #e7f0eb;
-        border-color: #a8c0b4;
+        @apply rounded-2xl border p-4 md:p-5 shadow-sm;
+        background-color: #eef4f0;
+        border-color: #b8c9c0;
     }
 
     .app-btn {
-        @apply inline-flex items-center justify-center rounded-full border px-6 py-2.5 text-sm font-semibold transition-all duration-200;
+        @apply inline-flex items-center justify-center rounded-xl border px-5 py-2 text-sm font-semibold transition-all duration-200;
         border-color: rgba(203, 224, 214, 0.55);
         background: linear-gradient(145deg, rgba(53, 95, 78, 0.97), rgba(41, 73, 61, 0.97));
         color: #ffffff !important;
-        box-shadow: 0 8px 20px rgba(17, 38, 31, 0.28);
+        box-shadow: 0 5px 14px rgba(17, 38, 31, 0.2);
         text-decoration: none !important;
     }
 
@@ -83,10 +83,14 @@
     }
 
     .app-input {
-        @apply rounded-xl border px-3 py-2;
-        border-color: #999;
+        @apply rounded-lg border px-3 py-2;
+        border-color: #a7b3ad;
         background-color: #fff;
         color: #362b20;
+    }
+    .app-input:focus {
+        outline: 2px solid rgba(54, 100, 81, 0.25);
+        border-color: #4f7f69;
     }
 
     .app-table-btn {
@@ -101,12 +105,11 @@
         background-color: #cbcbcb;
         color: #1a1a1a;
     }
-    .app-list-table { border-collapse: separate; border-spacing: 0 .35rem; }
-    .app-list-table thead th { color: #3b3b3b; font-weight: 700; }
-    .app-list-table tbody tr { background: #e5efe9; color: #1d3229; }
-    .app-list-table tbody tr td { padding: .55rem .6rem; border-top: 1px solid #b6cbc0; border-bottom: 1px solid #b6cbc0; }
-    .app-list-table tbody tr td:first-child { border-left: 1px solid #b6cbc0; border-radius: .6rem 0 0 .6rem; }
-    .app-list-table tbody tr td:last-child { border-right: 1px solid #b6cbc0; border-radius: 0 .6rem .6rem 0; }
+    .app-list-table { border-collapse: collapse; min-width: 760px; }
+    .app-list-table thead th { color: #355245; font-weight: 700; background: #e4ede8; padding: .75rem .9rem; border-bottom: 1px solid #c8d7cf; }
+    .app-list-table tbody tr { background: #f6faf7; color: #1d3229; }
+    .app-list-table tbody tr td { padding: .75rem .9rem; border-bottom: 1px solid #d2dfd8; vertical-align: middle; }
+    .app-list-table tbody tr:last-child td { border-bottom: none; }
 
     .app-trash-btn {
         @apply rounded-xl px-3 py-1.5 text-sm border;
@@ -192,17 +195,42 @@
     .internal-header-links {
         @apply flex items-stretch justify-end gap-0 w-full lg:w-auto;
     }
+    .app-nav-wrap {
+        border: 1px solid rgba(184, 209, 197, 0.36);
+        border-radius: .9rem;
+        overflow: hidden;
+        background: rgba(20, 42, 34, 0.35);
+    }
 
     .app-nav-btn {
-        padding: 0.6rem 1.1rem;
+        padding: 0.5rem 1rem;
         font-size: 0.82rem;
         letter-spacing: 0.01em;
-        min-height: 2.6rem;
+        min-height: 2.35rem;
         white-space: nowrap;
         flex: 1 1 0;
         width: 100%;
         border-radius: 0;
+        border: 0;
+        border-right: 1px solid rgba(184, 209, 197, 0.2);
+        box-shadow: none;
     }
+    .app-nav-btn:last-child { border-right: 0; }
+    .app-nav-btn:hover { background: rgba(116, 159, 140, 0.35); transform: none; }
+    .app-nav-btn-active { background: rgba(171, 208, 188, 0.28); }
+
+    .app-stock-card { box-shadow: 0 10px 25px rgba(19, 34, 28, 0.08); }
+    .app-stock-tab { min-width: 7rem; height: 2.35rem; }
+    .app-stock-table-wrap {
+        border: 1px solid #c8d7cf;
+        border-radius: .9rem;
+        overflow-x: auto;
+        overflow-y: hidden;
+        background: #f6faf7;
+    }
+    .app-stock-input { width: 100%; min-width: 7rem; height: 2.35rem; }
+    .app-stock-row-btn { min-width: 5.5rem; height: 2.2rem; padding-inline: .9rem; }
+    .app-stock-add-btn { height: 2.3rem; padding-inline: 1rem; }
 
     .footer-legend {
         color: #ffffff;
