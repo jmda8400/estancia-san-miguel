@@ -241,9 +241,27 @@
     .internal-header-links .app-nav-btn-active {
         background: rgba(187, 220, 202, 0.24);
     }
+    .internal-view-tabs {
+        display: inline-flex;
+        align-items: stretch;
+        width: fit-content;
+        max-width: 100%;
+        border: 1px solid rgba(177, 198, 162, 0.58);
+        border-radius: 9999px;
+        overflow: hidden;
+        background: linear-gradient(145deg, rgba(20, 52, 40, 0.94), rgba(15, 40, 31, 0.95));
+    }
+    .internal-view-tabs .app-nav-btn {
+        min-height: 2.45rem;
+    }
+    .internal-view-tabs .app-nav-btn:hover {
+        background: rgba(116, 159, 140, 0.24);
+    }
+    .internal-view-tabs .app-btn-active {
+        background: rgba(187, 220, 202, 0.24);
+    }
 
     .app-stock-card { box-shadow: 0 8px 18px rgba(19, 34, 28, 0.08); }
-    .app-stock-tab { min-width: 7rem; min-height: 2.25rem; border-radius: 0.85rem; }
     .app-stock-table-wrap {
         border: 1px solid #c8d7cf;
         border-radius: 1rem;

@@ -1,7 +1,6 @@
 @extends('layouts.internal')
 @section('title', 'Administración')
-@section('internal_title', 'Vista de administración')
-@section('internal_subtitle', 'Evolución del stock por producto: cada curva muestra cómo fluctúa la cantidad a lo largo del tiempo.')
+@section('internal_title', 'Administración')
 @section('internal_content')
 <div class="app-card">
     <div class="mb-4 grid gap-3 md:grid-cols-4">
@@ -14,10 +13,12 @@
             <input id="endDate" type="date" class="app-input w-full">
         </div>
         <div class="md:col-span-2 flex items-end gap-2 flex-wrap">
-            <button class="app-btn" data-range="7">Últimos 7 días</button>
-            <button class="app-btn app-btn-active" data-range="30">Últimos 30 días</button>
-            <button class="app-btn" data-range="90">Últimos 90 días</button>
-            <button id="applyRange" class="app-btn">Aplicar rango</button>
+            <div class="internal-view-tabs">
+                <button class="app-btn app-nav-btn" data-range="7">Últimos 7 días</button>
+                <button class="app-btn app-nav-btn app-btn-active" data-range="30">Últimos 30 días</button>
+                <button class="app-btn app-nav-btn" data-range="90">Últimos 90 días</button>
+                <button id="applyRange" class="app-btn app-nav-btn">Aplicar rango</button>
+            </div>
         </div>
     </div>
     <section class="app-chart-wrap">
