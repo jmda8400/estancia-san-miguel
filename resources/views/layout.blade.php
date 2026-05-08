@@ -11,33 +11,35 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen flex flex-col {{ request()->path() === '/' ? 'frontpage' : 'internal-page' }}">
-@if (request()->path() === '/')
-@endif
 <header class="app-shell app-fixed-header border-b app-shell-transparent">
-    <nav class="mx-auto max-w-[78rem] w-full px-4 py-2 flex items-center justify-between gap-3 flex-wrap text-sm">
-            <a href="/" aria-label="Volver a la Frontpage"><img src="/logo.png" alt="Estancia San Miguel" class="brand-logo" loading="eager" decoding="async"></a>
-            @if (request()->path() === '/')
-                <div class="front-header-links">
-                    <a class="app-btn app-nav-btn" href="#estancia">La Estancia</a>
-                    <a class="app-btn app-nav-btn" href="#gastronomia">Gastronomia</a>
-                    <a class="app-btn app-nav-btn" href="#sustentabilidad">Sustentabilidad</a>
-                    <a class="app-btn app-nav-btn" href="#actividades">Actividades</a>
-                    <a class="app-btn app-nav-btn" href="#reservar">Reservar</a>
-                </div>
-            @elseif (request()->is('login'))
-                <span class="font-semibold">Acceso interno</span>
-            @else
-                <div class="internal-header-links app-nav-wrap">
-                    <a class="app-btn app-nav-btn {{ request()->is('stock*') ? 'app-nav-btn-active' : '' }}" href="/stock">Stock</a>
-                    <a class="app-btn app-nav-btn {{ request()->is('comandas*') ? 'app-nav-btn-active' : '' }}" href="/comandas">Comandas</a>
-                    <a class="app-btn app-nav-btn {{ request()->is('admin*') ? 'app-nav-btn-active' : '' }}" href="/admin">Administración</a>
-                </div>
-            @endif
+    <nav class="mx-auto max-w-[78rem] w-full px-4 py-2 md:py-1.5 flex items-center justify-between gap-3 text-sm">
+        <a href="/" aria-label="Volver a la Frontpage"><img src="/logo.png" alt="Estancia San Miguel" class="brand-logo" loading="eager" decoding="async"></a>
+        @if (request()->path() === '/')
+            <div class="front-header-links app-nav-wrap">
+                <a class="app-btn app-nav-btn" href="#estancia">La Estancia</a>
+                <a class="app-btn app-nav-btn" href="#gastronomia">Gastronomia</a>
+                <a class="app-btn app-nav-btn" href="#sustentabilidad">Sustentabilidad</a>
+                <a class="app-btn app-nav-btn" href="#actividades">Actividades</a>
+                <a class="app-btn app-nav-btn" href="#reservar">Reservar</a>
+            </div>
+        @elseif (request()->is('login'))
+            <span class="font-semibold">Acceso interno</span>
+        @else
+            <div class="internal-header-links app-nav-wrap" aria-label="Navegación interna">
+                <a class="app-btn app-nav-btn {{ request()->is('stock*') ? 'app-nav-btn-active' : '' }}" href="/stock">Stock</a>
+                <a class="app-btn app-nav-btn {{ request()->is('comandas*') ? 'app-nav-btn-active' : '' }}" href="/comandas">Comandas</a>
+                <a class="app-btn app-nav-btn {{ request()->is('admin*') ? 'app-nav-btn-active' : '' }}" href="/admin">Administración</a>
+            </div>
+        @endif
     </nav>
 </header>
 <main class="{{ request()->path() === '/' ? 'w-full p-0' : 'mx-auto max-w-[78rem] w-full px-4 py-4' }} flex-1 app-main-content">
     @yield('content')
 </main>
+
+@if (request()->path() !== '/' && !request()->is('login'))
+    @include('partials.internal-footer')
+@endif
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 @yield('scripts')
