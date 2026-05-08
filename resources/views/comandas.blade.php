@@ -1,11 +1,13 @@
 @extends('layouts.internal')
 @section('title', 'Comandas')
-@section('internal_title', 'Sistema de comandas')
+@section('internal_title', 'Comandas')
 
 @section('internal_content')
-<div class="mb-4 flex gap-2">
-    <button id="tabComandas" class="app-btn app-btn-active" onclick="switchTab('comandas')">Comandas</button>
-    <button id="tabHistorial" class="app-btn" onclick="switchTab('historial')">Historial</button>
+<div class="mb-4">
+    <div class="internal-view-tabs">
+        <button id="tabComandas" class="app-btn app-nav-btn app-btn-active" onclick="switchTab('comandas')">Comandas</button>
+        <button id="tabHistorial" class="app-btn app-nav-btn" onclick="switchTab('historial')">Historial</button>
+    </div>
 </div>
 
 <div id="comandasTab" class="grid gap-4 md:grid-cols-2">
@@ -22,20 +24,19 @@
     <div class="app-card">
         <h2 id="selectedTitle" class="font-semibold mb-3">Seleccione una mesa</h2>
         <div id="productsList" class="space-y-2"></div>
+        <div id="addProductCard" class="mt-4 hidden border-t border-amber-200 pt-4">
+            <h3 class="font-semibold mb-3">Agregar productos</h3>
+            <form id="newProductForm" class="grid gap-2 md:grid-cols-4">
+                <select id="stockItem" class="app-input" required></select>
+                <input id="productQty" type="number" min="1" value="1" class="app-input" required>
+                <input id="productNotes" class="app-input" placeholder="Notas">
+                <button class="app-btn">Agregar</button>
+            </form>
+        </div>
         <div class="flex justify-end mt-4">
             <button id="chargeBtn" class="hidden app-btn app-charge-btn" onclick="cobrarComanda()">Cobrar</button>
         </div>
     </div>
-</div>
-
-<div id="addProductCard" class="app-card mt-4 hidden">
-    <h2 class="font-semibold mb-3">Agregar productos a comanda</h2>
-    <form id="newProductForm" class="grid gap-2 md:grid-cols-4">
-        <select id="stockItem" class="app-input" required></select>
-        <input id="productQty" type="number" min="1" value="1" class="app-input" required>
-        <input id="productNotes" class="app-input" placeholder="Notas">
-        <button class="app-btn">Agregar a comanda</button>
-    </form>
 </div>
 
 <div id="historialTab" class="hidden app-card">
@@ -93,8 +94,8 @@ window.switchTab = (tab) => {
     document.getElementById('comandasTab').classList.toggle('hidden', tab !== 'comandas');
     document.getElementById('addProductCard').classList.toggle('hidden', tab !== 'comandas');
     document.getElementById('historialTab').classList.toggle('hidden', tab !== 'historial');
-    document.getElementById('tabComandas').className = `app-btn ${tab === 'comandas' ? 'app-btn-active' : ''}`;
-    document.getElementById('tabHistorial').className = `app-btn ${tab === 'historial' ? 'app-btn-active' : ''}`;
+    document.getElementById('tabComandas').className = `app-btn app-nav-btn ${tab === 'comandas' ? 'app-btn-active' : ''}`;
+    document.getElementById('tabHistorial').className = `app-btn app-nav-btn ${tab === 'historial' ? 'app-btn-active' : ''}`;
     if (tab === 'historial') refreshHistorial(state.historial.current_page);
 };
 

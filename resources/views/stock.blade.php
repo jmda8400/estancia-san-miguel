@@ -1,12 +1,14 @@
 @extends('layouts.internal')
 @section('title', 'Stock')
-@section('internal_title', 'Vista de stock')
+@section('internal_title', 'Stock')
 
 @section('internal_content')
 <section class="stock-view mx-auto w-full max-w-[78rem] space-y-4">
-<div class="stock-tabs flex gap-2">
-    <button id="tabStock" class="app-btn app-stock-tab app-btn-active" onclick="switchTab('stock')">Stock</button>
-    <button id="tabHistorial" class="app-btn app-stock-tab" onclick="switchTab('historial')">Historial</button>
+<div class="stock-tabs">
+    <div class="internal-view-tabs">
+        <button id="tabStock" class="app-btn app-nav-btn app-btn-active" onclick="switchTab('stock')">Stock</button>
+        <button id="tabHistorial" class="app-btn app-nav-btn" onclick="switchTab('historial')">Historial</button>
+    </div>
 </div>
 
 <div id="stockTab" class="app-card app-stock-card">
@@ -83,8 +85,8 @@ async function refreshHistory(){
 window.switchTab = (tab) => {
     document.getElementById('stockTab').classList.toggle('hidden', tab !== 'stock');
     document.getElementById('historialTab').classList.toggle('hidden', tab !== 'historial');
-    document.getElementById('tabStock').className = `app-btn ${tab === 'stock' ? 'app-btn-active' : ''}`;
-    document.getElementById('tabHistorial').className = `app-btn ${tab === 'historial' ? 'app-btn-active' : ''}`;
+    document.getElementById('tabStock').className = `app-btn app-nav-btn ${tab === 'stock' ? 'app-btn-active' : ''}`;
+    document.getElementById('tabHistorial').className = `app-btn app-nav-btn ${tab === 'historial' ? 'app-btn-active' : ''}`;
     if (tab === 'historial') refreshHistory();
 };
 
