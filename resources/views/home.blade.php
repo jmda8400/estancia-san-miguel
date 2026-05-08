@@ -12,6 +12,7 @@
             <img src="/logo.png" alt="Logo Estancia San Miguel" class="front-hero-logo" loading="eager" decoding="async">
         </div>
     </section>
+    <div class="front-footer-separator" aria-hidden="true"></div>
     <div class="front-section-separator" style="background-image: url('/picture_7.png');" aria-hidden="true"></div>
 
     <section id="estancia" class="front-section-block front-section-row">

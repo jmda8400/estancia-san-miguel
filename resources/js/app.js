@@ -18,7 +18,7 @@ if (body.classList.contains('frontpage')) {
         const isScrollingDown = currentScrollY > lastScrollY;
         const nearBottom = window.innerHeight + currentScrollY >= document.documentElement.scrollHeight - 8;
 
-        body.classList.toggle('header-visible', currentScrollY > 20);
+        body.classList.toggle('header-visible', currentScrollY > 80);
         body.classList.toggle('show-footer', nearBottom && isScrollingDown);
 
         lastScrollY = currentScrollY;
