@@ -1,9 +1,9 @@
-@extends('layout')
+@extends('layouts.internal')
 @section('title', 'Stock')
-@section('content')
-<section class="stock-view mx-auto w-full max-w-[78rem] space-y-4">
-<h1 class="text-2xl md:text-[1.65rem] font-semibold tracking-tight text-emerald-950">Vista de stock</h1>
+@section('internal_title', 'Vista de stock')
 
+@section('internal_content')
+<section class="stock-view mx-auto w-full max-w-[78rem] space-y-4">
 <div class="stock-tabs flex gap-2">
     <button id="tabStock" class="app-btn app-stock-tab app-btn-active" onclick="switchTab('stock')">Stock</button>
     <button id="tabHistorial" class="app-btn app-stock-tab" onclick="switchTab('historial')">Historial</button>
