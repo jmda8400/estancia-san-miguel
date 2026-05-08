@@ -41,19 +41,19 @@
     }
 
     .app-btn {
-        @apply rounded-full border px-4 py-2 text-sm font-semibold transition-all duration-200;
+        @apply rounded-[9999px] border px-5 py-2.5 text-sm font-semibold transition-all duration-200;
         border-color: rgba(112, 146, 129, 0.55);
         background: linear-gradient(145deg, rgba(34, 50, 42, 0.95), rgba(23, 35, 29, 0.95));
         color: #e8f6ee;
         box-shadow: 0 4px 14px rgba(7, 24, 16, 0.2);
-        text-decoration: none;
+        text-decoration: none !important;
     }
 
     .app-btn:visited,
     .app-btn:active,
     .app-btn:focus {
         color: #e8f6ee;
-        text-decoration: none;
+        text-decoration: none !important;
     }
 
     .app-btn:hover {
@@ -66,16 +66,20 @@
         background: linear-gradient(145deg, #4c7f67, #355a47);
         color: #f1fff7;
     }
+    .app-btn,
+    .app-btn * {
+        color: inherit;
+    }
 
     .app-input {
-        @apply rounded border px-3 py-2;
+        @apply rounded-xl border px-3 py-2;
         border-color: #999;
         background-color: #fff;
         color: #362b20;
     }
 
     .app-table-btn {
-        @apply text-left rounded-lg border px-3 py-2;
+        @apply text-left rounded-2xl border px-3 py-2;
         border-color: #acacac;
         background-color: #ececec;
         color: #232323;
@@ -94,7 +98,7 @@
     .app-list-table tbody tr td:last-child { border-right: 1px solid #c7c7c7; border-radius: 0 .6rem .6rem 0; }
 
     .app-trash-btn {
-        @apply rounded-md px-2 py-1 text-sm border;
+        @apply rounded-xl px-3 py-1.5 text-sm border;
         border-color: #be8a8a;
         background-color: #f7e6e6;
     }
@@ -114,21 +118,25 @@
     }
 
     .app-remove-table-btn {
-        @apply rounded-md border px-2 py-1 text-xs;
+        @apply rounded-xl border px-3 py-1.5 text-xs;
         border-color: #be8a8a;
         background-color: #f7e6e6;
         color: #5a2f2f;
     }
 
     .social-logo {
-        @apply inline-flex items-center justify-center rounded-md text-xs font-semibold;
+        @apply inline-flex items-center justify-center rounded-2xl;
         width: 2.2rem;
         height: 2.2rem;
         color: #fff;
+        text-decoration: none !important;
     }
 
-    .whatsapp-logo { background: #4b4b4b; }
-    .instagram-logo { background: #6a6a6a; }
+    .instagram-logo {
+        background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 6%, #fd5949 40%, #d6249f 65%, #285AEB 100%);
+        box-shadow: 0 6px 15px rgba(18, 18, 18, 0.28);
+    }
+    .instagram-logo svg { width: 1.15rem; height: 1.15rem; }
     .app-chart-wrap { @apply rounded-lg border p-3; border-color: #c4c4c4; background: #f8f8f8; }
     .app-chart-scroll { overflow-x: auto; }
     .app-chart-svg { width: 100%; height: auto; min-height: 220px; min-width: 900px; }
@@ -247,12 +255,6 @@
         transform: translateY(0);
         opacity: 1;
         pointer-events: auto;
-    }
-    body.internal-page .app-fixed-footer {
-        transform: translateY(0);
-        opacity: 1;
-        pointer-events: auto;
-        position: sticky;
     }
     .floating-whatsapp {
         position: fixed;

@@ -47,8 +47,11 @@
             <span>© {{ date('Y') }} Estancia San Miguel</span>
         </div>
         <div class="flex items-center gap-4 text-lg">
-            <a href="#" title="WhatsApp" aria-label="WhatsApp" class="social-logo whatsapp-logo">WA</a>
-            <a href="#" title="Instagram" aria-label="Instagram" class="social-logo instagram-logo">IG</a>
+            <a href="https://www.instagram.com/" title="Instagram" aria-label="Instagram" class="social-logo instagram-logo" target="_blank" rel="noopener">
+                <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path fill="currentColor" d="M7.8 2h8.4C19.4 2 22 4.6 22 7.8v8.4c0 3.2-2.6 5.8-5.8 5.8H7.8C4.6 22 2 19.4 2 16.2V7.8C2 4.6 4.6 2 7.8 2Zm-.2 2A3.6 3.6 0 0 0 4 7.6v8.8A3.6 3.6 0 0 0 7.6 20h8.8a3.6 3.6 0 0 0 3.6-3.6V7.6A3.6 3.6 0 0 0 16.4 4H7.6Zm9.65 1.5a1.25 1.25 0 1 1 0 2.5 1.25 1.25 0 0 1 0-2.5ZM12 7a5 5 0 1 1 0 10 5 5 0 0 1 0-10Zm0 2a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z"/>
+                </svg>
+            </a>
         </div>
     </div>
 </footer>
