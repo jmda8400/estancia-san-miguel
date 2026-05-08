@@ -32,16 +32,16 @@
     <div id="addProductCard" class="panel add-product-panel hidden">
         <h2 class="panel-title mb-3">Agregar productos a comanda</h2>
         <form id="newProductForm" class="grid gap-3">
-            <div>
-                <label for="stockItem" class="form-label">Producto</label>
+            <div class="field">
+                <label for="stockItem" class="field-label">Producto</label>
                 <select id="stockItem" class="app-input mt-1 w-full" required></select>
             </div>
-            <div>
-                <label for="productQty" class="form-label">Cantidad</label>
+            <div class="field">
+                <label for="productQty" class="field-label">Cantidad</label>
                 <input id="productQty" type="number" min="1" value="1" class="app-input mt-1 w-full" required>
             </div>
-            <div>
-                <label for="productNotes" class="form-label">Notas</label>
+            <div class="field">
+                <label for="productNotes" class="field-label">Notas</label>
                 <input id="productNotes" class="app-input mt-1 w-full" placeholder="Notas">
             </div>
             <button class="btn btn-primary w-full">Agregar a comanda</button>
@@ -74,14 +74,12 @@ function renderComandas() {
  tablesEl.innerHTML = visible.map(c => {
     const totalMesa = c.productos.reduce((acc, p) => acc + ((Number(p.precio) || 0) * p.cantidad), 0);
     return `<div class="table-card ${state.selectedComandaId===c.id?'active':''}">
-        <button class="w-full text-left" onclick="selectComanda(${c.id})">
-            <p class="font-semibold">${c.nombre ?? ('Mesa ' + c.mesa_numero)}</p>
-            <div class="mt-1 flex items-center justify-between gap-2">
-                <p class="text-xs text-emerald-900">${c.productos.length} producto(s)</p>
-                <p class="text-sm font-semibold">$${totalMesa.toFixed(2)}</p>
-            </div>
+        <button class="table-card-select" onclick="selectComanda(${c.id})">
+            <p class="table-card-title">${c.nombre ?? ('Mesa ' + c.mesa_numero)}</p>
+            <p class="table-card-meta">${c.productos.length} producto(s)</p>
+            <p class="table-card-total">$${totalMesa.toFixed(2)}</p>
         </button>
-        <button class="btn btn-danger mt-2 text-xs px-3 py-1.5" onclick="removeComanda(${c.id})">Quitar</button>
+        <button class="btn btn-danger btn-compact mt-2" onclick="removeComanda(${c.id})">Quitar</button>
     </div>`;
  }).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
@@ -93,12 +91,12 @@ function renderComandas() {
  totalEl.textContent = `Total: $${totalComanda.toFixed(2)}`;
  productsEl.innerHTML = comanda.productos.length
     ? comanda.productos.map(p=>`<div class="order-item">
-        <div class="flex items-start justify-between gap-2">
+        <div class="order-item-head">
             <div class="min-w-0">
-                <p class="font-semibold text-sm text-emerald-950 truncate">${p.nombre}</p>
-                <p class="text-xs text-emerald-900">$${(Number(p.precio) || 0).toFixed(2)} c/u</p>
+                <p class="order-item-title truncate">${p.nombre}</p>
+                <p class="order-item-price">$${(Number(p.precio) || 0).toFixed(2)} c/u</p>
             </div>
-            <p class="text-sm font-semibold text-emerald-950">$${((Number(p.precio) || 0) * p.cantidad).toFixed(2)}</p>
+            <p class="order-item-subtotal">$${((Number(p.precio) || 0) * p.cantidad).toFixed(2)}</p>
         </div>
         <div class="order-item-controls mt-2">
             <input type="number" min="1" value="${p.cantidad}" onchange="updateProducto(${p.id},{cantidad:this.value})" class="app-input text-sm">
