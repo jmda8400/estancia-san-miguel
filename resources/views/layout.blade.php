@@ -10,19 +10,22 @@
 <body class="min-h-screen flex flex-col app-has-fixed-bars {{ request()->path() === '/' ? 'frontpage' : 'internal-page' }}">
 @if (request()->path() === '/')
 <div class="frontpage-hero-bg" aria-hidden="true"></div>
+<div class="frontpage-center-logo" aria-hidden="true">
+    <img src="/logo.png" alt="" class="frontpage-center-logo-image" loading="eager" decoding="async">
+</div>
 @endif
 <header class="app-shell app-fixed-header border-b app-shell-transparent">
     <nav class="mx-auto max-w-7xl w-full px-4 py-3 flex items-center justify-between gap-4 flex-wrap text-sm">
         <div class="flex w-full items-center justify-between gap-4 flex-wrap">
-            <a href="/" aria-label="Volver a la Frontpage"><img src="/logo.svg" alt="Estancia San Miguel" class="brand-logo" loading="eager" decoding="async"></a>
+            <a href="/" aria-label="Volver a la Frontpage"><img src="/logo_2.png" alt="Estancia San Miguel" class="brand-logo" loading="eager" decoding="async"></a>
             @if (request()->path() === '/')
                 <div class="front-header-links">
-                    <a class="app-btn" href="#hosteria">Hostería</a>
-                    <a class="app-btn" href="#habitaciones">Habitaciones</a>
-                    <a class="app-btn" href="#cabanas">Cabañas</a>
-                    <a class="app-btn" href="#gastronomia">Gastronomía</a>
-                    <a class="app-btn" href="#servicios">Servicios & Actividades</a>
-                    <a class="app-btn" href="#contacto">Contacto</a>
+                    <a class="app-btn app-nav-btn" href="#hosteria">Hostería</a>
+                    <a class="app-btn app-nav-btn" href="#habitaciones">Habitaciones</a>
+                    <a class="app-btn app-nav-btn" href="#cabanas">Cabañas</a>
+                    <a class="app-btn app-nav-btn" href="#gastronomia">Gastronomía</a>
+                    <a class="app-btn app-nav-btn" href="#servicios">Servicios & Actividades</a>
+                    <a class="app-btn app-nav-btn" href="#contacto">Contacto</a>
                 </div>
             @elseif (request()->is('login'))
                 <span class="font-semibold">Acceso interno</span>
