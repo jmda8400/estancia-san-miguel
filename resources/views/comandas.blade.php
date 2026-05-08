@@ -25,7 +25,7 @@
         <div id="productsList" class="space-y-3 flex-1 overflow-y-auto pr-1 min-h-[16rem]"></div>
         <div class="orders-summary mt-3 pt-3 flex items-center justify-between gap-3">
             <p id="selectedTotal" class="text-sm font-semibold text-emerald-950">Total: $0.00</p>
-            <button id="chargeBtn" class="hidden btn btn-primary" onclick="cobrarComanda()">Cobrar</button>
+            <button id="chargeBtn" class="hidden btn btn-primary btn-charge" onclick="cobrarComanda()">Cobrar</button>
         </div>
     </div>
 
@@ -44,7 +44,7 @@
                 <label for="productNotes" class="field-label">Notas</label>
                 <input id="productNotes" class="app-input mt-1 w-full" placeholder="Notas">
             </div>
-            <button class="btn btn-primary w-full">Agregar a comanda</button>
+            <button class="btn btn-primary btn-add-comanda w-full">Agregar a comanda</button>
         </form>
     </div>
 </div>
@@ -79,7 +79,7 @@ function renderComandas() {
             <p class="table-card-meta">${c.productos.length} producto(s)</p>
             <p class="table-card-total">$${totalMesa.toFixed(2)}</p>
         </button>
-        <button class="btn btn-danger btn-compact mt-2" onclick="removeComanda(${c.id})">Quitar</button>
+        <button class="btn btn-danger btn-compact table-card-remove mt-2" onclick="removeComanda(${c.id})">Quitar</button>
     </div>`;
  }).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
@@ -101,7 +101,7 @@ function renderComandas() {
         <div class="order-item-controls mt-2">
             <input type="number" min="1" value="${p.cantidad}" onchange="updateProducto(${p.id},{cantidad:this.value})" class="app-input text-sm">
             <input value="${p.notas??''}" onchange="updateProducto(${p.id},{notas:this.value})" class="app-input text-sm" placeholder="Notas">
-            <button class="btn btn-danger text-xs" title="Quitar producto" onclick="deleteProducto(${p.id})">Eliminar</button>
+            <button class="btn btn-danger btn-product-delete text-xs" title="Quitar producto" onclick="deleteProducto(${p.id})">Eliminar</button>
         </div>
     </div>`).join('')
     : `<div class="h-full min-h-[14rem] flex items-center justify-center">

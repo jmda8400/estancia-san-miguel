@@ -729,11 +729,11 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
     }
 
     .panel {
-        background: #f8fbf8;
-        border: 1px solid #dce7df;
-        border-radius: 28px;
-        padding: 24px;
-        box-shadow: 0 14px 28px rgba(22, 44, 34, 0.09);
+        background: linear-gradient(180deg, #fdfefd 0%, #f7fbf8 100%);
+        border: 1px solid #d9e6de;
+        border-radius: 30px;
+        padding: 26px;
+        box-shadow: 0 12px 26px rgba(25, 45, 36, 0.08);
     }
 
     .panel-title {
@@ -745,32 +745,32 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
     .tables-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 14px;
+        gap: 16px;
     }
 
     .table-card {
-        border-radius: 24px;
-        border: 1px solid #d2e0d6;
-        background: #ffffff;
-        box-shadow: 0 8px 18px rgba(19, 37, 30, 0.08);
-        padding: 14px;
+        border-radius: 26px;
+        border: 1px solid #d7e5dc;
+        background: linear-gradient(180deg, #ffffff 0%, #f9fcfa 100%);
+        box-shadow: 0 10px 20px rgba(19, 37, 30, 0.07);
+        padding: 17px;
         display: flex;
         flex-direction: column;
-        gap: 10px;
+        gap: 12px;
     }
 
     .table-card.active {
-        border-color: #577865;
-        background: #eef6f0;
-        box-shadow: 0 10px 22px rgba(42, 77, 61, 0.2);
+        border-color: #7da995;
+        background: linear-gradient(180deg, #f6fcf8 0%, #edf7f1 100%);
+        box-shadow: 0 0 0 3px rgba(120, 166, 142, 0.14), 0 12px 24px rgba(33, 63, 50, 0.13);
     }
 
     .table-card-select {
         width: 100%;
         text-align: left;
         display: grid;
-        gap: 8px;
-        border-radius: 16px;
+        gap: 10px;
+        border-radius: 18px;
     }
 
     .table-card-title {
@@ -781,41 +781,53 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
     }
 
     .table-card-meta {
-        font-size: 0.78rem;
+        font-size: 0.8rem;
         color: #446254;
     }
 
     .table-card-total {
-        margin-top: 2px;
-        font-size: 1rem;
-        font-weight: 700;
-        color: #1a3f2f;
+        margin-top: 5px;
+        font-size: 1.12rem;
+        font-weight: 800;
+        color: #123f2d;
+    }
+
+    .table-card-remove {
+        align-self: flex-start;
+        padding: 7px 12px;
+        min-height: 1.9rem;
+        font-size: 0.72rem;
     }
 
     .add-product-panel { align-self: start; }
 
     .order-item {
-        border-radius: 22px;
-        padding: 16px;
+        border-radius: 24px;
+        padding: 18px;
         background: linear-gradient(180deg, #fffefb 0%, #fffaf1 100%);
-        border: 1px solid #e6ebe5;
-        box-shadow: 0 8px 17px rgba(23, 38, 31, 0.08);
+        border: 1px solid #e3ebe4;
+        box-shadow: 0 9px 19px rgba(23, 38, 31, 0.07);
         overflow: hidden;
     }
     .order-item-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
     .order-item-title { font-size: .95rem; font-weight: 700; color: #1f342b; }
     .order-item-price { font-size: .78rem; color: #4a6658; margin-top: 3px; }
-    .order-item-subtotal { font-size: .95rem; font-weight: 700; color: #1a3f2f; }
+    .order-item-subtotal { font-size: 1rem; font-weight: 800; color: #1a3f2f; }
 
     .order-item-controls {
         display: grid;
-        grid-template-columns: 100px minmax(0, 1fr) auto;
-        gap: 10px;
+        grid-template-columns: 108px minmax(0, 1fr) auto;
+        gap: 12px;
         align-items: center;
         min-width: 0;
     }
 
     .order-item-controls input { min-width: 0; }
+
+    .btn-product-delete {
+        padding-inline: 14px;
+        min-height: 2.1rem;
+    }
 
     .orders-summary {
         border-top: 1px solid #cad8d0;
@@ -823,11 +835,12 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
 
     .field-label,
     .form-label {
-        font-size: 0.83rem;
-        font-weight: 600;
+        font-size: 0.82rem;
+        font-weight: 700;
+        letter-spacing: 0.01em;
         color: #355245;
     }
-    .field { display: grid; gap: 4px; }
+    .field { display: grid; gap: 7px; }
 
     .btn {
         display: inline-flex;
@@ -835,25 +848,25 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
         justify-content: center;
         gap: 8px;
         border-radius: 999px;
-        padding: 12px 20px;
-        font-size: 0.87rem;
+        padding: 12px 22px;
+        font-size: 0.86rem;
         font-weight: 700;
         border: 1px solid transparent;
-        transition: all 0.22s ease;
-        min-height: 2.35rem;
-        box-shadow: 0 5px 14px rgba(27, 48, 39, 0.14);
+        transition: transform 0.22s ease, box-shadow 0.22s ease, background-color 0.22s ease;
+        min-height: 2.45rem;
+        box-shadow: 0 6px 14px rgba(27, 48, 39, 0.12);
     }
 
     .btn:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 6px 12px rgba(19, 38, 30, 0.14);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 18px rgba(19, 38, 30, 0.14);
     }
 
     .btn-primary {
         color: #ffffff;
-        border-color: #1b4a34;
-        background: linear-gradient(145deg, #2f6f4f, #1f4a35);
-        box-shadow: 0 9px 18px rgba(20, 58, 41, 0.24);
+        border-color: #2d6048;
+        background: linear-gradient(140deg, #397d5a 0%, #255b42 100%);
+        box-shadow: 0 11px 20px rgba(27, 74, 54, 0.24);
     }
 
     .btn-secondary {
@@ -863,23 +876,42 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
     }
 
     .btn-danger {
-        background: #fbeef1;
-        color: #7a3743;
-        border-color: #e7c1c8;
-        box-shadow: 0 4px 11px rgba(123, 62, 73, 0.12);
+        background: linear-gradient(180deg, #fff5f7 0%, #fbecef 100%);
+        color: #7d3a45;
+        border-color: #eacbd1;
+        box-shadow: 0 5px 12px rgba(123, 62, 73, 0.1);
     }
 
     .btn-compact {
-        padding: 8px 14px;
+        padding: 7px 12px;
         font-size: .75rem;
-        min-height: 2rem;
+        min-height: 1.95rem;
     }
 
     .app-input {
-        border-radius: 15px;
-        min-height: 2.6rem;
-        padding-inline: 0.9rem;
-        border-color: #b8c8bf;
+        border-radius: 18px;
+        min-height: 2.7rem;
+        padding-inline: 0.95rem;
+        border-color: #b6c7bd;
+        box-shadow: inset 0 1px 2px rgba(22, 43, 33, 0.05);
+    }
+
+    .app-input:focus {
+        box-shadow: 0 0 0 3px rgba(84, 128, 108, 0.17);
+    }
+
+    .btn-charge {
+        font-size: 0.94rem;
+        padding: 13px 28px;
+        min-height: 2.8rem;
+        box-shadow: 0 12px 21px rgba(27, 75, 54, 0.25);
+    }
+
+    .btn-add-comanda {
+        min-height: 2.9rem;
+        font-size: 0.9rem;
+        background: linear-gradient(145deg, #2f7652 0%, #1f543d 100%);
+        box-shadow: 0 12px 20px rgba(25, 74, 52, 0.24);
     }
 
     @media (max-width: 1280px) {
