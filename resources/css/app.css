@@ -684,7 +684,7 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
     }
 
     .internal-page-head {
-        @apply rounded-2xl border px-4 py-4 md:px-5 md:py-4;
+        @apply rounded-2xl border px-4 py-3 md:px-5 md:py-3;
         border-color: #9cb4a8;
         background: linear-gradient(140deg, rgba(235, 243, 239, 0.95), rgba(218, 231, 224, 0.92));
         box-shadow: 0 8px 22px rgba(20, 44, 35, 0.08);
