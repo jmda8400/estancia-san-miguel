@@ -67,11 +67,18 @@ Route::middleware(RequireLogin::class)->group(function () {
     Route::get('/stock/data', fn () => DB::table('stock')->orderBy('id')->get());
     Route::get('/stock/historial/data', fn () => DB::table('stock_historial')->orderByDesc('created_at')->limit(100)->get());
     Route::put('/stock/{id}', function (Request $r, int $id) {
-        $data = $r->validate(['cantidad' => 'required|integer|min:0']);
+        $data = $r->validate([
+            'cantidad' => 'required|integer|min:0',
+            'precio' => 'required|numeric|min:0',
+        ]);
         $stockItem = DB::table('stock')->where('id', $id)->first();
         abort_unless($stockItem, 404);
 
-        DB::table('stock')->where('id', $id)->update(['cantidad' => $data['cantidad'], 'updated_at' => now()]);
+        DB::table('stock')->where('id', $id)->update([
+            'cantidad' => $data['cantidad'],
+            'precio' => $data['precio'],
+            'updated_at' => now(),
+        ]);
 
         $diff = $data['cantidad'] - $stockItem->cantidad;
         if ($diff !== 0) {
@@ -91,7 +98,8 @@ Route::middleware(RequireLogin::class)->group(function () {
         $data = $r->validate([
             'producto' => 'required|string|max:100',
             'cantidad' => 'required|integer|min:0',
-                    ]);
+            'precio' => 'required|numeric|min:0',
+        ]);
         $id = DB::table('stock')->insertGetId($data + ['created_at' => now(), 'updated_at' => now()]);
         DB::table('stock_historial')->insert([
             'producto' => $data['producto'],
