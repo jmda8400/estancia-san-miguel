@@ -18,11 +18,11 @@
             <a href="/" aria-label="Volver a la Frontpage"><img src="/logo.png" alt="Estancia San Miguel" class="brand-logo" loading="eager" decoding="async"></a>
             @if (request()->path() === '/')
                 <div class="front-header-links">
-                    <a class="app-btn app-nav-btn" href="#estancia">01 La Estancia</a>
-                    <a class="app-btn app-nav-btn" href="#gastronomia">02 Gastronomia</a>
-                    <a class="app-btn app-nav-btn" href="#sustentabilidad">03 Sustentabilidad</a>
-                    <a class="app-btn app-nav-btn" href="#actividades">04 Actividades</a>
-                    <a class="app-btn app-nav-btn" href="#reservar">05 Reservar</a>
+                    <a class="app-btn app-nav-btn" href="#estancia">La Estancia</a>
+                    <a class="app-btn app-nav-btn" href="#gastronomia">Gastronomia</a>
+                    <a class="app-btn app-nav-btn" href="#sustentabilidad">Sustentabilidad</a>
+                    <a class="app-btn app-nav-btn" href="#actividades">Actividades</a>
+                    <a class="app-btn app-nav-btn" href="#reservar">Reservar</a>
                 </div>
             @elseif (request()->is('login'))
                 <span class="font-semibold">Acceso interno</span>
