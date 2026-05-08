@@ -25,10 +25,10 @@
         @elseif (request()->is('login'))
             {{-- Header sin etiqueta en login --}}
         @else
-            <div class="internal-header-links app-nav-wrap" aria-label="Navegación interna">
-                <a class="app-btn app-nav-btn {{ request()->is('stock*') ? 'app-nav-btn-active bg-[#f3f5ef] text-[#173427] font-bold' : 'text-[#f3f5ef] hover:bg-white/10' }}" href="/stock">Stock</a>
-                <a class="app-btn app-nav-btn {{ request()->is('comandas*') ? 'app-nav-btn-active bg-[#f3f5ef] text-[#173427] font-bold' : 'text-[#f3f5ef] hover:bg-white/10' }}" href="/comandas">Comandas</a>
-                <a class="app-btn app-nav-btn {{ request()->is('admin*') ? 'app-nav-btn-active bg-[#f3f5ef] text-[#173427] font-bold' : 'text-[#f3f5ef] hover:bg-white/10' }}" href="/admin">Administración</a>
+            <div class="internal-header-links internal-nav" aria-label="Navegación interna">
+                <a class="internal-nav-link {{ request()->is('stock*') ? 'internal-nav-link-active' : '' }}" href="/stock">Stock</a>
+                <a class="internal-nav-link {{ request()->is('comandas*') ? 'internal-nav-link-active' : '' }}" href="/comandas">Comandas</a>
+                <a class="internal-nav-link {{ request()->is('admin*') ? 'internal-nav-link-active' : '' }}" href="/admin">Administración</a>
             </div>
         @endif
     </nav>
