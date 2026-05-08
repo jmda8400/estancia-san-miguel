@@ -65,7 +65,8 @@ function renderComandas() {
  titleEl.textContent = `Productos de ${comanda.nombre ?? ('Mesa ' + comanda.mesa_numero)}`;
  chargeBtn.classList.remove('hidden');
  document.getElementById('addProductCard').classList.remove('hidden');
- productsEl.innerHTML = comanda.productos.map(p=>`<div class="rounded-lg border border-amber-200 bg-amber-50 p-3"><div class="flex flex-wrap gap-2 items-center"><strong class="min-w-44">${p.nombre}</strong><input type="number" min="1" value="${p.cantidad}" onchange="updateProducto(${p.id},{cantidad:this.value})" class="w-18 app-input"><input value="${p.notas??''}" onchange="updateProducto(${p.id},{notas:this.value})" class="app-input flex-1" placeholder="Notas"><button class="app-trash-btn" title="Quitar producto" onclick="deleteProducto(${p.id})">🗑️ Eliminar</button></div></div>`).join('');
+ const totalComanda = comanda.productos.reduce((acc, p) => acc + ((Number(p.precio) || 0) * p.cantidad), 0);
+ productsEl.innerHTML = comanda.productos.map(p=>`<div class="rounded-lg border border-amber-200 bg-amber-50 p-3"><div class="flex flex-wrap gap-2 items-center"><strong class="min-w-44">${p.nombre}</strong><span class="text-sm text-amber-900">$${((Number(p.precio) || 0) * p.cantidad).toFixed(2)} <small class="text-amber-700">($${(Number(p.precio) || 0).toFixed(2)} c/u)</small></span><input type="number" min="1" value="${p.cantidad}" onchange="updateProducto(${p.id},{cantidad:this.value})" class="w-18 app-input"><input value="${p.notas??''}" onchange="updateProducto(${p.id},{notas:this.value})" class="app-input flex-1" placeholder="Notas"><button class="app-trash-btn" title="Quitar producto" onclick="deleteProducto(${p.id})">🗑️ Eliminar</button></div></div>`).join('') + `<div class="mt-3 text-right font-semibold text-amber-950">Total: $${totalComanda.toFixed(2)}</div>`;
 }
 
 function renderHistorial() {

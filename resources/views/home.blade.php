@@ -15,6 +15,7 @@
             <p>El Casco</p>
         </div>
     </section>
+    <div class="front-section-separator"><img src="/picture_7.png" alt="Separador visual"></div>
 
     <section id="estancia" class="front-section-block front-section-row">
         <div class="front-section-media">
@@ -26,6 +27,7 @@
             <a href="#" class="front-internal-btn">Ver más</a>
         </div>
     </section>
+    <div class="front-section-separator"><img src="/picture_8.jpg" alt="Separador visual"></div>
 
     <section id="gastronomia" class="front-section-block front-section-row front-section-row-reverse">
         <div class="front-section-media">
@@ -37,6 +39,7 @@
             <a href="#" class="front-internal-btn">Ver más</a>
         </div>
     </section>
+    <div class="front-section-separator"><img src="/picture_9.jpg" alt="Separador visual"></div>
 
     <section id="sustentabilidad" class="front-section-block front-section-row">
         <div class="front-section-media">
@@ -48,6 +51,7 @@
             <a href="#" class="front-internal-btn">Ver más</a>
         </div>
     </section>
+    <div class="front-section-separator"><img src="/picture_10.jpg" alt="Separador visual"></div>
 
     <section id="actividades" class="front-section-block front-section-row front-section-row-reverse">
         <div class="front-section-media">

@@ -15,7 +15,7 @@ function comandasConProductos()
                 $q->whereNull('s.id')->orWhere('s.cantidad', '>', 0);
             })
             ->orderBy('p.id')
-            ->select('p.*')
+            ->select('p.*', 's.precio')
             ->get();
 
         return (array) $c + ['productos' => $productos];
@@ -180,14 +180,27 @@ Route::middleware(RequireLogin::class)->group(function () {
             return response()->json(['message' => 'Stock insuficiente para este producto.'], 422);
         }
 
-        DB::table('productos')->insert([
-            'comanda_id' => $data['comanda_id'],
-            'nombre' => $stockItem->producto,
-            'cantidad' => $data['cantidad'],
-            'notas' => $data['notas'] ?? null,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        $existingProducto = DB::table('productos')
+            ->where('comanda_id', $data['comanda_id'])
+            ->where('nombre', $stockItem->producto)
+            ->first();
+
+        if ($existingProducto) {
+            DB::table('productos')->where('id', $existingProducto->id)->update([
+                'cantidad' => $existingProducto->cantidad + $data['cantidad'],
+                'notas' => $data['notas'] ?? $existingProducto->notas,
+                'updated_at' => now(),
+            ]);
+        } else {
+            DB::table('productos')->insert([
+                'comanda_id' => $data['comanda_id'],
+                'nombre' => $stockItem->producto,
+                'cantidad' => $data['cantidad'],
+                'notas' => $data['notas'] ?? null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         DB::table('stock')->where('id', $stockItem->id)->update([
             'cantidad' => $stockItem->cantidad - $data['cantidad'],
