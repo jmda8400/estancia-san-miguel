@@ -729,11 +729,11 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
     }
 
     .panel {
-        background: #f4f7f2;
-        border: 1px solid #d6e1da;
-        border-radius: 22px;
+        background: #f8fbf8;
+        border: 1px solid #dce7df;
+        border-radius: 28px;
         padding: 24px;
-        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+        box-shadow: 0 14px 28px rgba(22, 44, 34, 0.09);
     }
 
     .panel-title {
@@ -745,32 +745,67 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
     .tables-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
-        gap: 12px;
+        gap: 14px;
     }
 
     .table-card {
-        border-radius: 18px;
-        border: 1px solid #ccdad1;
+        border-radius: 24px;
+        border: 1px solid #d2e0d6;
         background: #ffffff;
-        box-shadow: 0 6px 14px rgba(19, 37, 30, 0.09);
-        padding: 12px;
+        box-shadow: 0 8px 18px rgba(19, 37, 30, 0.08);
+        padding: 14px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
     }
 
     .table-card.active {
-        border-color: #567564;
-        background: #edf4ef;
+        border-color: #577865;
+        background: #eef6f0;
+        box-shadow: 0 10px 22px rgba(42, 77, 61, 0.2);
+    }
+
+    .table-card-select {
+        width: 100%;
+        text-align: left;
+        display: grid;
+        gap: 8px;
+        border-radius: 16px;
+    }
+
+    .table-card-title {
+        font-size: 0.95rem;
+        line-height: 1.3;
+        font-weight: 700;
+        color: #1f342b;
+    }
+
+    .table-card-meta {
+        font-size: 0.78rem;
+        color: #446254;
+    }
+
+    .table-card-total {
+        margin-top: 2px;
+        font-size: 1rem;
+        font-weight: 700;
+        color: #1a3f2f;
     }
 
     .add-product-panel { align-self: start; }
 
     .order-item {
-        border-radius: 16px;
-        padding: 14px;
-        background: #fffdf7;
-        border: 1px solid #e1e8e2;
-        box-shadow: 0 6px 16px rgba(23, 38, 31, 0.08);
+        border-radius: 22px;
+        padding: 16px;
+        background: linear-gradient(180deg, #fffefb 0%, #fffaf1 100%);
+        border: 1px solid #e6ebe5;
+        box-shadow: 0 8px 17px rgba(23, 38, 31, 0.08);
         overflow: hidden;
     }
+    .order-item-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 10px; }
+    .order-item-title { font-size: .95rem; font-weight: 700; color: #1f342b; }
+    .order-item-price { font-size: .78rem; color: #4a6658; margin-top: 3px; }
+    .order-item-subtotal { font-size: .95rem; font-weight: 700; color: #1a3f2f; }
 
     .order-item-controls {
         display: grid;
@@ -786,24 +821,27 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
         border-top: 1px solid #cad8d0;
     }
 
+    .field-label,
     .form-label {
         font-size: 0.83rem;
         font-weight: 600;
         color: #355245;
     }
+    .field { display: grid; gap: 4px; }
 
     .btn {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        gap: 0.4rem;
+        gap: 8px;
         border-radius: 999px;
-        padding: 10px 18px;
+        padding: 12px 20px;
         font-size: 0.87rem;
         font-weight: 700;
         border: 1px solid transparent;
-        transition: all 0.2s ease;
+        transition: all 0.22s ease;
         min-height: 2.35rem;
+        box-shadow: 0 5px 14px rgba(27, 48, 39, 0.14);
     }
 
     .btn:hover {
@@ -813,9 +851,9 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
 
     .btn-primary {
         color: #ffffff;
-        border-color: #1e4f37;
-        background: linear-gradient(145deg, #2f6f4f, #224f39);
-        box-shadow: 0 6px 14px rgba(20, 58, 41, 0.2);
+        border-color: #1b4a34;
+        background: linear-gradient(145deg, #2f6f4f, #1f4a35);
+        box-shadow: 0 9px 18px rgba(20, 58, 41, 0.24);
     }
 
     .btn-secondary {
@@ -825,14 +863,23 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
     }
 
     .btn-danger {
-        background: #f8e7ea;
-        color: #6c2e39;
-        border-color: #deafb8;
+        background: #fbeef1;
+        color: #7a3743;
+        border-color: #e7c1c8;
+        box-shadow: 0 4px 11px rgba(123, 62, 73, 0.12);
+    }
+
+    .btn-compact {
+        padding: 8px 14px;
+        font-size: .75rem;
+        min-height: 2rem;
     }
 
     .app-input {
-        border-radius: 12px;
-        min-height: 2.45rem;
+        border-radius: 15px;
+        min-height: 2.6rem;
+        padding-inline: 0.9rem;
+        border-color: #b8c8bf;
     }
 
     @media (max-width: 1280px) {
