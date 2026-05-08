@@ -584,3 +584,45 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
 .app-list-table-grid tbody tr td {
     padding: 0.6rem;
 }
+
+@layer components {
+    .internal-layout {
+        @apply mx-auto w-full max-w-[78rem] space-y-4;
+    }
+
+    .internal-page-head {
+        @apply rounded-2xl border px-4 py-4 md:px-5 md:py-4;
+        border-color: #9cb4a8;
+        background: linear-gradient(140deg, rgba(235, 243, 239, 0.95), rgba(218, 231, 224, 0.92));
+        box-shadow: 0 8px 22px rgba(20, 44, 35, 0.08);
+    }
+
+    .internal-page-title {
+        @apply text-2xl md:text-[1.65rem] font-semibold tracking-tight;
+        color: #1f3b2d;
+    }
+
+    .internal-page-subtitle {
+        @apply mt-1 text-sm md:text-base;
+        color: #355245;
+    }
+
+    .internal-page-head + .app-card,
+    .internal-page-head + .stock-view {
+        margin-top: 1rem;
+    }
+
+    .stock-view { @apply space-y-4; }
+
+    .stock-tabs,
+    #comandas .tabs,
+    .internal-tabs {
+        @apply flex gap-2;
+    }
+
+    .footer-legend {
+        font-size: .79rem;
+        letter-spacing: .01em;
+        color: #e3efe8;
+    }
+}

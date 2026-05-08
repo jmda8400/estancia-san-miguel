@@ -1,8 +1,8 @@
-@extends('layout')
+@extends('layouts.internal')
 @section('title', 'Comandas')
-@section('content')
-<h1 class="text-2xl font-semibold mb-4">Sistema de comandas</h1>
+@section('internal_title', 'Sistema de comandas')
 
+@section('internal_content')
 <div class="mb-4 flex gap-2">
     <button id="tabComandas" class="app-btn app-btn-active" onclick="switchTab('comandas')">Comandas</button>
     <button id="tabHistorial" class="app-btn" onclick="switchTab('historial')">Historial</button>

@@ -28,7 +28,6 @@
                 <span class="font-semibold">Acceso interno</span>
             @else
                 <div class="internal-header-links app-nav-wrap">
-                    <a class="app-btn app-nav-btn {{ request()->is('/') ? 'app-nav-btn-active' : '' }}" href="/">Frontpage</a>
                     <a class="app-btn app-nav-btn {{ request()->is('stock*') ? 'app-nav-btn-active' : '' }}" href="/stock">Stock</a>
                     <a class="app-btn app-nav-btn {{ request()->is('comandas*') ? 'app-nav-btn-active' : '' }}" href="/comandas">Comandas</a>
                     <a class="app-btn app-nav-btn {{ request()->is('admin*') ? 'app-nav-btn-active' : '' }}" href="/admin">Administración</a>
@@ -41,8 +40,9 @@
 </main>
 @if (request()->path() !== '/')
 <footer id="footer" class="app-shell app-fixed-footer border-t text-sm py-3 app-shell-transparent">
-    <div class="mx-auto max-w-7xl px-4 flex items-center justify-start gap-3 footer-legend">
-        <span>2026 - El Casco, Estancia San Miguel</span>
+    <div class="mx-auto max-w-[78rem] w-full px-4 flex flex-wrap items-center justify-between gap-1.5 footer-legend">
+        <span>El Casco · Estancia San Miguel</span>
+        <span>Sistema interno de gestión · {{ now()->year }}</span>
     </div>
 </footer>
 @endif

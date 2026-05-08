@@ -1,9 +1,9 @@
-@extends('layout')
+@extends('layouts.internal')
 @section('title', 'Administración')
-@section('content')
+@section('internal_title', 'Vista de administración')
+@section('internal_subtitle', 'Evolución del stock por producto: cada curva muestra cómo fluctúa la cantidad a lo largo del tiempo.')
+@section('internal_content')
 <div class="app-card">
-    <h1 class="text-2xl font-semibold mb-2">Vista de administración</h1>
-    <p class="text-neutral-800 mb-4">Evolución del stock por producto: cada curva muestra cómo fluctúa la cantidad a lo largo del tiempo.</p>
     <div class="mb-4 grid gap-3 md:grid-cols-4">
         <div>
             <label for="startDate" class="font-medium block mb-1">Desde</label>
