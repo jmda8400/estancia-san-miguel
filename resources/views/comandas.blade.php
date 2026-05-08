@@ -8,8 +8,8 @@
     <button id="tabHistorial" class="app-btn" onclick="switchTab('historial')">Historial</button>
 </div>
 
-<div id="comandasTab" class="grid gap-4 md:grid-cols-2">
-    <div class="app-card">
+<div id="comandasTab" class="grid gap-4 xl:grid-cols-[minmax(260px,1fr)_minmax(380px,1.4fr)_minmax(300px,1fr)] items-start">
+    <div class="app-card h-full">
         <div class="flex items-center justify-between mb-3 gap-2 flex-wrap">
             <h2 class="font-semibold">Mesas</h2>
             <div class="flex items-center gap-2">
@@ -17,25 +17,36 @@
             <button class="app-btn" onclick="removeLastComanda()">- Quitar comanda</button>
             </div>
         </div>
-        <div id="tables" class="grid grid-cols-2 sm:grid-cols-3 gap-2"></div>
+        <div id="tables" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-2"></div>
     </div>
-    <div class="app-card">
+
+    <div class="app-card h-full flex flex-col min-h-[28rem]">
         <h2 id="selectedTitle" class="font-semibold mb-3">Seleccione una mesa</h2>
-        <div id="productsList" class="space-y-2"></div>
-        <div class="flex justify-end mt-4">
+        <div id="productsList" class="space-y-2 flex-1 overflow-y-auto pr-1"></div>
+        <div class="border-t border-amber-200 mt-3 pt-3 flex items-center justify-between gap-3 bg-[#f3f5ef] sticky bottom-0">
+            <p id="selectedTotal" class="text-sm font-semibold text-amber-950">Total: $0.00</p>
             <button id="chargeBtn" class="hidden app-btn app-charge-btn" onclick="cobrarComanda()">Cobrar</button>
         </div>
     </div>
-</div>
 
-<div id="addProductCard" class="app-card mt-4 hidden">
-    <h2 class="font-semibold mb-3">Agregar productos a comanda</h2>
-    <form id="newProductForm" class="grid gap-2 md:grid-cols-4">
-        <select id="stockItem" class="app-input" required></select>
-        <input id="productQty" type="number" min="1" value="1" class="app-input" required>
-        <input id="productNotes" class="app-input" placeholder="Notas">
-        <button class="app-btn">Agregar a comanda</button>
-    </form>
+    <div id="addProductCard" class="app-card h-full hidden xl:sticky xl:top-4">
+        <h2 class="font-semibold mb-3">Agregar productos a comanda</h2>
+        <form id="newProductForm" class="grid gap-3">
+            <div>
+                <label for="stockItem" class="text-sm text-amber-900">Producto</label>
+                <select id="stockItem" class="app-input mt-1" required></select>
+            </div>
+            <div>
+                <label for="productQty" class="text-sm text-amber-900">Cantidad</label>
+                <input id="productQty" type="number" min="1" value="1" class="app-input mt-1" required>
+            </div>
+            <div>
+                <label for="productNotes" class="text-sm text-amber-900">Notas</label>
+                <input id="productNotes" class="app-input mt-1" placeholder="Notas">
+            </div>
+            <button class="app-btn w-full">Agregar a comanda</button>
+        </form>
+    </div>
 </div>
 
 <div id="historialTab" class="hidden app-card">
@@ -56,17 +67,44 @@ const tablesEl = document.getElementById('tables');
 const productsEl = document.getElementById('productsList');
 const titleEl = document.getElementById('selectedTitle');
 const chargeBtn = document.getElementById('chargeBtn');
+const totalEl = document.getElementById('selectedTotal');
 
 function renderComandas() {
  const visible = state.comandas;
- tablesEl.innerHTML = visible.map(c => `<div class="app-table-btn ${state.selectedComandaId===c.id?'active':''}"><button class="w-full text-left" onclick="selectComanda(${c.id})">${c.nombre ?? ('Mesa ' + c.mesa_numero)}<br><small>${c.productos.length} productos</small></button><button class="app-remove-table-btn mt-2" onclick="removeComanda(${c.id})">Quitar</button></div>`).join('');
+ tablesEl.innerHTML = visible.map(c => {
+    const totalMesa = c.productos.reduce((acc, p) => acc + ((Number(p.precio) || 0) * p.cantidad), 0);
+    return `<div class="app-table-btn ${state.selectedComandaId===c.id?'active':''}">
+        <button class="w-full text-left" onclick="selectComanda(${c.id})">
+            <p class="font-semibold">${c.nombre ?? ('Mesa ' + c.mesa_numero)}</p>
+            <p class="text-xs text-amber-800 mt-1">${c.productos.length} producto(s)</p>
+            <p class="text-sm font-semibold mt-1">$${totalMesa.toFixed(2)}</p>
+        </button>
+        <button class="app-remove-table-btn mt-2" onclick="removeComanda(${c.id})">Quitar</button>
+    </div>`;
+ }).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
- if(!comanda){titleEl.textContent='Seleccione una mesa'; productsEl.innerHTML=''; chargeBtn.classList.add('hidden'); document.getElementById('addProductCard').classList.add('hidden'); return;}
+ if(!comanda){titleEl.textContent='Seleccione una mesa'; productsEl.innerHTML=''; totalEl.textContent='Total: $0.00'; chargeBtn.classList.add('hidden'); document.getElementById('addProductCard').classList.add('hidden'); return;}
  titleEl.textContent = `Productos de ${comanda.nombre ?? ('Mesa ' + comanda.mesa_numero)}`;
  chargeBtn.classList.remove('hidden');
  document.getElementById('addProductCard').classList.remove('hidden');
  const totalComanda = comanda.productos.reduce((acc, p) => acc + ((Number(p.precio) || 0) * p.cantidad), 0);
- productsEl.innerHTML = comanda.productos.map(p=>`<div class="rounded-lg border border-amber-200 bg-amber-50 p-3"><div class="flex flex-wrap gap-2 items-center"><strong class="min-w-44">${p.nombre}</strong><span class="text-sm text-amber-900">$${((Number(p.precio) || 0) * p.cantidad).toFixed(2)} <small class="text-amber-700">($${(Number(p.precio) || 0).toFixed(2)} c/u)</small></span><input type="number" min="1" value="${p.cantidad}" onchange="updateProducto(${p.id},{cantidad:this.value})" class="w-18 app-input"><input value="${p.notas??''}" onchange="updateProducto(${p.id},{notas:this.value})" class="app-input flex-1" placeholder="Notas"><button class="app-trash-btn" title="Quitar producto" onclick="deleteProducto(${p.id})">🗑️ Eliminar</button></div></div>`).join('') + `<div class="mt-3 text-right font-semibold text-amber-950">Total: $${totalComanda.toFixed(2)}</div>`;
+ totalEl.textContent = `Total: $${totalComanda.toFixed(2)}`;
+ productsEl.innerHTML = comanda.productos.length
+    ? comanda.productos.map(p=>`<div class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 shadow-sm">
+        <div class="flex items-start justify-between gap-2">
+            <div>
+                <p class="font-semibold text-sm text-amber-950">${p.nombre}</p>
+                <p class="text-xs text-amber-800">$${(Number(p.precio) || 0).toFixed(2)} c/u</p>
+            </div>
+            <p class="text-sm font-semibold text-amber-950">$${((Number(p.precio) || 0) * p.cantidad).toFixed(2)}</p>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-[90px_1fr_auto] gap-2 mt-2">
+            <input type="number" min="1" value="${p.cantidad}" onchange="updateProducto(${p.id},{cantidad:this.value})" class="app-input text-sm">
+            <input value="${p.notas??''}" onchange="updateProducto(${p.id},{notas:this.value})" class="app-input text-sm" placeholder="Notas">
+            <button class="app-trash-btn text-xs" title="Quitar producto" onclick="deleteProducto(${p.id})">Eliminar</button>
+        </div>
+    </div>`).join('')
+    : '<p class="text-sm text-amber-900">Esta comanda no tiene productos aún.</p>';
 }
 
 function renderHistorial() {
