@@ -76,6 +76,7 @@
             <a href="#" class="front-internal-btn">Reservar</a>
         </div>
     </section>
+    <div class="front-section-separator"><img src="/picture_15.png" alt="Separador visual"></div>
 
     <div class="front-footer-separator" aria-hidden="true"></div>
     <footer class="frontpage-footer">
