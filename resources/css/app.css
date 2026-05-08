@@ -719,3 +719,140 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
         color: #e3efe8;
     }
 }
+
+@layer components {
+    .orders-layout {
+        display: grid;
+        grid-template-columns: 380px minmax(480px, 1fr) 420px;
+        gap: 24px;
+        align-items: start;
+    }
+
+    .panel {
+        background: #f4f7f2;
+        border: 1px solid #d6e1da;
+        border-radius: 22px;
+        padding: 24px;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+    }
+
+    .panel-title {
+        font-size: 1.08rem;
+        font-weight: 700;
+        color: #1f342b;
+    }
+
+    .tables-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .table-card {
+        border-radius: 18px;
+        border: 1px solid #ccdad1;
+        background: #ffffff;
+        box-shadow: 0 6px 14px rgba(19, 37, 30, 0.09);
+        padding: 12px;
+    }
+
+    .table-card.active {
+        border-color: #567564;
+        background: #edf4ef;
+    }
+
+    .add-product-panel { align-self: start; }
+
+    .order-item {
+        border-radius: 16px;
+        padding: 14px;
+        background: #fffdf7;
+        border: 1px solid #e1e8e2;
+        box-shadow: 0 6px 16px rgba(23, 38, 31, 0.08);
+        overflow: hidden;
+    }
+
+    .order-item-controls {
+        display: grid;
+        grid-template-columns: 100px minmax(0, 1fr) auto;
+        gap: 10px;
+        align-items: center;
+        min-width: 0;
+    }
+
+    .order-item-controls input { min-width: 0; }
+
+    .orders-summary {
+        border-top: 1px solid #cad8d0;
+    }
+
+    .form-label {
+        font-size: 0.83rem;
+        font-weight: 600;
+        color: #355245;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.4rem;
+        border-radius: 999px;
+        padding: 10px 18px;
+        font-size: 0.87rem;
+        font-weight: 700;
+        border: 1px solid transparent;
+        transition: all 0.2s ease;
+        min-height: 2.35rem;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 6px 12px rgba(19, 38, 30, 0.14);
+    }
+
+    .btn-primary {
+        color: #ffffff;
+        border-color: #1e4f37;
+        background: linear-gradient(145deg, #2f6f4f, #224f39);
+        box-shadow: 0 6px 14px rgba(20, 58, 41, 0.2);
+    }
+
+    .btn-secondary {
+        background: #f8fcf9;
+        color: #244033;
+        border-color: #a7c0b2;
+    }
+
+    .btn-danger {
+        background: #f8e7ea;
+        color: #6c2e39;
+        border-color: #deafb8;
+    }
+
+    .app-input {
+        border-radius: 12px;
+        min-height: 2.45rem;
+    }
+
+    @media (max-width: 1280px) {
+        .orders-layout {
+            grid-template-columns: minmax(300px, 360px) minmax(420px, 1fr);
+        }
+
+        .add-product-panel {
+            grid-column: 1 / -1;
+        }
+    }
+
+    @media (max-width: 1100px) {
+        .orders-layout { grid-template-columns: 1fr; }
+        .tables-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    @media (max-width: 640px) {
+        .panel { padding: 18px; border-radius: 18px; }
+        .tables-grid { grid-template-columns: 1fr; }
+        .order-item-controls { grid-template-columns: 1fr; }
+    }
+}

@@ -8,54 +8,54 @@
     <button id="tabHistorial" class="app-btn" onclick="switchTab('historial')">Historial</button>
 </div>
 
-<div id="comandasTab" class="grid gap-4 xl:grid-cols-[330px_minmax(420px,1fr)_380px] 2xl:grid-cols-[340px_minmax(440px,1fr)_400px] items-start">
-    <div class="app-card h-full">
-        <div class="flex items-center justify-between mb-3 gap-2 flex-wrap">
-            <h2 class="font-semibold">Mesas</h2>
-            <div class="flex w-full sm:w-auto items-center gap-1.5">
-            <button class="app-btn text-xs px-2.5 py-1.5 sm:text-sm" onclick="addComanda()">+ Agregar comanda</button>
-            <button class="app-btn text-xs px-2.5 py-1.5 sm:text-sm" onclick="removeLastComanda()">- Quitar comanda</button>
+<div id="comandasTab" class="orders-layout">
+    <div class="panel h-full flex flex-col">
+        <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
+            <h2 class="panel-title">Mesas</h2>
+            <div class="flex items-center gap-2 flex-wrap">
+                <button class="btn btn-secondary text-xs sm:text-sm" onclick="addComanda()">+ Agregar comanda</button>
+                <button class="btn btn-danger text-xs sm:text-sm" onclick="removeLastComanda()">- Quitar comanda</button>
             </div>
         </div>
-        <div id="tables" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-1 gap-2"></div>
+        <div id="tables" class="tables-grid flex-1 min-h-[20rem] max-h-[calc(100vh-16rem)] overflow-y-auto pr-1"></div>
     </div>
 
-    <div class="app-card h-full flex flex-col min-h-[28rem] max-h-[calc(100vh-14rem)]">
-        <h2 id="selectedTitle" class="font-semibold mb-3">Seleccione una mesa</h2>
-        <div id="productsList" class="space-y-2 flex-1 overflow-y-auto pr-1 min-h-[16rem]"></div>
-        <div class="border-t border-amber-200 mt-3 pt-3 flex items-center justify-between gap-3 bg-[#f3f5ef]">
-            <p id="selectedTotal" class="text-sm font-semibold text-amber-950">Total: $0.00</p>
-            <button id="chargeBtn" class="hidden app-btn app-charge-btn" onclick="cobrarComanda()">Cobrar</button>
+    <div class="panel h-full flex flex-col min-h-[30rem] max-h-[calc(100vh-14rem)]">
+        <h2 id="selectedTitle" class="panel-title mb-3">Seleccione una mesa</h2>
+        <div id="productsList" class="space-y-3 flex-1 overflow-y-auto pr-1 min-h-[16rem]"></div>
+        <div class="orders-summary mt-3 pt-3 flex items-center justify-between gap-3">
+            <p id="selectedTotal" class="text-sm font-semibold text-emerald-950">Total: $0.00</p>
+            <button id="chargeBtn" class="hidden btn btn-primary" onclick="cobrarComanda()">Cobrar</button>
         </div>
     </div>
 
-    <div id="addProductCard" class="app-card h-full hidden xl:sticky xl:top-4">
-        <h2 class="font-semibold mb-3">Agregar productos a comanda</h2>
-        <form id="newProductForm" class="grid gap-3 content-start">
+    <div id="addProductCard" class="panel add-product-panel hidden">
+        <h2 class="panel-title mb-3">Agregar productos a comanda</h2>
+        <form id="newProductForm" class="grid gap-3">
             <div>
-                <label for="stockItem" class="text-sm text-amber-900">Producto</label>
+                <label for="stockItem" class="form-label">Producto</label>
                 <select id="stockItem" class="app-input mt-1 w-full" required></select>
             </div>
             <div>
-                <label for="productQty" class="text-sm text-amber-900">Cantidad</label>
+                <label for="productQty" class="form-label">Cantidad</label>
                 <input id="productQty" type="number" min="1" value="1" class="app-input mt-1 w-full" required>
             </div>
             <div>
-                <label for="productNotes" class="text-sm text-amber-900">Notas</label>
+                <label for="productNotes" class="form-label">Notas</label>
                 <input id="productNotes" class="app-input mt-1 w-full" placeholder="Notas">
             </div>
-            <button class="app-btn app-btn-active w-full">Agregar a comanda</button>
+            <button class="btn btn-primary w-full">Agregar a comanda</button>
         </form>
     </div>
 </div>
 
-<div id="historialTab" class="hidden app-card">
-    <h2 class="font-semibold mb-3">Historial de comandas cobradas</h2>
+<div id="historialTab" class="hidden panel">
+    <h2 class="panel-title mb-3">Historial de comandas cobradas</h2>
     <div id="historialList" class="space-y-2"></div>
     <div class="mt-4 flex items-center justify-between">
-        <button id="prevPage" class="app-btn" onclick="changePage(-1)">Anterior</button>
-        <span id="pageInfo" class="text-sm text-amber-950"></span>
-        <button id="nextPage" class="app-btn" onclick="changePage(1)">Siguiente</button>
+        <button id="prevPage" class="btn btn-secondary" onclick="changePage(-1)">Anterior</button>
+        <span id="pageInfo" class="text-sm text-emerald-950"></span>
+        <button id="nextPage" class="btn btn-secondary" onclick="changePage(1)">Siguiente</button>
     </div>
 </div>
 
@@ -73,15 +73,15 @@ function renderComandas() {
  const visible = state.comandas;
  tablesEl.innerHTML = visible.map(c => {
     const totalMesa = c.productos.reduce((acc, p) => acc + ((Number(p.precio) || 0) * p.cantidad), 0);
-    return `<div class="app-table-btn ${state.selectedComandaId===c.id?'active':''}">
+    return `<div class="table-card ${state.selectedComandaId===c.id?'active':''}">
         <button class="w-full text-left" onclick="selectComanda(${c.id})">
             <p class="font-semibold">${c.nombre ?? ('Mesa ' + c.mesa_numero)}</p>
             <div class="mt-1 flex items-center justify-between gap-2">
-                <p class="text-xs text-amber-800">${c.productos.length} producto(s)</p>
+                <p class="text-xs text-emerald-900">${c.productos.length} producto(s)</p>
                 <p class="text-sm font-semibold">$${totalMesa.toFixed(2)}</p>
             </div>
         </button>
-        <button class="app-remove-table-btn mt-1.5 text-xs px-2.5 py-1" onclick="removeComanda(${c.id})">Quitar</button>
+        <button class="btn btn-danger mt-2 text-xs px-3 py-1.5" onclick="removeComanda(${c.id})">Quitar</button>
     </div>`;
  }).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
@@ -92,34 +92,34 @@ function renderComandas() {
  const totalComanda = comanda.productos.reduce((acc, p) => acc + ((Number(p.precio) || 0) * p.cantidad), 0);
  totalEl.textContent = `Total: $${totalComanda.toFixed(2)}`;
  productsEl.innerHTML = comanda.productos.length
-    ? comanda.productos.map(p=>`<div class="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 shadow-sm">
+    ? comanda.productos.map(p=>`<div class="order-item">
         <div class="flex items-start justify-between gap-2">
-            <div>
-                <p class="font-semibold text-sm text-amber-950">${p.nombre}</p>
-                <p class="text-xs text-amber-800">$${(Number(p.precio) || 0).toFixed(2)} c/u</p>
+            <div class="min-w-0">
+                <p class="font-semibold text-sm text-emerald-950 truncate">${p.nombre}</p>
+                <p class="text-xs text-emerald-900">$${(Number(p.precio) || 0).toFixed(2)} c/u</p>
             </div>
-            <p class="text-sm font-semibold text-amber-950">$${((Number(p.precio) || 0) * p.cantidad).toFixed(2)}</p>
+            <p class="text-sm font-semibold text-emerald-950">$${((Number(p.precio) || 0) * p.cantidad).toFixed(2)}</p>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-[90px_1fr_auto] gap-2 mt-2">
+        <div class="order-item-controls mt-2">
             <input type="number" min="1" value="${p.cantidad}" onchange="updateProducto(${p.id},{cantidad:this.value})" class="app-input text-sm">
             <input value="${p.notas??''}" onchange="updateProducto(${p.id},{notas:this.value})" class="app-input text-sm" placeholder="Notas">
-            <button class="app-trash-btn text-xs" title="Quitar producto" onclick="deleteProducto(${p.id})">Eliminar</button>
+            <button class="btn btn-danger text-xs" title="Quitar producto" onclick="deleteProducto(${p.id})">Eliminar</button>
         </div>
     </div>`).join('')
     : `<div class="h-full min-h-[14rem] flex items-center justify-center">
-        <p class="text-sm text-amber-900 text-center">Esta comanda no tiene productos aún.</p>
+        <p class="text-sm text-emerald-900 text-center">Esta comanda no tiene productos aún.</p>
       </div>`;
 }
 
 function renderHistorial() {
     const historialEl = document.getElementById('historialList');
     if (state.historial.data.length === 0) {
-        historialEl.innerHTML = '<p class="text-amber-900">No hay comandas cobradas todavía.</p>';
+        historialEl.innerHTML = '<p class="text-emerald-900">No hay comandas cobradas todavía.</p>';
     } else {
         historialEl.innerHTML = state.historial.data.map(h => `
-            <details class="rounded border border-amber-200 bg-amber-50 p-3">
+            <details class="rounded-2xl border border-emerald-200 bg-emerald-50 p-3">
                 <summary class="cursor-pointer">${h.nombre ?? ('Mesa ' + h.mesa_numero)} · ${new Date(h.cobrada_en).toLocaleString()}</summary>
-                <div class="mt-2 space-y-1 text-sm text-amber-950">
+                <div class="mt-2 space-y-1 text-sm text-emerald-950">
                     ${h.productos.map(p => `<div>${p.cantidad}x ${p.nombre}${p.notas ? ` — ${p.notas}` : ''}</div>`).join('') || '<div>Sin productos.</div>'}
                 </div>
             </details>
