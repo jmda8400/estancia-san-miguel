@@ -8,6 +8,9 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen flex flex-col app-has-fixed-bars {{ request()->path() === '/' ? 'frontpage' : 'internal-page' }}">
+@if (request()->path() === '/')
+<div class="frontpage-hero-bg" aria-hidden="true"></div>
+@endif
 <header class="app-shell app-fixed-header border-b app-shell-transparent">
     <nav class="mx-auto max-w-7xl w-full px-4 py-3 flex items-center justify-between gap-4 flex-wrap text-sm">
         <div class="flex w-full items-center justify-between gap-4 flex-wrap">
