@@ -379,7 +379,7 @@
     pointer-events: auto;
     background: #0d2e1e;
 }
-.frontpage-simple { background: #f6f4ef; }
+.frontpage-simple { background: #101b16; }
 .frontpage-preloader {
     position: fixed;
     inset: 0;
@@ -395,18 +395,26 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
 .front-hero { position: relative; z-index: 1; min-height: 100vh; display: flex; align-items: center; justify-content: center; }
 .front-hero-image, .front-hero-overlay { position: absolute; inset: 0; }
 .front-hero-image { width: 100%; height: 100%; object-fit: cover; z-index: 0; }
-.front-hero-overlay { background: rgba(0,0,0,.35); }
+.front-hero-overlay { background: rgba(0,0,0,.55); }
 .front-hero-content { position: relative; z-index: 2; text-align: center; color: #fff; }
 .front-hero-logo { width: min(48vw, 340px); margin: 0 auto 1rem; }
 .front-hero h1 { font-size: clamp(2rem, 6vw, 4.2rem); font-weight: 700; }
 .front-hero p { font-size: clamp(1rem, 2.5vw, 1.45rem); letter-spacing: .14em; text-transform: uppercase; }
-.front-section-block { padding: 5rem 1.25rem; max-width: 980px; margin: 0 auto; text-align: center; }
+.front-section-block { padding: 4rem 1.25rem; max-width: 1100px; margin: 0 auto; }
 .front-section-block h2 { font-size: clamp(1.6rem, 3.4vw, 2.5rem); color: #0d2e1e; margin-bottom: .9rem; }
 .front-section-block h2 span { color: #e8b34a; margin-right: .5rem; }
 .front-section-block p { color: #3d3d3d; margin-bottom: 1.3rem; }
 .front-internal-btn { display: inline-block; background: #0d2e1e; color: #fff; border-radius: .85rem; padding: .65rem 1.25rem; text-decoration: none; }
-.front-separator { width: 100%; height: 140px; overflow: hidden; }
-.front-separator img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.front-section-row { display: grid; gap: 2rem; align-items: center; grid-template-columns: minmax(0, 1fr); }
+.front-section-media { border-radius: 1rem; overflow: hidden; min-height: 260px; box-shadow: 0 12px 26px rgba(0, 0, 0, .28); }
+.front-section-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.front-section-content { text-align: left; background: #f6f4ef; border-radius: 1rem; padding: 2rem; box-shadow: 0 10px 24px rgba(0,0,0,.12); }
+
+@media (min-width: 900px) {
+    .front-section-row { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+    .front-section-row-reverse .front-section-media { order: 2; }
+    .front-section-row-reverse .front-section-content { order: 1; }
+}
 
 .internal-page .internal-header-links {
     background: #88b79d;

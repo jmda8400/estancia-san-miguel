@@ -16,38 +16,59 @@
         </div>
     </section>
 
-    <section id="estancia" class="front-section-block">
-        <h2><span>01</span> La Estancia</h2>
-        <p>Tradición, calma y paisaje serrano en una experiencia de campo auténtica.</p>
-        <a href="#" class="front-internal-btn">Ver más</a>
+    <section id="estancia" class="front-section-block front-section-row">
+        <div class="front-section-media">
+            <img src="/picture_2.png" alt="La Estancia">
+        </div>
+        <div class="front-section-content">
+            <h2><span>01</span> La Estancia</h2>
+            <p>Tradición, calma y paisaje serrano en una experiencia de campo auténtica.</p>
+            <a href="#" class="front-internal-btn">Ver más</a>
+        </div>
     </section>
-    <div class="front-separator"><img src="/picture_1.png" alt="Separador"></div>
 
-    <section id="gastronomia" class="front-section-block">
-        <h2><span>02</span> Gastronomía</h2>
-        <p>Sabores regionales y cocina de estación con identidad local.</p>
-        <a href="#" class="front-internal-btn">Ver más</a>
+    <section id="gastronomia" class="front-section-block front-section-row front-section-row-reverse">
+        <div class="front-section-media">
+            <img src="/picture_3.png" alt="Gastronomía">
+        </div>
+        <div class="front-section-content">
+            <h2><span>02</span> Gastronomía</h2>
+            <p>Sabores regionales y cocina de estación con identidad local.</p>
+            <a href="#" class="front-internal-btn">Ver más</a>
+        </div>
     </section>
-    <div class="front-separator"><img src="/picture_2.png" alt="Separador"></div>
 
-    <section id="sustentabilidad" class="front-section-block">
-        <h2><span>03</span> Sustentabilidad</h2>
-        <p>Compromiso con el entorno natural, el uso responsable de recursos y la comunidad.</p>
-        <a href="#" class="front-internal-btn">Ver más</a>
+    <section id="sustentabilidad" class="front-section-block front-section-row">
+        <div class="front-section-media">
+            <img src="/picture_4.png" alt="Sustentabilidad">
+        </div>
+        <div class="front-section-content">
+            <h2><span>03</span> Sustentabilidad</h2>
+            <p>Compromiso con el entorno natural, el uso responsable de recursos y la comunidad.</p>
+            <a href="#" class="front-internal-btn">Ver más</a>
+        </div>
     </section>
-    <div class="front-separator"><img src="/picture_3.png" alt="Separador"></div>
 
-    <section id="actividades" class="front-section-block">
-        <h2><span>04</span> Actividades</h2>
-        <p>Caminatas, cabalgatas y propuestas al aire libre para disfrutar cada momento.</p>
-        <a href="#" class="front-internal-btn">Ver más</a>
+    <section id="actividades" class="front-section-block front-section-row front-section-row-reverse">
+        <div class="front-section-media">
+            <img src="/picture_5.png" alt="Actividades">
+        </div>
+        <div class="front-section-content">
+            <h2><span>04</span> Actividades</h2>
+            <p>Caminatas, cabalgatas y propuestas al aire libre para disfrutar cada momento.</p>
+            <a href="#" class="front-internal-btn">Ver más</a>
+        </div>
     </section>
-    <div class="front-separator"><img src="/picture_4.png" alt="Separador"></div>
 
-    <section id="reservar" class="front-section-block">
-        <h2><span>05</span> Reservar</h2>
-        <p>Coordiná tu estadía y viví la experiencia Estancia San Miguel.</p>
-        <a href="#" class="front-internal-btn">Reservar</a>
+    <section id="reservar" class="front-section-block front-section-row">
+        <div class="front-section-media">
+            <img src="/picture_6.png" alt="Reservar">
+        </div>
+        <div class="front-section-content">
+            <h2><span>05</span> Reservar</h2>
+            <p>Coordiná tu estadía y viví la experiencia Estancia San Miguel.</p>
+            <a href="#" class="front-internal-btn">Reservar</a>
+        </div>
     </section>
 
     <a href="https://wa.me/5490000000000" class="floating-whatsapp" aria-label="WhatsApp" target="_blank" rel="noopener noreferrer">
