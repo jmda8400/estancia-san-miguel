@@ -352,21 +352,26 @@
 .frontpage .app-shell-transparent { background: #0d2e1e; }
 .frontpage .brand-logo { height: 2.9rem; }
 .frontpage .front-header-links {
-    gap: 0;
-    background: #88b79d;
+    gap: .35rem;
+    background: linear-gradient(90deg, #ead8b2 0%, #e8b34a 100%);
     border-radius: 999px;
-    padding: .2rem;
+    padding: .35rem;
+    border: 1px solid rgba(102, 69, 25, 0.28);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, .22);
 }
 .frontpage .app-nav-btn {
-    border-radius: 0;
-    border: 0;
-    background: #6ba17f;
-    color: #fff !important;
-    box-shadow: none;
-    min-height: 2.9rem;
-    padding: 0.6rem 1rem;
+    border-radius: 999px;
+    border: 1px solid rgba(255, 255, 255, .3);
+    background: linear-gradient(145deg, #1f513a, #133a29);
+    color: #f9f7ef !important;
+    box-shadow: 0 5px 14px rgba(8, 23, 16, .35);
+    min-height: 2.75rem;
+    padding: 0.55rem 1rem;
 }
-.frontpage .app-nav-btn + .app-nav-btn { border-left: 1px solid rgba(255,255,255,.15); }
+.frontpage .app-nav-btn:hover {
+    background: linear-gradient(145deg, #2e6a4f, #1f513a);
+}
+.frontpage .app-nav-btn + .app-nav-btn { border-left: 0; }
 .frontpage .app-fixed-footer {
     position: static;
     transform: none;
