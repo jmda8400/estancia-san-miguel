@@ -1,12 +1,20 @@
 const body = document.body;
 
-const toggleFooter = () => {
-    const scrollPosition = window.scrollY + window.innerHeight;
-    const pageBottom = document.documentElement.scrollHeight - 40;
-    body.classList.toggle('show-footer', scrollPosition >= pageBottom);
+if (body.classList.contains('frontpage')) {
+    const onReady = () => {
+        body.classList.add('page-loaded');
+    };
 
-};
+    if (document.readyState === 'complete') {
+        onReady();
+    } else {
+        window.addEventListener('load', onReady);
+    }
 
-window.addEventListener('scroll', toggleFooter, { passive: true });
-window.addEventListener('resize', toggleFooter);
-toggleFooter();
+    const toggleHeader = () => {
+        body.classList.toggle('header-visible', window.scrollY > 20);
+    };
+
+    window.addEventListener('scroll', toggleHeader, { passive: true });
+    toggleHeader();
+}
