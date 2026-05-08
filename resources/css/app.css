@@ -36,7 +36,14 @@
     .app-fixed-footer { @apply sticky bottom-0 inset-x-0 z-40; }
     .app-main-content { padding-top: 1.5rem; padding-bottom: 1.5rem; min-height: 0; }
     .app-brand-wrap { margin-left: -0.65rem; }
-    .brand-logo { width: auto; height: 4.2rem; max-width: 16rem; object-fit: contain; filter: drop-shadow(0 2px 4px rgba(0,0,0,.28)); }
+    .brand-logo {
+        height: clamp(3.7rem, 5vw, 5.85rem);
+        width: auto;
+        max-height: 5.85rem;
+        object-fit: contain;
+        display: block;
+        filter: drop-shadow(0 2px 4px rgba(0,0,0,.28));
+    }
 
     .app-card {
         @apply rounded-xl border p-4 md:p-6 shadow-sm;
@@ -162,6 +169,13 @@
         background: linear-gradient(120deg, rgba(8, 15, 12, 0.76), rgba(20, 37, 30, 0.6));
         position: relative;
         overflow: hidden;
+    }
+}
+
+@media (max-width: 640px) {
+    .brand-logo {
+        height: clamp(2.9rem, 12vw, 4.2rem);
+        max-height: 4.2rem;
     }
 }
 
