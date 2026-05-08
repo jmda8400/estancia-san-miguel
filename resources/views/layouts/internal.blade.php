@@ -11,6 +11,4 @@
 
     @yield('internal_content')
 </section>
-
-@include('partials.internal-footer')
 @endsection
