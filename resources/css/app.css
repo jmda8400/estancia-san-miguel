@@ -509,12 +509,24 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
 .front-section-media { border-radius: 1rem; overflow: hidden; min-height: 260px; box-shadow: 0 12px 26px rgba(0, 0, 0, .28); }
 .front-section-media img { width: 100%; height: 100%; object-fit: cover; display: block; }
 .front-section-content { text-align: left; background: #f6f4ef; border-radius: 1rem; padding: 2rem; box-shadow: 0 10px 24px rgba(0,0,0,.12); }
-.front-section-separator { width: 100%; height: 7rem; overflow: hidden; }
-.front-section-separator img { width: 100%; height: 100%; object-fit: cover; display: block; filter: saturate(1.05) contrast(1.03); }
+.front-section-separator {
+    width: 100%;
+    min-height: 7rem;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    filter: saturate(1.05) contrast(1.03);
+}
+.front-section-separator img {
+    display: none;
+}
 
 
 @media (max-width: 900px) {
-    .front-hero {
+    .front-hero,
+    .front-section-separator {
         background-attachment: scroll;
     }
 }
