@@ -1,92 +1,74 @@
 @extends('layout')
 @section('title', 'Frontpage')
 @section('content')
-<div class="hotel-landing">
-    <section class="hotel-hero app-card">
-        <p class="front-kicker">Bienvenidos a la sierra</p>
-        <h1 class="text-4xl md:text-5xl font-semibold mb-3">El Casco - Estancia San Miguel</h1>
-        <p class="text-lg md:text-xl max-w-3xl">Hostería de montaña al pie del Champaquí, rodeada de bosque nativo, río y experiencias auténticas.</p>
-        <div class="front-hero-cta">
-            <a href="#hosteria" class="app-btn app-btn-active">Conocer la hostería</a>
-            <a href="#servicios" class="app-btn">Ver servicios</a>
+<div class="frontpage-modern">
+    <section id="inicio" class="relative min-h-[88vh] overflow-hidden rounded-3xl border border-stone-200/70">
+        {{-- Reemplazar /picture_hero.png por imagen final del hero --}}
+        <img src="/picture_hero.png" alt="Vista panorámica de Estancia San Miguel" class="absolute inset-0 h-full w-full object-cover" loading="eager" decoding="async">
+        <div class="absolute inset-0 bg-gradient-to-b from-black/45 via-black/35 to-black/55"></div>
+
+        <div class="relative z-20 flex min-h-[88vh] flex-col">
+            <header class="px-6 pt-6 md:px-10 lg:px-14">
+                <nav class="rounded-2xl border border-white/25 bg-white/85 px-4 py-3 shadow-xl backdrop-blur md:px-6">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <a href="#inicio" class="inline-flex items-center gap-3 text-stone-900 font-semibold">
+                            <img src="/logo_3.png" alt="Estancia San Miguel" class="h-11 w-auto" loading="eager" decoding="async">
+                        </a>
+                        <div class="flex flex-wrap items-center gap-2 text-sm md:gap-3">
+                            <a href="#estancia" class="front-nav-link">La Estancia</a>
+                            <a href="#footer" class="front-nav-link">Contacto</a>
+                        </div>
+                    </div>
+                </nav>
+            </header>
+
+            <div class="mx-auto flex w-full max-w-6xl flex-1 items-center px-6 pb-16 pt-8 md:px-10 lg:px-14">
+                <div class="max-w-2xl text-stone-50">
+                    <p class="mb-4 text-sm uppercase tracking-[0.24em] text-stone-100/90">El Casco</p>
+                    <h1 class="text-4xl font-semibold leading-tight md:text-6xl">Estancia San Miguel</h1>
+                    <p class="mt-4 text-lg text-stone-100/95 md:text-xl">Diseñada para vivir el campo con calma, naturaleza y hospitalidad auténtica.</p>
+                    <a href="#estancia" class="mt-7 inline-flex rounded-full bg-amber-100 px-7 py-3 text-base font-semibold text-stone-900 shadow-lg transition hover:bg-amber-50">Descubrir la estancia</a>
+                </div>
+            </div>
+
+            <aside class="relative z-20 mx-6 mb-6 md:mx-10 lg:mx-14">
+                <div class="grid gap-3 rounded-2xl border border-white/30 bg-black/35 p-4 text-sm text-stone-100 backdrop-blur md:grid-cols-4">
+                    <div class="front-quick-item">Restaurante</div>
+                    <div class="front-quick-item">Sobre la Hosteria</div>
+                    <div class="front-quick-item">Sustentabilidad</div>
+                    <div class="front-quick-item">Actividades</div>
+                </div>
+            </aside>
         </div>
     </section>
 
-    <section class="front-highlights">
-        <article class="front-highlight-card">
-            <h3>Naturaleza inmersiva</h3>
-            <p>500 metros de río, bosque nativo y senderos para reconectar con el entorno serrano.</p>
-        </article>
-        <article class="front-highlight-card">
-            <h3>Descanso con identidad</h3>
-            <p>Habitaciones de estilo de montaña y atención personalizada para una estadía serena.</p>
-        </article>
-        <article class="front-highlight-card">
-            <h3>Cocina regional</h3>
-            <p>Sabores locales, productos de estación y recetas que cuentan la historia de la zona.</p>
-        </article>
-    </section>
+    <section id="estancia" class="py-16 md:py-20">
+        <div class="grid gap-8 lg:grid-cols-2 lg:items-center">
+            <article>
+                <p class="mb-3 text-xs font-semibold uppercase tracking-[0.18em] text-stone-600">Sección 01</p>
+                <h2 class="text-3xl font-semibold text-stone-900 md:text-4xl">La Estancia</h2>
+                <p class="mt-4 max-w-xl text-base leading-relaxed text-stone-700 md:text-lg">Entre montaña y campo, Estancia San Miguel ofrece una experiencia íntima de descanso, sabores regionales y conexión con el paisaje natural. Cada detalle combina elegancia cálida con el ritmo sereno de la vida serrana.</p>
+            </article>
+            <figure class="overflow-hidden rounded-3xl border border-stone-200 bg-stone-100 shadow-sm">
+                {{-- Reemplazar /picture_6.png por imagen final de la sección La Estancia --}}
+                <img src="/picture_6.png" alt="Paisaje de Estancia San Miguel" class="h-full min-h-[320px] w-full object-cover" loading="lazy" decoding="async">
+            </figure>
+        </div>
 
-    <section id="hosteria" class="front-section front-section-split">
-        <figure class="front-section-photo">
-            <img src="/picture_2.png" alt="Entorno natural de la hostería" loading="lazy" decoding="async">
-        </figure>
-        <article class="front-section-copy front-split">
-            <h2 class="front-block-title">Sobre la Hostería</h2>
-            <p>La hostería está ubicada en el Paraje de San Miguel de los Ríos, dentro del municipio de Villa Yacanto, rodeada de sierras y una añosa arboleda de distintas especies.</p>
-            <p>A la vera del parque corre el río Tabaquillos con acceso a playa de arena y aguas cristalinas. Estamos a 8 km del pueblo, al pie del Cerro Champaquí.</p>
-            <p>Contamos con 7 habitaciones con baño privado, desayunos con panes y dulces caseros y un servicio dedicado a cada huésped.</p>
-        </article>
-    </section>
-
-    <section class="front-divider" aria-label="Paisaje de San Miguel">
-        <img src="/picture_3.png" alt="Bosques y paisaje serrano" loading="lazy" decoding="async">
-    </section>
-
-    <section id="sustentabilidad" class="front-section front-section-split front-section-reverse">
-        <article class="front-section-copy front-split">
-            <h2 class="front-block-title">Sustentabilidad activa</h2>
-            <p>Desde 2016 trabajamos para preservar este entorno con decisiones diarias y medibles.</p>
-            <p>Implementamos energía solar, reducción y reutilización de residuos y prácticas para disminuir la huella de carbono.</p>
-            <p>También promovemos la valoración cultural y natural del territorio en cada experiencia ofrecida.</p>
-        </article>
-        <figure class="front-section-photo">
-            <img src="/picture_4.png" alt="Prácticas sustentables en la hostería" loading="lazy" decoding="async">
-        </figure>
-    </section>
-
-    <section class="front-divider" aria-label="Vida natural y entorno cultural">
-        <img src="/picture_5.png" alt="Rincones naturales del predio" loading="lazy" decoding="async">
-    </section>
-
-    <section id="gastronomia" class="front-section front-section-split">
-        <figure class="front-section-photo">
-            <img src="/picture_6.png" alt="Propuesta gastronómica regional" loading="lazy" decoding="async">
-        </figure>
-        <article class="front-section-copy front-split">
-            <h2 class="front-block-title">Gastronomía de origen</h2>
-            <p>La propuesta gastronómica está pensada para huéspedes que buscan sabores locales desde el desayuno hasta la cena.</p>
-            <p>Trabajamos con productos regionales como zapallo, maíz, quinoa, frutos secos y carnes de la zona para crear platos auténticos.</p>
-            <p>El menú integra opciones regionales y saludables, acompañado por una cava seleccionada para cada maridaje.</p>
-        </article>
-    </section>
-
-    <section class="front-divider" aria-label="Atardecer en Estancia San Miguel">
-        <img src="/picture_7.png" alt="Atardecer en Estancia San Miguel" loading="lazy" decoding="async">
-    </section>
-
-    <section id="servicios" class="front-section">
-        <article class="front-split">
-            <h2 class="front-block-title">Servicios y actividades</h2>
-            <ul class="front-services-list">
-                <li>Desayuno con productos caseros</li>
-                <li>Blanco de habitación</li>
-                <li>Trekking libre y guiado a las Tres Cascadas</li>
-                <li>Libros y juegos de mesa</li>
-                <li>Visita a huerta y criadero</li>
-                <li>Espacios de contemplación y oración</li>
-            </ul>
-        </article>
+        <div class="mt-10 grid gap-4 md:grid-cols-3">
+            <article class="front-feature-card">
+                <h3>Paisaje natural</h3>
+                <p>Sierras, bosque nativo y río para reconectar con la naturaleza.</p>
+            </article>
+            <article class="front-feature-card">
+                <h3>Atención personalizada</h3>
+                <p>Hospitalidad cercana, servicios cuidados y estadías a medida.</p>
+            </article>
+            <article class="front-feature-card">
+                <h3>Experiencia de campo</h3>
+                <p>Ritmo pausado, actividades al aire libre y esencia rural premium.</p>
+            </article>
+        </div>
     </section>
 </div>
 @endsection
