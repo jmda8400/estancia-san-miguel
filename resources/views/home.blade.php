@@ -7,7 +7,6 @@
     </div>
 
     <section id="inicio" class="front-hero">
-        <img src="/picture_hero.png" alt="Vista panorámica de Estancia San Miguel" class="front-hero-image" loading="eager" decoding="async">
         <div class="front-hero-overlay"></div>
         <div class="front-hero-content">
             <img src="/logo.png" alt="Logo Estancia San Miguel" class="front-hero-logo" loading="eager" decoding="async">
