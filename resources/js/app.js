@@ -13,6 +13,14 @@ if (body.classList.contains('frontpage')) {
 
     let lastScrollY = window.scrollY;
 
+    const frontpageRoot = document.getElementById('frontpageRoot');
+    const updateHeroOpacity = () => {
+        if (!frontpageRoot) return;
+        const fadeDistance = window.innerHeight * 0.85;
+        const progress = Math.min(window.scrollY / fadeDistance, 1);
+        frontpageRoot.style.setProperty('--hero-opacity', String(1 - progress));
+    };
+
     const toggleHeaderAndFooter = () => {
         const currentScrollY = window.scrollY;
         const isScrollingDown = currentScrollY > lastScrollY;
@@ -24,6 +32,10 @@ if (body.classList.contains('frontpage')) {
         lastScrollY = currentScrollY;
     };
 
-    window.addEventListener('scroll', toggleHeaderAndFooter, { passive: true });
+    window.addEventListener('scroll', () => {
+        toggleHeaderAndFooter();
+        updateHeroOpacity();
+    }, { passive: true });
     toggleHeaderAndFooter();
+    updateHeroOpacity();
 }

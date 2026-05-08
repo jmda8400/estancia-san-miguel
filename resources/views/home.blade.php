@@ -11,8 +11,6 @@
         <div class="front-hero-overlay"></div>
         <div class="front-hero-content">
             <img src="/logo.png" alt="Logo Estancia San Miguel" class="front-hero-logo" loading="eager" decoding="async">
-            <h1>Estancia San Miguel</h1>
-            <p>El Casco</p>
         </div>
     </section>
     <div class="front-section-separator"><img src="/picture_7.png" alt="Separador visual"></div>
@@ -62,6 +60,21 @@
             <p>Caminatas, cabalgatas y propuestas al aire libre para disfrutar cada momento.</p>
             <a href="#" class="front-internal-btn">Ver más</a>
         </div>
+    </section>
+
+    <section id="galeria" class="front-section-block front-media-grid">
+        <img src="/picture_11.jpg" alt="Galería Estancia San Miguel 1">
+        <img src="/picture_13.png" alt="Galería Estancia San Miguel 2">
+        <img src="/picture_14.jpg" alt="Galería Estancia San Miguel 3">
+        <img src="/picture_15.png" alt="Galería Estancia San Miguel 4">
+    </section>
+
+    <section id="video" class="front-section-block front-video-block">
+        <video controls preload="metadata" poster="/picture_6.png">
+            <source src="/picture_12.mp4" type="video/mp4">
+            <source src="/video_1.mp4" type="video/mp4">
+            Tu navegador no soporta video HTML5.
+        </video>
     </section>
 
     <section id="reservar" class="front-section-block front-section-row">
