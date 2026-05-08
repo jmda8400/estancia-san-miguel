@@ -360,28 +360,34 @@
 .frontpage .app-shell-transparent { background: #0d2e1e; }
 .frontpage .brand-logo { height: 2.9rem; }
 .frontpage .front-header-links {
-    gap: 0;
-    background: linear-gradient(90deg, #ead8b2 0%, #e8b34a 100%);
-    border-radius: .85rem;
-    padding: .2rem;
-    border: 1px solid rgba(102, 69, 25, 0.28);
-    box-shadow: 0 10px 24px rgba(0, 0, 0, .22);
-    overflow: hidden;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 0.75rem;
+    width: min(1450px, 90%);
+    margin: 0 auto;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    border-radius: 0;
+    padding: 0;
 }
 .frontpage .app-nav-btn {
-    border-radius: 0;
-    border: 1px solid rgba(255, 255, 255, .3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 5.375rem;
+    padding: 0.55rem 1rem;
+    border-radius: 999px;
+    border: 2px solid rgba(201, 166, 82, 0.65);
     background: linear-gradient(145deg, #1f513a, #133a29);
     color: #f9f7ef !important;
-    box-shadow: 0 5px 14px rgba(8, 23, 16, .35);
-    min-height: 2.75rem;
-    padding: 0.55rem 1rem;
+    text-align: center;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
 }
 .frontpage .app-nav-btn:hover {
     background: linear-gradient(145deg, #2e6a4f, #1f513a);
 }
-.frontpage .app-nav-btn + .app-nav-btn { border-left: 0; }
-.front-header-links .app-nav-btn + .app-nav-btn,
 .internal-header-links .app-nav-btn + .app-nav-btn {
     border-left: 2px solid rgba(255, 255, 255, 0.3);
 }
