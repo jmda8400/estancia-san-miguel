@@ -10,11 +10,9 @@
         <div class="front-hero-overlay"></div>
         <div class="front-hero-content">
             <img src="/logo.png" alt="Logo Estancia San Miguel" class="front-hero-logo" loading="eager" decoding="async">
-            <h1>Estancia San Miguel</h1>
-            <p>El Casco</p>
         </div>
     </section>
-    <div class="front-section-separator"><img src="/picture_7.png" alt="Separador visual"></div>
+    <div class="front-section-separator" style="background-image: url('/picture_7.png');" aria-hidden="true"></div>
 
     <section id="estancia" class="front-section-block front-section-row">
         <div class="front-section-media">
@@ -26,7 +24,7 @@
             <a href="#" class="front-internal-btn">Ver más</a>
         </div>
     </section>
-    <div class="front-section-separator"><img src="/picture_8.jpg" alt="Separador visual"></div>
+    <div class="front-section-separator" style="background-image: url('/picture_8.jpg');" aria-hidden="true"></div>
 
     <section id="gastronomia" class="front-section-block front-section-row front-section-row-reverse">
         <div class="front-section-media">
@@ -38,7 +36,7 @@
             <a href="#" class="front-internal-btn">Ver más</a>
         </div>
     </section>
-    <div class="front-section-separator"><img src="/picture_9.jpg" alt="Separador visual"></div>
+    <div class="front-section-separator" style="background-image: url('/picture_9.jpg');" aria-hidden="true"></div>
 
     <section id="sustentabilidad" class="front-section-block front-section-row">
         <div class="front-section-media">
@@ -51,7 +49,7 @@
             <a href="#" class="front-internal-btn">Ver más</a>
         </div>
     </section>
-    <div class="front-section-separator"><img src="/picture_10.jpg" alt="Separador visual"></div>
+    <div class="front-section-separator" style="background-image: url('/picture_10.jpg');" aria-hidden="true"></div>
 
     <section id="actividades" class="front-section-block front-section-row front-section-row-reverse">
         <div class="front-section-media">
@@ -63,7 +61,7 @@
             <a href="#" class="front-internal-btn">Ver más</a>
         </div>
     </section>
-    <div class="front-section-separator"><img src="/picture_11.jpg" alt="Separador visual"></div>
+    <div class="front-section-separator" style="background-image: url('/picture_11.jpg');" aria-hidden="true"></div>
 
     <section id="reservar" class="front-section-block front-section-row">
         <div class="front-section-media">
@@ -75,7 +73,7 @@
             <a href="#" class="front-internal-btn">Reservar</a>
         </div>
     </section>
-    <div class="front-section-separator"><img src="/picture_15.png" alt="Separador visual"></div>
+    <div class="front-section-separator" style="background-image: url('/picture_15.png');" aria-hidden="true"></div>
 
     <div class="front-footer-separator" aria-hidden="true"></div>
     <footer class="frontpage-footer">
