@@ -3,7 +3,130 @@
 use App\Http\Middleware\RequireLogin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
+
+function telefonoComprobante(): string
+{
+    $path = storage_path('app/config/telefono.txt');
+    if (!File::exists($path)) {
+        return '';
+    }
+
+    return trim((string) File::get($path));
+}
+
+function guardarTelefonoComprobante(string $telefono): void
+{
+    $dir = storage_path('app/config');
+    if (!File::isDirectory($dir)) {
+        File::makeDirectory($dir, 0755, true);
+    }
+
+    File::put($dir . '/telefono.txt', trim($telefono));
+}
+
+function generarPdfTicketCobro(object $comanda, $productos, string $telefono, string $fechaHora): string
+{
+    $anchoMm = 80;
+    $anchoPt = $anchoMm * 2.83465;
+    $lineas = [];
+    $lineas[] = 'ESTANCIA SAN MIGUEL';
+    $lineas[] = $fechaHora;
+    $lineas[] = $telefono !== '' ? ('Tel: ' . $telefono) : 'Tel: -';
+    $lineas[] = str_repeat('-', 40);
+
+    $subtotal = 0.0;
+    foreach ($productos as $producto) {
+        $precioUnitario = (float) (DB::table('stock')->where('producto', $producto->nombre)->value('precio') ?? 0);
+        $totalItem = $precioUnitario * (int) $producto->cantidad;
+        $subtotal += $totalItem;
+        $lineas[] = sprintf('%s x%d $%0.2f', $producto->nombre, $producto->cantidad, $totalItem);
+    }
+
+    $lineas[] = str_repeat('-', 40);
+    $lineas[] = sprintf('Subtotal: $%0.2f', $subtotal);
+    $lineas[] = sprintf('Total: $%0.2f', $subtotal);
+
+    $altoPt = (count($lineas) * 14) + 28;
+    $logoPath = public_path('logo.png');
+    $logoJpeg = null;
+    $logoMeta = null;
+    if (extension_loaded('gd') && File::exists($logoPath)) {
+        $rawLogo = File::get($logoPath);
+        $img = $rawLogo !== false ? @imagecreatefromstring($rawLogo) : false;
+        if ($img !== false) {
+            imagefilter($img, IMG_FILTER_GRAYSCALE);
+            ob_start();
+            imagejpeg($img, null, 90);
+            $logoJpeg = ob_get_clean();
+            $logoMeta = ['width' => imagesx($img), 'height' => imagesy($img)];
+            imagedestroy($img);
+
+            $targetW = 112.0;
+            $ratio = $logoMeta['height'] / max(1, $logoMeta['width']);
+            $targetH = $targetW * $ratio;
+            $altoPt += $targetH + 10;
+        }
+    }
+
+    $stream = '';
+    $textTop = $altoPt - 20;
+    if ($logoJpeg !== null && $logoMeta !== null) {
+        $targetW = 112.0;
+        $ratio = $logoMeta['height'] / max(1, $logoMeta['width']);
+        $targetH = $targetW * $ratio;
+        $x = max(8, ($anchoPt - $targetW) / 2);
+        $y = $altoPt - $targetH - 8;
+        $stream .= "q\n" . number_format($targetW, 2, '.', '') . " 0 0 " . number_format($targetH, 2, '.', '') . " " . number_format($x, 2, '.', '') . " " . number_format($y, 2, '.', '') . " cm\n/Im1 Do\nQ\n";
+        $textTop = $y - 8;
+    }
+
+    $stream .= "BT\n/F1 9 Tf\n10 " . $textTop . " Td\n";
+    foreach ($lineas as $linea) {
+        $safe = str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $linea);
+        $stream .= '(' . $safe . ") Tj\n0 -14 Td\n";
+    }
+    $stream .= "ET\n";
+
+    $pdf = "%PDF-1.4\n";
+    $offsets = [];
+    $addObj = function (string $obj) use (&$pdf, &$offsets) {
+        $offsets[] = strlen($pdf);
+        $pdf .= (count($offsets)) . " 0 obj\n" . $obj . "\nendobj\n";
+    };
+
+    $addObj('<< /Type /Catalog /Pages 2 0 R >>');
+    $addObj('<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
+    $resources = '<< /Font << /F1 5 0 R >>';
+    if ($logoJpeg !== null && $logoMeta !== null) {
+        $resources .= ' /XObject << /Im1 6 0 R >>';
+    }
+    $resources .= ' >>';
+
+    $addObj('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' . number_format($anchoPt, 2, '.', '') . ' ' . number_format($altoPt, 2, '.', '') . '] /Contents 4 0 R /Resources ' . $resources . ' >>');
+    $addObj('<< /Length ' . strlen($stream) . " >>\nstream\n" . $stream . 'endstream');
+    $addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
+    if ($logoJpeg !== null && $logoMeta !== null) {
+        $addObj('<< /Type /XObject /Subtype /Image /Width ' . $logoMeta['width'] . ' /Height ' . $logoMeta['height'] . ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' . strlen($logoJpeg) . " >>\nstream\n" . $logoJpeg . "\nendstream");
+    }
+
+    $xrefPos = strlen($pdf);
+    $pdf .= "xref\n0 " . (count($offsets) + 1) . "\n0000000000 65535 f \n";
+    foreach ($offsets as $off) {
+        $pdf .= sprintf("%010d 00000 n \n", $off);
+    }
+    $pdf .= "trailer\n<< /Size " . (count($offsets) + 1) . " /Root 1 0 R >>\nstartxref\n" . $xrefPos . "\n%%EOF";
+
+    $dir = storage_path('app/public/comprobantes');
+    if (!File::isDirectory($dir)) {
+        File::makeDirectory($dir, 0755, true);
+    }
+    $filename = 'comanda-' . $comanda->id . '-' . now()->format('Ymd-His') . '.pdf';
+    File::put($dir . '/' . $filename, $pdf);
+
+    return 'storage/comprobantes/' . $filename;
+}
 
 function comandasConProductos()
 {
@@ -245,6 +368,9 @@ Route::middleware(RequireLogin::class)->group(function () {
             ]);
         }
 
+        $fechaHora = now()->setTimezone('America/Argentina/Buenos_Aires')->format('d/m/Y H:i:s');
+        $comprobantePath = generarPdfTicketCobro($comanda, $productos, telefonoComprobante(), $fechaHora);
+
         DB::table('productos')->where('comanda_id', $id)->delete();
         DB::table('comandas')->where('id', $id)->update([
             'nombre' => 'Mesa ' . $comanda->mesa_numero,
@@ -252,7 +378,11 @@ Route::middleware(RequireLogin::class)->group(function () {
             'updated_at' => now(),
         ]);
 
-        return response()->noContent();
+        return response()->json([
+            'ok' => true,
+            'comprobante_pdf' => $comprobantePath,
+            'carpeta' => 'storage/app/public/comprobantes',
+        ]);
     });
 
     Route::get('/admin/graficas/data', function (Request $request) {
@@ -306,4 +436,12 @@ Route::middleware(RequireLogin::class)->group(function () {
     });
 
     Route::view('/admin', 'admin')->name('admin');
+    Route::get('/admin/config/telefono', fn () => ['telefono' => telefonoComprobante()]);
+    Route::put('/admin/config/telefono', function (Request $request) {
+        $data = $request->validate([
+            'telefono' => 'nullable|string|max:40',
+        ]);
+        guardarTelefonoComprobante($data['telefono'] ?? '');
+        return response()->json(['ok' => true]);
+    });
 });

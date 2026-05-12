@@ -3,6 +3,17 @@
 @section('internal_title', 'Vista de administración')
 @section('internal_content')
 <div class="app-card">
+    <section class="mb-5 rounded-md border border-neutral-300 p-3 bg-white">
+        <h2 class="font-semibold mb-2">Configuración de ticket (comandera 80mm)</h2>
+        <div class="flex gap-2 items-end flex-wrap">
+            <div>
+                <label for="telefonoComprobante" class="font-medium block mb-1">Número de teléfono</label>
+                <input id="telefonoComprobante" type="text" class="app-input w-64" placeholder="Ej: +54 9 11 1234-5678">
+            </div>
+            <button id="guardarTelefono" class="app-btn">Guardar teléfono</button>
+            <span id="estadoTelefono" class="text-sm text-neutral-600"></span>
+        </div>
+    </section>
     <div class="mb-4 grid gap-3 md:grid-cols-4">
         <div>
             <label for="startDate" class="font-medium block mb-1">Desde</label>
@@ -97,6 +108,24 @@ async function renderAdminCharts() {
         </div>
     </article>`;
 }
+
+async function cargarTelefonoComprobante() {
+    const response = await fetch('/admin/config/telefono');
+    const data = await response.json();
+    document.getElementById('telefonoComprobante').value = data.telefono || '';
+}
+
+async function guardarTelefonoComprobante() {
+    const telefono = document.getElementById('telefonoComprobante').value;
+    const status = document.getElementById('estadoTelefono');
+    status.textContent = 'Guardando...';
+    const response = await fetch('/admin/config/telefono', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body: JSON.stringify({ telefono }),
+    });
+    status.textContent = response.ok ? 'Guardado' : 'Error al guardar';
+}
 function setRange(days) {
     const end = new Date();
     const start = new Date();
@@ -105,7 +134,9 @@ function setRange(days) {
     document.getElementById('endDate').value = end.toISOString().slice(0, 10);
 }
 setRange(30);
+cargarTelefonoComprobante();
 renderAdminCharts();
+document.getElementById('guardarTelefono').addEventListener('click', guardarTelefonoComprobante);
 document.getElementById('applyRange').addEventListener('click', renderAdminCharts);
 document.querySelectorAll('[data-range]').forEach((btn) => {
     btn.addEventListener('click', () => {
