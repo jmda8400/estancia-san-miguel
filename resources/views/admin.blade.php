@@ -19,6 +19,14 @@
             <button id="applyRange" class="app-btn">Aplicar rango</button>
         </div>
     </div>
+    <div class="app-chart-wrap mb-4">
+        <h2 class="font-semibold mb-3">Configuración del ticket</h2>
+        <div class="grid md:grid-cols-[1fr_auto] gap-3">
+            <input id="telefonoLocal" class="app-input w-full" placeholder="Número de teléfono">
+            <button id="savePhone" class="app-btn">Guardar teléfono</button>
+        </div>
+        <p class="text-xs mt-2 text-neutral-700">Se imprimirá en: <code>storage/app/public/tickets-cobrados</code></p>
+    </div>
     <section class="app-chart-wrap">
         <h2 class="font-semibold mb-3">Fluctuación de cantidad por producto</h2>
         <div id="adminCharts"></div>
@@ -104,7 +112,26 @@ function setRange(days) {
     document.getElementById('startDate').value = start.toISOString().slice(0, 10);
     document.getElementById('endDate').value = end.toISOString().slice(0, 10);
 }
+async function loadPhoneConfig(){
+    const response = await fetch('/admin/configuracion');
+    const data = await response.json();
+    document.getElementById('telefonoLocal').value = data.telefono_local || '';
+}
+
+document.getElementById('savePhone').addEventListener('click', async () => {
+    const telefono_local = document.getElementById('telefonoLocal').value.trim();
+    if (!telefono_local) return alert('Ingrese un teléfono válido.');
+    const response = await fetch('/admin/configuracion/telefono', {
+        method: 'PUT',
+        headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
+        body: JSON.stringify({ telefono_local }),
+    });
+    if (!response.ok) return alert('No se pudo guardar el teléfono.');
+    alert('Teléfono guardado.');
+});
+
 setRange(30);
+loadPhoneConfig();
 renderAdminCharts();
 document.getElementById('applyRange').addEventListener('click', renderAdminCharts);
 document.querySelectorAll('[data-range]').forEach((btn) => {
@@ -112,7 +139,8 @@ document.querySelectorAll('[data-range]').forEach((btn) => {
         document.querySelectorAll('[data-range]').forEach((x) => x.classList.remove('app-btn-active'));
         btn.classList.add('app-btn-active');
         setRange(Number(btn.dataset.range));
-        renderAdminCharts();
+        loadPhoneConfig();
+renderAdminCharts();
     });
 });
 </script>

@@ -22,6 +22,127 @@ function comandasConProductos()
     });
 }
 
+
+function obtenerConfiguracion(string $clave, ?string $default = null): ?string
+{
+    return DB::table('configuraciones')->where('clave', $clave)->value('valor') ?? $default;
+}
+
+function guardarTicketPdf80mm(object $comanda, $productos, float $subtotal, float $total, string $telefono): string
+{
+    $tzNow = now()->setTimezone('America/Argentina/Buenos_Aires');
+    $dir = storage_path('app/public/tickets-cobrados');
+    if (!is_dir($dir)) {
+        mkdir($dir, 0775, true);
+    }
+
+    $logoPath = public_path('logo.png');
+    $ticketWidth = 226.77; // 80mm
+    $lineHeight = 13;
+    $marginX = 12;
+    $startY = 120;
+    $lines = [];
+    $lines[] = 'Fecha - Hora: ' . $tzNow->format('d/m/Y H:i:s');
+    $lines[] = 'Telefono: ' . $telefono;
+    $lines[] = str_repeat('-', 36);
+    foreach ($productos as $producto) {
+        $precioUnitario = (float) ($producto->precio ?? 0);
+        $importe = $precioUnitario * (int) $producto->cantidad;
+        $lines[] = sprintf('%s x%d  $%0.2f', $producto->nombre, $producto->cantidad, $importe);
+    }
+    $lines[] = str_repeat('-', 36);
+    $lines[] = sprintf('Subtotal: $%0.2f', $subtotal);
+    $lines[] = sprintf('Total: $%0.2f', $total);
+
+    $contentHeight = $startY + (count($lines) * $lineHeight) + 20;
+    $pdfHeight = max(350, $contentHeight);
+
+    $tmpLogo = tempnam(sys_get_temp_dir(), 'logo_ticket_') . '.jpg';
+    $logoCreated = false;
+    if (file_exists($logoPath)) {
+        $img = @imagecreatefrompng($logoPath);
+        if ($img !== false) {
+            imagefilter($img, IMG_FILTER_GRAYSCALE);
+            imagejpeg($img, $tmpLogo, 85);
+            imagedestroy($img);
+            $logoCreated = true;
+        }
+    }
+
+    $objects = [];
+    $content = "BT /F1 10 Tf
+";
+    $y = $startY;
+    foreach ($lines as $line) {
+        $safe = str_replace(['\\', '(', ')'], ['\\\\', '\(', '\)'], $line);
+        $content .= sprintf("1 0 0 1 %.2f %.2f Tm (%s) Tj
+", $marginX, $pdfHeight - $y, $safe);
+        $y += $lineHeight;
+    }
+    $content .= "ET
+";
+
+    $imageObjNum = null;
+    if ($logoCreated) {
+        $jpg = file_get_contents($tmpLogo);
+        [$w, $h] = getimagesize($tmpLogo);
+        $imageObjNum = 5;
+        $objects[5] = "<< /Type /XObject /Subtype /Image /Width $w /Height $h /ColorSpace /DeviceGray /BitsPerComponent 8 /Filter /DCTDecode /Length " . strlen($jpg) . " >>
+stream
+" . $jpg . "
+endstream";
+        $drawW = 120;
+        $drawH = max(28, ($h / max($w,1)) * $drawW);
+        $content = "q $drawW 0 0 $drawH 53 " . ($pdfHeight - 90) . " cm /Im1 Do Q
+" . $content;
+    }
+
+    $objects[1] = "<< /Type /Catalog /Pages 2 0 R >>";
+    $objects[2] = "<< /Type /Pages /Kids [3 0 R] /Count 1 >>";
+    $res = $imageObjNum ? "<< /Font << /F1 4 0 R >> /XObject << /Im1 5 0 R >> >>" : "<< /Font << /F1 4 0 R >> >>";
+    $objects[3] = "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 $ticketWidth $pdfHeight] /Resources $res /Contents 6 0 R >>";
+    $objects[4] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>";
+    $objects[6] = "<< /Length " . strlen($content) . " >>
+stream
+$content
+endstream";
+
+    $pdf = "%PDF-1.4
+";
+    $offsets = [0];
+    for ($i=1; $i<=6; $i++) {
+        if (!isset($objects[$i])) continue;
+        $offsets[$i] = strlen($pdf);
+        $pdf .= "$i 0 obj
+" . $objects[$i] . "
+endobj
+";
+    }
+    $xref = strlen($pdf);
+    $pdf .= "xref
+0 7
+0000000000 65535 f 
+";
+    for ($i=1; $i<=6; $i++) {
+        $off = $offsets[$i] ?? 0;
+        $pdf .= sprintf("%010d 00000 n 
+", $off);
+    }
+    $pdf .= "trailer
+<< /Size 7 /Root 1 0 R >>
+startxref
+$xref
+%%EOF";
+
+    $file = 'ticket-' . $tzNow->format('Ymd-His') . '-comanda-' . $comanda->id . '.pdf';
+    file_put_contents($dir . DIRECTORY_SEPARATOR . $file, $pdf);
+    if ($logoCreated && file_exists($tmpLogo)) {
+        unlink($tmpLogo);
+    }
+
+    return 'storage/tickets-cobrados/' . $file;
+}
+
 function historialComandasPaginado(int $page = 1, int $perPage = 10)
 {
     $page = max(1, $page);
@@ -223,7 +344,17 @@ Route::middleware(RequireLogin::class)->group(function () {
         $comanda = DB::table('comandas')->where('id', $id)->first();
         abort_unless($comanda, 404);
 
-        $productos = DB::table('productos')->where('comanda_id', $id)->orderBy('id')->get();
+        $productos = DB::table('productos as p')
+            ->leftJoin('stock as s', 's.producto', '=', 'p.nombre')
+            ->where('p.comanda_id', $id)
+            ->orderBy('p.id')
+            ->select('p.*', 's.precio')
+            ->get();
+        $subtotal = $productos->sum(fn ($p) => ((float) ($p->precio ?? 0)) * (int) $p->cantidad);
+        $total = $subtotal;
+        $telefonoLocal = obtenerConfiguracion('telefono_local', '+54 9 11 0000-0000');
+        $pdfPath = guardarTicketPdf80mm($comanda, $productos, $subtotal, $total, $telefonoLocal);
+
         $historialId = DB::table('comandas_historial')->insertGetId([
             'comanda_id' => $comanda->id,
             'nombre' => $comanda->nombre,
@@ -252,7 +383,7 @@ Route::middleware(RequireLogin::class)->group(function () {
             'updated_at' => now(),
         ]);
 
-        return response()->noContent();
+        return response()->json(['pdf_path' => $pdfPath]);
     });
 
     Route::get('/admin/graficas/data', function (Request $request) {
@@ -303,6 +434,16 @@ Route::middleware(RequireLogin::class)->group(function () {
         })->values();
 
         return ['days' => $days, 'start' => $start->toDateString(), 'end' => $end->toDateString(), 'series' => $series];
+    });
+
+    Route::get('/admin/configuracion', fn () => ['telefono_local' => obtenerConfiguracion('telefono_local', '+54 9 11 0000-0000')]);
+    Route::put('/admin/configuracion/telefono', function (Request $r) {
+        $data = $r->validate(['telefono_local' => 'required|string|max:50']);
+        DB::table('configuraciones')->updateOrInsert(
+            ['clave' => 'telefono_local'],
+            ['valor' => $data['telefono_local'], 'updated_at' => now(), 'created_at' => now()]
+        );
+        return response()->noContent();
     });
 
     Route::view('/admin', 'admin')->name('admin');

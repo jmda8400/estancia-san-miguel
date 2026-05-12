@@ -882,7 +882,19 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
         box-shadow: 0 5px 12px rgba(123, 62, 73, 0.1);
     }
 
-    .btn-compact {
+    
+    .btn-remove-comanda {
+        background: linear-gradient(180deg, #fff4f4 0%, #ffe0e0 100%);
+        color: #8f1f2e;
+        border-color: #efb9c0;
+    }
+
+    .btn-remove-comandera {
+        background: linear-gradient(180deg, #fff7f2 0%, #ffe9da 100%);
+        color: #8a3d16;
+        border-color: #efc7ad;
+    }
+.btn-compact {
         padding: 7px 12px;
         font-size: .75rem;
         min-height: 1.95rem;

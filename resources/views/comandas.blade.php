@@ -14,7 +14,7 @@
             <h2 class="panel-title">Mesas</h2>
             <div class="flex items-center gap-2 flex-wrap">
                 <button class="btn btn-secondary text-xs sm:text-sm" onclick="addComanda()">+ Agregar comanda</button>
-                <button class="btn btn-danger text-xs sm:text-sm" onclick="removeLastComanda()">- Quitar comanda</button>
+                <button class="btn btn-danger btn-remove-comanda text-xs sm:text-sm" onclick="removeLastComanda()">- Quitar comanda</button>
             </div>
         </div>
         <div id="tables" class="tables-grid flex-1 min-h-[20rem] max-h-[calc(100vh-16rem)] overflow-y-auto pr-1"></div>
@@ -79,7 +79,7 @@ function renderComandas() {
             <p class="table-card-meta">${c.productos.length} producto(s)</p>
             <p class="table-card-total">$${totalMesa.toFixed(2)}</p>
         </button>
-        <button class="btn btn-danger btn-compact table-card-remove mt-2" onclick="removeComanda(${c.id})">Quitar</button>
+        <button class="btn btn-danger btn-remove-comandera btn-compact table-card-remove mt-2" onclick="removeComanda(${c.id})">Quitar la comandera</button>
     </div>`;
  }).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
