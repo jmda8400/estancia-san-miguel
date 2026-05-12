@@ -32,7 +32,6 @@ function generarPdfTicketCobro(object $comanda, $productos, string $telefono, st
     $anchoPt = $anchoMm * 2.83465;
     $lineas = [];
     $lineas[] = 'ESTANCIA SAN MIGUEL';
-    $lineas[] = 'Logo: /public/logo.png';
     $lineas[] = $fechaHora;
     $lineas[] = $telefono !== '' ? ('Tel: ' . $telefono) : 'Tel: -';
     $lineas[] = str_repeat('-', 40);
@@ -50,7 +49,34 @@ function generarPdfTicketCobro(object $comanda, $productos, string $telefono, st
     $lineas[] = sprintf('Total: $%0.2f', $subtotal);
 
     $altoPt = max(300, (count($lineas) * 16) + 60);
-    $stream = "BT\n/F1 9 Tf\n10 " . ($altoPt - 20) . " Td\n";
+    $logoPath = public_path('logo.png');
+    $logoJpeg = null;
+    $logoMeta = null;
+    if (extension_loaded('gd') && File::exists($logoPath)) {
+        $img = @imagecreatefrompng($logoPath);
+        if ($img !== false) {
+            imagefilter($img, IMG_FILTER_GRAYSCALE);
+            ob_start();
+            imagejpeg($img, null, 90);
+            $logoJpeg = ob_get_clean();
+            $logoMeta = ['width' => imagesx($img), 'height' => imagesy($img)];
+            imagedestroy($img);
+        }
+    }
+
+    $stream = '';
+    $textTop = $altoPt - 20;
+    if ($logoJpeg !== null && $logoMeta !== null) {
+        $targetW = 140.0;
+        $ratio = $logoMeta['height'] / max(1, $logoMeta['width']);
+        $targetH = $targetW * $ratio;
+        $x = max(8, ($anchoPt - $targetW) / 2);
+        $y = $altoPt - $targetH - 10;
+        $stream .= "q\n" . number_format($targetW, 2, '.', '') . " 0 0 " . number_format($targetH, 2, '.', '') . " " . number_format($x, 2, '.', '') . " " . number_format($y, 2, '.', '') . " cm\n/Im1 Do\nQ\n";
+        $textTop = $y - 10;
+    }
+
+    $stream .= "BT\n/F1 9 Tf\n10 " . $textTop . " Td\n";
     foreach ($lineas as $linea) {
         $safe = str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $linea);
         $stream .= '(' . $safe . ") Tj\n0 -14 Td\n";
@@ -66,9 +92,18 @@ function generarPdfTicketCobro(object $comanda, $productos, string $telefono, st
 
     $addObj('<< /Type /Catalog /Pages 2 0 R >>');
     $addObj('<< /Type /Pages /Kids [3 0 R] /Count 1 >>');
-    $addObj('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' . number_format($anchoPt, 2, '.', '') . ' ' . number_format($altoPt, 2, '.', '') . '] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>');
+    $resources = '<< /Font << /F1 5 0 R >>';
+    if ($logoJpeg !== null && $logoMeta !== null) {
+        $resources .= ' /XObject << /Im1 6 0 R >>';
+    }
+    $resources .= ' >>';
+
+    $addObj('<< /Type /Page /Parent 2 0 R /MediaBox [0 0 ' . number_format($anchoPt, 2, '.', '') . ' ' . number_format($altoPt, 2, '.', '') . '] /Contents 4 0 R /Resources ' . $resources . ' >>');
     $addObj('<< /Length ' . strlen($stream) . " >>\nstream\n" . $stream . 'endstream');
     $addObj('<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>');
+    if ($logoJpeg !== null && $logoMeta !== null) {
+        $addObj('<< /Type /XObject /Subtype /Image /Width ' . $logoMeta['width'] . ' /Height ' . $logoMeta['height'] . ' /ColorSpace /DeviceRGB /BitsPerComponent 8 /Filter /DCTDecode /Length ' . strlen($logoJpeg) . " >>\nstream\n" . $logoJpeg . "\nendstream");
+    }
 
     $xrefPos = strlen($pdf);
     $pdf .= "xref\n0 " . (count($offsets) + 1) . "\n0000000000 65535 f \n";
