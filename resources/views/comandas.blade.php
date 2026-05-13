@@ -103,7 +103,7 @@ function renderComandas() {
         <div class="order-item-controls mt-2">
             <input type="number" min="1" value="${p.cantidad}" onchange="updateProducto(${p.id},{cantidad:this.value})" class="app-input text-sm">
             <input value="${p.notas??''}" onchange="updateProducto(${p.id},{notas:this.value})" class="app-input text-sm" placeholder="Notas">
-            <button class="btn btn-danger btn-product-delete text-xs" title="Quitar producto" onclick="deleteProducto(${p.id})">Eliminar</button>
+            <button class="btn btn-danger btn-product-delete btn-remove-comandera text-xs" title="Quitar producto" onclick="deleteProducto(${p.id})">Eliminar</button>
         </div>
     </div>`).join('')
     : `<div class="h-full min-h-[14rem] flex items-center justify-center">
