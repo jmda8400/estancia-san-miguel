@@ -19,7 +19,11 @@
             <button id="applyRange" class="app-btn">Aplicar rango</button>
         </div>
     </div>
-    <div class="app-chart-wrap mb-4">
+    <section class="app-chart-wrap mb-4">
+        <h2 class="font-semibold mb-3">Fluctuación de cantidad por producto</h2>
+        <div id="adminCharts"></div>
+    </section>
+    <div class="app-chart-wrap">
         <h2 class="font-semibold mb-3">Configuración del ticket</h2>
         <div class="grid md:grid-cols-2 gap-3">
             <input id="telefonoLocal" class="app-input w-full" placeholder="Número de teléfono">
@@ -31,10 +35,6 @@
         </div>
         <p class="text-xs mt-2 text-neutral-700">Se imprimirá en: <code>storage/app/public/comprobantes</code></p>
     </div>
-    <section class="app-chart-wrap">
-        <h2 class="font-semibold mb-3">Fluctuación de cantidad por producto</h2>
-        <div id="adminCharts"></div>
-    </section>
 </div>
 @endsection
 @section('scripts')

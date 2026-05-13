@@ -4,8 +4,8 @@
 
 @section('internal_content')
 <div class="mb-3 flex gap-2">
-    <button id="tabComandas" class="app-btn app-btn-active" onclick="switchTab('comandas')">Comandas</button>
-    <button id="tabHistorial" class="app-btn" onclick="switchTab('historial')">Historial</button>
+    <button id="tabComandas" class="app-btn app-btn-active app-btn-pill" onclick="switchTab('comandas')">Comandas</button>
+    <button id="tabHistorial" class="app-btn app-btn-pill" onclick="switchTab('historial')">Historial</button>
 </div>
 
 <div id="comandasTab" class="orders-layout">
@@ -81,7 +81,7 @@ function renderComandas() {
             <p class="table-card-meta">${c.productos.length} producto(s)</p>
             <p class="table-card-total">$${totalMesa.toFixed(2)}</p>
         </button>
-        <button class="btn btn-danger btn-remove-comandera btn-compact table-card-remove mt-2" onclick="removeComanda(${c.id})">Quitar</button>
+        <button class="btn btn-danger btn-remove-comandera btn-compact table-card-remove mt-2 app-btn-pill" onclick="removeComanda(${c.id})">Quitar</button>
     </div>`;
  }).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
