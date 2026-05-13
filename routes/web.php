@@ -189,19 +189,23 @@ Route::middleware(RequireLogin::class)->group(function () {
     Route::get('/stock/historial/data', fn () => DB::table('stock_historial')->orderByDesc('created_at')->limit(100)->get());
     Route::put('/stock/{id}', function (Request $r, int $id) {
         $data = $r->validate([
-            'cantidad' => 'required|integer|min:0',
+            'cantidad' => 'nullable|integer|min:0|required_without:ilimitado',
+            'ilimitado' => 'nullable|boolean',
             'precio' => 'required|numeric|min:0',
         ]);
         $stockItem = DB::table('stock')->where('id', $id)->first();
         abort_unless($stockItem, 404);
+        $isUnlimited = (bool) ($data['ilimitado'] ?? false);
+        $cantidadNueva = $isUnlimited ? 0 : (int) ($data['cantidad'] ?? 0);
 
         DB::table('stock')->where('id', $id)->update([
-            'cantidad' => $data['cantidad'],
+            'cantidad' => $cantidadNueva,
+            'ilimitado' => $isUnlimited,
             'precio' => $data['precio'],
             'updated_at' => now(),
         ]);
 
-        $diff = $data['cantidad'] - $stockItem->cantidad;
+        $diff = $cantidadNueva - $stockItem->cantidad;
         if ($diff !== 0) {
             DB::table('stock_historial')->insert([
                 'producto' => $stockItem->producto,
@@ -218,14 +222,24 @@ Route::middleware(RequireLogin::class)->group(function () {
     Route::post('/stock', function (Request $r) {
         $data = $r->validate([
             'producto' => 'required|string|max:100',
-            'cantidad' => 'required|integer|min:0',
+            'cantidad' => 'nullable|integer|min:0|required_without:ilimitado',
+            'ilimitado' => 'nullable|boolean',
             'precio' => 'required|numeric|min:0',
         ]);
-        $id = DB::table('stock')->insertGetId($data + ['created_at' => now(), 'updated_at' => now()]);
+        $isUnlimited = (bool) ($data['ilimitado'] ?? false);
+        $cantidadNueva = $isUnlimited ? 0 : (int) ($data['cantidad'] ?? 0);
+        $id = DB::table('stock')->insertGetId([
+            'producto' => $data['producto'],
+            'cantidad' => $cantidadNueva,
+            'ilimitado' => $isUnlimited,
+            'precio' => $data['precio'],
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
         DB::table('stock_historial')->insert([
             'producto' => $data['producto'],
                         'accion' => 'agregado',
-            'cantidad' => $data['cantidad'],
+            'cantidad' => $cantidadNueva,
             'stock_id' => $id,
             'created_at' => now(),
             'updated_at' => now(),
@@ -297,7 +311,7 @@ Route::middleware(RequireLogin::class)->group(function () {
         ]);
 
         $stockItem = DB::table('stock')->where('id', $data['stock_id'])->first();
-        if (!$stockItem || $stockItem->cantidad < $data['cantidad']) {
+        if (!$stockItem || (!$stockItem->ilimitado && $stockItem->cantidad < $data['cantidad'])) {
             return response()->json(['message' => 'Stock insuficiente para este producto.'], 422);
         }
 
@@ -323,18 +337,20 @@ Route::middleware(RequireLogin::class)->group(function () {
             ]);
         }
 
-        DB::table('stock')->where('id', $stockItem->id)->update([
-            'cantidad' => $stockItem->cantidad - $data['cantidad'],
-            'updated_at' => now(),
-        ]);
-        DB::table('stock_historial')->insert([
-            'producto' => $stockItem->producto,
-                        'accion' => 'resta',
-            'cantidad' => $data['cantidad'],
-            'stock_id' => $stockItem->id,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+        if (!$stockItem->ilimitado) {
+            DB::table('stock')->where('id', $stockItem->id)->update([
+                'cantidad' => $stockItem->cantidad - $data['cantidad'],
+                'updated_at' => now(),
+            ]);
+            DB::table('stock_historial')->insert([
+                'producto' => $stockItem->producto,
+                            'accion' => 'resta',
+                'cantidad' => $data['cantidad'],
+                'stock_id' => $stockItem->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
 
         return response()->noContent();
     });

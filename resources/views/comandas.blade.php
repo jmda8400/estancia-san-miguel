@@ -79,7 +79,7 @@ function renderComandas() {
             <p class="table-card-meta">${c.productos.length} producto(s)</p>
             <p class="table-card-total">$${totalMesa.toFixed(2)}</p>
         </button>
-        <button class="btn btn-danger btn-remove-comandera btn-compact table-card-remove mt-2" onclick="removeComanda(${c.id})">Quitar la comandera</button>
+        <button class="btn btn-danger btn-remove-comandera btn-compact table-card-remove mt-2" onclick="removeComanda(${c.id})">Quitar</button>
     </div>`;
  }).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
@@ -164,7 +164,7 @@ async function refreshComandas(){
 async function refreshStock(){
     const response = await fetch('/stock/data');
     state.stock = await response.json();
-    document.getElementById('stockItem').innerHTML = state.stock.map(s => `<option value="${s.id}">${s.producto} (${s.cantidad})</option>`).join('');
+    document.getElementById('stockItem').innerHTML = state.stock.map(s => `<option value="${s.id}">${s.producto} (${s.ilimitado ? '∞' : s.cantidad})</option>`).join('');
 }
 
 async function refreshHistorial(page = 1) {

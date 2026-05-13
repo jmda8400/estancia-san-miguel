@@ -884,15 +884,15 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
 
     
     .btn-remove-comanda {
-        background: linear-gradient(180deg, #fff4f4 0%, #ffe0e0 100%);
-        color: #8f1f2e;
-        border-color: #efb9c0;
+        background: linear-gradient(180deg, #c93f4e 0%, #9f2433 100%);
+        color: #ffffff;
+        border-color: #891d2a;
     }
 
     .btn-remove-comandera {
-        background: linear-gradient(180deg, #fff7f2 0%, #ffe9da 100%);
-        color: #8a3d16;
-        border-color: #efc7ad;
+        background: linear-gradient(180deg, #c93f4e 0%, #9f2433 100%);
+        color: #ffffff;
+        border-color: #891d2a;
     }
 .btn-compact {
         padding: 7px 12px;
