@@ -31,7 +31,8 @@
 let stockItems = @json($stockItems);
 
 function rowTemplate(item){
-    return `<tr><td>${item.id ? item.producto : `<input class='app-input w-full' placeholder='Producto' id='p_${item.tmpId}'>`}</td><td>${item.id ? `<input data-field='cantidad' type='number' min='0' value='${item.cantidad}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)'>` : `<input type='number' min='0' value='0' class='app-input app-stock-input' id='c_${item.tmpId}'>`}</td><td>${item.id ? `<input data-field='precio' type='number' min='0' step='0.01' value='${item.precio ?? 0}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)'>` : `<input type='number' min='0' step='0.01' value='0' class='app-input app-stock-input' id='pr_${item.tmpId}'>`}</td><td class='text-right'>${item.id ? `<button class='app-btn app-stock-row-btn' onclick='removeStock(${item.id})'>Quitar</button>` : `<button class='app-btn app-stock-row-btn' onclick='saveRow(${item.tmpId})'>Guardar</button>`}</td></tr>`;
+    const isUnlimited = Boolean(item.ilimitado);
+    return `<tr><td>${item.id ? item.producto : `<input class='app-input w-full' placeholder='Producto' id='p_${item.tmpId}'>`}</td><td class="space-y-1">${item.id ? `<input data-field='cantidad' type='number' min='0' value='${item.cantidad}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)' ${isUnlimited ? 'disabled' : ''}><label class='text-xs flex items-center gap-2'><input data-field='ilimitado' type='checkbox' ${isUnlimited ? 'checked' : ''} onchange='updateStock(${item.id}, this)'>Ilimitado</label>` : `<input type='number' min='0' value='0' class='app-input app-stock-input' id='c_${item.tmpId}'><label class='text-xs flex items-center gap-2'><input type='checkbox' id='i_${item.tmpId}'>Ilimitado</label>`}</td><td>${item.id ? `<input data-field='precio' type='number' min='0' step='0.01' value='${item.precio ?? 0}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)'>` : `<input type='number' min='0' step='0.01' value='0' class='app-input app-stock-input' id='pr_${item.tmpId}'>`}</td><td class='text-right'>${item.id ? `<button class='app-btn app-stock-row-btn' onclick='removeStock(${item.id})'>Quitar</button>` : `<button class='app-btn app-stock-row-btn' onclick='saveRow(${item.tmpId})'>Guardar</button>`}</td></tr>`;
 }
 
 function renderStock(){
@@ -46,8 +47,9 @@ window.addRow = () => {
 window.saveRow = async (tmpId) => {
     const producto = document.getElementById(`p_${tmpId}`).value;
     const cantidad = document.getElementById(`c_${tmpId}`).value;
+    const ilimitado = document.getElementById(`i_${tmpId}`).checked;
     const precio = document.getElementById(`pr_${tmpId}`).value;
-    await fetch('/stock',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({producto,cantidad,precio})});
+    await fetch('/stock',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({producto,cantidad,ilimitado,precio})});
     await refreshStock();
     await refreshHistory();
 };
@@ -61,8 +63,9 @@ window.removeStock = async (id) => {
 window.updateStock=async(id,input)=>{
     const row = input.closest('tr');
     const cantidad = row.querySelector("input[data-field='cantidad']").value;
+    const ilimitado = row.querySelector("input[data-field='ilimitado']").checked;
     const precio = row.querySelector("input[data-field='precio']").value;
-    await fetch(`/stock/${id}`,{method:'PUT',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({cantidad,precio})});
+    await fetch(`/stock/${id}`,{method:'PUT',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({cantidad,ilimitado,precio})});
     await refreshStock();
     await refreshHistory();
 }
