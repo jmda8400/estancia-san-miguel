@@ -18,6 +18,8 @@
 
     body.internal-page {
         background: linear-gradient(180deg, #9ab0a4 0%, #869c91 55%, #758a80 100%);
+        min-height: 100vh;
+        overflow-y: scroll;
     }
 }
 
@@ -34,6 +36,10 @@
     }
     .app-fixed-header { @apply sticky top-0 inset-x-0 z-50; }
         .app-main-content { padding-top: .75rem; padding-bottom: 2.6rem; min-height: 0; }
+    body.internal-page .app-main-content {
+        min-height: calc(100vh - 15rem);
+        padding-bottom: clamp(4rem, 10vh, 7.5rem);
+    }
     .app-brand-wrap { margin-left: -0.65rem; }
     .brand-logo {
         height: clamp(5.25rem, 6.6vw, 7.35rem);
@@ -90,6 +96,8 @@
         width: 100%;
         max-width: 72rem;
         margin-inline: auto;
+        min-height: clamp(42rem, 82vh, 58rem);
+        padding-bottom: clamp(2.5rem, 7vh, 5rem);
     }
 
     .internal-page-head { max-width: 44rem; }
