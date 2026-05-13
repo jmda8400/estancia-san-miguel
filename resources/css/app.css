@@ -243,7 +243,7 @@
     }
 
     .app-stock-card { box-shadow: 0 8px 18px rgba(19, 34, 28, 0.08); }
-    .app-stock-tab { min-width: 7rem; min-height: 2.25rem; border-radius: 0.85rem; }
+    .app-stock-tab { min-width: 7rem; min-height: 2.25rem; border-radius: 999px; }
     .app-stock-table-wrap {
         border: 1px solid #c8d7cf;
         border-radius: 1rem;
@@ -252,8 +252,15 @@
         background: #f6faf7;
     }
     .app-stock-input { width: 100%; min-width: 7rem; min-height: 2.25rem; border-radius: .8rem; }
-    .app-stock-row-btn { min-width: 5.5rem; min-height: 2.2rem; padding-inline: .9rem; border-radius: .85rem; }
-    .app-stock-add-btn { min-height: 2.25rem; padding-inline: 1rem; border-radius: .95rem; }
+    .app-stock-row-btn { min-width: 5.5rem; min-height: 2.2rem; padding-inline: .9rem; border-radius: 999px; }
+    .app-stock-add-btn { min-height: 2.25rem; padding-inline: 1rem; border-radius: 999px; }
+
+    .app-unlimited-checkbox {
+        width: 1.1rem;
+        height: 1.1rem;
+        accent-color: #35634f;
+        cursor: pointer;
+    }
 
     .footer-legend {
         color: rgba(241, 248, 244, 0.88);
