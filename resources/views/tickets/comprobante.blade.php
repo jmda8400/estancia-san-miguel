@@ -58,7 +58,6 @@
     <div class="line">{{ str_repeat($separatorChar ?? "_", 34) }}</div>
 
     <section class="totals">
-        <div class="row"><span>Subtotal</span><span class="right">{{ $ars($subtotal) }}</span></div>
         @if($descuento > 0)
             <div class="row"><span>Descuento</span><span class="right">-{{ $ars($descuento) }}</span></div>
         @endif
