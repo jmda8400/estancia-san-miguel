@@ -32,7 +32,7 @@ let stockItems = @json($stockItems);
 
 function rowTemplate(item){
     const isUnlimited = Boolean(item.ilimitado);
-    return `<tr><td>${item.id ? item.producto : `<input class='app-input w-full' placeholder='Producto' id='p_${item.tmpId}'>`}</td><td class="space-y-1">${item.id ? `<input data-field='cantidad' type='number' min='0' value='${item.cantidad}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)' ${isUnlimited ? 'disabled' : ''}><label class='text-xs flex items-center gap-3 app-unlimited-label'><input data-field='ilimitado' type='checkbox' class='app-unlimited-checkbox' ${isUnlimited ? 'checked' : ''} onchange='updateStock(${item.id}, this)'>Ilimitado</label>` : `<input type='number' min='0' value='0' class='app-input app-stock-input' id='c_${item.tmpId}'><label class='text-xs flex items-center gap-3 app-unlimited-label'><input type='checkbox' id='i_${item.tmpId}' class='app-unlimited-checkbox'>Ilimitado</label>`}</td><td>${item.id ? `<input data-field='precio' type='number' min='0' step='0.01' value='${item.precio ?? 0}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)'>` : `<input type='number' min='0' step='0.01' value='0' class='app-input app-stock-input' id='pr_${item.tmpId}'>`}</td><td class='text-right'>${item.id ? `<button class='app-btn app-stock-row-btn app-btn-pill' onclick='removeStock(${item.id})'>Quitar</button>` : `<button class='app-btn app-stock-row-btn app-btn-pill' onclick='saveRow(${item.tmpId})'>Guardar</button>`}</td></tr>`;
+    return `<tr><td>${item.id ? item.producto : `<input class='app-input w-full' placeholder='Producto' id='p_${item.tmpId}'>`}</td><td>${item.id ? `<div class='app-stock-field'><input data-field='cantidad' type='number' min='0' value='${item.cantidad}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)' ${isUnlimited ? 'disabled' : ''}><label class='text-xs flex items-center gap-3 app-unlimited-label'><input data-field='ilimitado' type='checkbox' class='app-unlimited-checkbox' ${isUnlimited ? 'checked' : ''} onchange='updateStock(${item.id}, this)'>Ilimitado</label></div>` : `<div class='app-stock-field'><input type='number' min='0' value='0' class='app-input app-stock-input' id='c_${item.tmpId}'><label class='text-xs flex items-center gap-3 app-unlimited-label'><input type='checkbox' id='i_${item.tmpId}' class='app-unlimited-checkbox'>Ilimitado</label></div>`}</td><td><div class='app-stock-price-field'>${item.id ? `<input data-field='precio' type='number' min='0' step='0.01' value='${item.precio ?? 0}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)'>` : `<input type='number' min='0' step='0.01' value='0' class='app-input app-stock-input' id='pr_${item.tmpId}'>`}<span class='app-stock-price-spacer' aria-hidden='true'></span></div></td><td class='text-right'>${item.id ? `<button class='app-btn app-stock-row-btn app-btn-pill' onclick='removeStock(${item.id})'>Quitar</button>` : `<button class='app-btn app-stock-row-btn app-btn-pill' onclick='saveRow(${item.tmpId})'>Guardar</button>`}</td></tr>`;
 }
 
 function renderStock(){
@@ -86,8 +86,8 @@ async function refreshHistory(){
 window.switchTab = (tab) => {
     document.getElementById('stockTab').classList.toggle('hidden', tab !== 'stock');
     document.getElementById('historialTab').classList.toggle('hidden', tab !== 'historial');
-    document.getElementById('tabStock').className = `app-btn app-stock-tab ${tab === 'stock' ? 'app-btn-active' : ''}`;
-    document.getElementById('tabHistorial').className = `app-btn app-stock-tab ${tab === 'historial' ? 'app-btn-active' : ''}`;
+    document.getElementById('tabStock').className = `app-btn app-stock-tab app-btn-pill ${tab === 'stock' ? 'app-btn-active' : ''}`;
+    document.getElementById('tabHistorial').className = `app-btn app-stock-tab app-btn-pill ${tab === 'historial' ? 'app-btn-active' : ''}`;
     if (tab === 'historial') refreshHistory();
 };
 
