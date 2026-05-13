@@ -14,7 +14,7 @@
         <label class="block text-sm">Contraseña
             <input name="password" type="password" class="mt-1 w-full app-input">
         </label>
-        <button type="submit" class="app-btn">Ingresar</button>
+        <button type="submit" class="app-btn app-btn-pill">Ingresar</button>
     </form>
 </div>
 @endsection

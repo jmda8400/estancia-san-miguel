@@ -969,3 +969,23 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
         .order-item-controls { grid-template-columns: 1fr; }
     }
 }
+
+
+@layer components {
+    .internal-page-head {
+        width: fit-content;
+        max-width: min(100%, 36rem);
+    }
+
+    .app-stock-field,
+    .app-stock-price-field {
+        display: grid;
+        gap: .35rem;
+        align-content: start;
+    }
+
+    .app-stock-price-spacer {
+        display: block;
+        min-height: 1.7rem;
+    }
+}

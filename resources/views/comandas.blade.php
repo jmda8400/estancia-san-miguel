@@ -135,8 +135,8 @@ window.switchTab = (tab) => {
     document.getElementById('comandasTab').classList.toggle('hidden', tab !== 'comandas');
     document.getElementById('addProductCard').classList.toggle('hidden', tab !== 'comandas');
     document.getElementById('historialTab').classList.toggle('hidden', tab !== 'historial');
-    document.getElementById('tabComandas').className = `app-btn ${tab === 'comandas' ? 'app-btn-active' : ''}`;
-    document.getElementById('tabHistorial').className = `app-btn ${tab === 'historial' ? 'app-btn-active' : ''}`;
+    document.getElementById('tabComandas').className = `app-btn app-btn-pill ${tab === 'comandas' ? 'app-btn-active' : ''}`;
+    document.getElementById('tabHistorial').className = `app-btn app-btn-pill ${tab === 'historial' ? 'app-btn-active' : ''}`;
     if (tab === 'historial') refreshHistorial(state.historial.current_page);
 };
 

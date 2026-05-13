@@ -13,10 +13,10 @@
             <input id="endDate" type="date" class="app-input w-full">
         </div>
         <div class="md:col-span-2 flex items-end gap-2 flex-wrap">
-            <button class="app-btn" data-range="7">Últimos 7 días</button>
-            <button class="app-btn app-btn-active" data-range="30">Últimos 30 días</button>
-            <button class="app-btn" data-range="90">Últimos 90 días</button>
-            <button id="applyRange" class="app-btn">Aplicar rango</button>
+            <button class="app-btn app-btn-pill" data-range="7">Últimos 7 días</button>
+            <button class="app-btn app-btn-active app-btn-pill" data-range="30">Últimos 30 días</button>
+            <button class="app-btn app-btn-pill" data-range="90">Últimos 90 días</button>
+            <button id="applyRange" class="app-btn app-btn-pill">Aplicar rango</button>
         </div>
     </div>
     <section class="app-chart-wrap mb-4">
@@ -31,7 +31,7 @@
             <input id="transferCbu" class="app-input w-full" placeholder="CBU (22 dígitos)">
             <input id="transferHolder" class="app-input w-full" placeholder="Titular de cuenta (opcional)">
             <input id="transferTaxId" class="app-input w-full md:col-span-2" placeholder="CUIT/CUIL del titular (opcional)">
-            <button id="savePhone" class="app-btn md:col-span-2">Guardar configuración de ticket y pagos</button>
+            <button id="savePhone" class="app-btn app-btn-pill md:col-span-2">Guardar configuración de ticket y pagos</button>
         </div>
         <p class="text-xs mt-2 text-neutral-700">Se imprimirá en: <code>storage/app/public/comprobantes</code></p>
     </div>
