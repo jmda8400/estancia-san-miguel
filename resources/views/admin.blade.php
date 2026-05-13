@@ -29,7 +29,7 @@
             <input id="transferTaxId" class="app-input w-full md:col-span-2" placeholder="CUIT/CUIL del titular (opcional)">
             <button id="savePhone" class="app-btn md:col-span-2">Guardar configuración de ticket y pagos</button>
         </div>
-        <p class="text-xs mt-2 text-neutral-700">Se imprimirá en: <code>storage/app/public/tickets-cobrados</code></p>
+        <p class="text-xs mt-2 text-neutral-700">Se imprimirá en: <code>storage/app/public/comprobantes</code></p>
     </div>
     <section class="app-chart-wrap">
         <h2 class="font-semibold mb-3">Fluctuación de cantidad por producto</h2>

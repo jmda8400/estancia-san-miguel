@@ -26,8 +26,7 @@
         <div class="orders-summary mt-3 pt-3 flex items-center justify-between gap-3">
             <p id="selectedTotal" class="text-sm font-semibold text-emerald-950">Total: $0.00</p>
             <div class="flex items-center gap-2">
-                <button id="print58Btn" class="hidden btn btn-secondary" onclick="imprimirTicket58()">Imprimir ticket 58mm</button>
-                <button id="chargeBtn" class="hidden btn btn-primary btn-charge" onclick="cobrarComanda()">Cobrar</button>
+                                <button id="chargeBtn" class="hidden btn btn-primary btn-charge" onclick="cobrarComanda()">Cobrar</button>
             </div>
         </div>
     </div>
@@ -70,7 +69,6 @@ const tablesEl = document.getElementById('tables');
 const productsEl = document.getElementById('productsList');
 const titleEl = document.getElementById('selectedTitle');
 const chargeBtn = document.getElementById('chargeBtn');
-const print58Btn = document.getElementById('print58Btn');
 const totalEl = document.getElementById('selectedTotal');
 
 function renderComandas() {
@@ -87,10 +85,9 @@ function renderComandas() {
     </div>`;
  }).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
- if(!comanda){titleEl.textContent='Seleccione una mesa'; productsEl.innerHTML=''; totalEl.textContent='Total: $0.00'; chargeBtn.classList.add('hidden'); print58Btn.classList.add('hidden'); document.getElementById('addProductCard').classList.add('hidden'); return;}
+ if(!comanda){titleEl.textContent='Seleccione una mesa'; productsEl.innerHTML=''; totalEl.textContent='Total: $0.00'; chargeBtn.classList.add('hidden'); document.getElementById('addProductCard').classList.add('hidden'); return;}
  titleEl.textContent = `Productos de ${comanda.nombre ?? ('Mesa ' + comanda.mesa_numero)}`;
  chargeBtn.classList.remove('hidden');
- print58Btn.classList.remove('hidden');
  document.getElementById('addProductCard').classList.remove('hidden');
  const totalComanda = comanda.productos.reduce((acc, p) => acc + ((Number(p.precio) || 0) * p.cantidad), 0);
  totalEl.textContent = `Total: $${totalComanda.toFixed(2)}`;
@@ -192,10 +189,6 @@ window.cobrarComanda=async()=>{
  await fetch(`/comandas/${state.selectedComandaId}/cobrar`,{method:'POST',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}});
  await refreshComandas();
  if (state.activeTab === 'historial') refreshHistorial();
-};
-window.imprimirTicket58=()=>{
- if(!state.selectedComandaId){return;}
- window.open(`/comandas/${state.selectedComandaId}/ticket-58mm`, '_blank', 'noopener');
 };
 
 document.getElementById('newProductForm').onsubmit=async(e)=>{
