@@ -22,6 +22,11 @@
 <div id="historialTab" class="hidden app-card app-stock-card">
     <h2 class="font-semibold mb-3">Historial de cambios de stock</h2>
     <div id="stockHistoryList" class="space-y-2"></div>
+    <div class="mt-4 flex items-center justify-between">
+        <button id="stockPrevPage" class="app-btn app-btn-pill" onclick="changeStockHistoryPage(-1)">Anterior</button>
+        <span id="stockPageInfo" class="text-sm text-emerald-950"></span>
+        <button id="stockNextPage" class="app-btn app-btn-pill" onclick="changeStockHistoryPage(1)">Siguiente</button>
+    </div>
 </div>
 </section>
 
@@ -29,10 +34,11 @@
 @section('scripts')
 <script>
 let stockItems = @json($stockItems);
+let stockHistory = { data: [], current_page: 1, last_page: 1, total: 0 };
 
 function rowTemplate(item){
     const isUnlimited = Boolean(item.ilimitado);
-    return `<tr><td>${item.id ? item.producto : `<input class='app-input w-full' placeholder='Producto' id='p_${item.tmpId}'>`}</td><td>${item.id ? `<div class='app-stock-field'><input data-field='cantidad' type='number' min='0' value='${item.cantidad}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)' ${isUnlimited ? 'disabled' : ''}><label class='text-xs flex items-center gap-3 app-unlimited-label'><input data-field='ilimitado' type='checkbox' class='app-unlimited-checkbox' ${isUnlimited ? 'checked' : ''} onchange='updateStock(${item.id}, this)'>Ilimitado</label></div>` : `<div class='app-stock-field'><input type='number' min='0' value='0' class='app-input app-stock-input' id='c_${item.tmpId}'><label class='text-xs flex items-center gap-3 app-unlimited-label'><input type='checkbox' id='i_${item.tmpId}' class='app-unlimited-checkbox'>Ilimitado</label></div>`}</td><td><div class='app-stock-price-field'>${item.id ? `<input data-field='precio' type='number' min='0' step='0.01' value='${item.precio ?? 0}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)'>` : `<input type='number' min='0' step='0.01' value='0' class='app-input app-stock-input' id='pr_${item.tmpId}'>`}<span class='app-stock-price-spacer' aria-hidden='true'></span></div></td><td class='text-right'>${item.id ? `<button class='app-btn app-stock-row-btn app-btn-pill' onclick='removeStock(${item.id})'>Quitar</button>` : `<button class='app-btn app-stock-row-btn app-btn-pill' onclick='saveRow(${item.tmpId})'>Guardar</button>`}</td></tr>`;
+    return `<tr><td>${item.id ? item.producto : `<input class='app-input w-full' placeholder='Producto' id='p_${item.tmpId}'>`}</td><td>${item.id ? `<div class='app-stock-field'><input data-field='cantidad' type='number' min='0' value='${item.cantidad}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)' ${isUnlimited ? 'disabled' : ''}></div>` : `<div class='app-stock-field'><input type='number' min='0' value='0' class='app-input app-stock-input' id='c_${item.tmpId}'></div>`}</td><td><div class='app-stock-price-field'>${item.id ? `<input data-field='precio' type='number' min='0' step='0.01' value='${item.precio ?? 0}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)'>` : `<input type='number' min='0' step='0.01' value='0' class='app-input app-stock-input' id='pr_${item.tmpId}'>`}<span class='app-stock-price-spacer' aria-hidden='true'></span></div></td><td class='text-right'>${item.id ? `<div class='app-stock-actions'><button class='app-btn app-stock-row-btn app-btn-pill' onclick='toggleUnlimited(${item.id}, ${isUnlimited})'>Ilimitado</button><button class='app-btn app-stock-row-btn app-btn-pill' onclick='removeStock(${item.id})'>Quitar</button></div>` : `<button class='app-btn app-stock-row-btn app-btn-pill' onclick='saveRow(${item.tmpId})'>Guardar</button>`}</td></tr>`;
 }
 
 function renderStock(){
@@ -63,12 +69,24 @@ window.removeStock = async (id) => {
 window.updateStock=async(id,input)=>{
     const row = input.closest('tr');
     const cantidad = row.querySelector("input[data-field='cantidad']").value;
-    const ilimitado = row.querySelector("input[data-field='ilimitado']").checked;
+    const currentItem = stockItems.find(item => item.id === id);
+    const ilimitado = Boolean(currentItem?.ilimitado);
     const precio = row.querySelector("input[data-field='precio']").value;
     await fetch(`/stock/${id}`,{method:'PUT',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({cantidad,ilimitado,precio})});
     await refreshStock();
     await refreshHistory();
 }
+
+window.toggleUnlimited = async (id, currentValue) => {
+    const row = stockItems.find(item => item.id === id);
+    if (!row) return;
+    const ilimitado = !currentValue;
+    const cantidad = ilimitado ? 0 : row.cantidad;
+    const precio = row.precio ?? 0;
+    await fetch(`/stock/${id}`,{method:'PUT',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({cantidad,ilimitado,precio})});
+    await refreshStock();
+    await refreshHistory(stockHistory.current_page);
+};
 
 async function refreshStock(){
     const response = await fetch('/stock/data');
@@ -76,12 +94,22 @@ async function refreshStock(){
     renderStock();
 }
 
-async function refreshHistory(){
-    const response = await fetch('/stock/historial/data');
+async function refreshHistory(page = 1){
+    const response = await fetch(`/stock/historial/data?page=${page}`);
     const data = await response.json();
+    stockHistory = data;
     const labels = { suma: 'Suma', resta: 'Resta', agregado: 'Agregado', quitado: 'Quitado' };
-    document.getElementById('stockHistoryList').innerHTML = data.map(h => `<div class='rounded border border-amber-200 bg-amber-50 p-3'><strong>${labels[h.accion]}</strong> · ${h.producto} · ${h.cantidad}<div class='text-sm text-amber-950'>${new Date(h.created_at).toLocaleString()}</div></div>`).join('') || '<p class="text-amber-900">No hay movimientos.</p>';
+    document.getElementById('stockHistoryList').innerHTML = data.data.map(h => `<div class='rounded border border-amber-200 bg-amber-50 p-3'><strong>${labels[h.accion]}</strong> · ${h.producto} · ${h.cantidad}<div class='text-sm text-amber-950'>${new Date(h.created_at).toLocaleString()}</div></div>`).join('') || '<p class="text-amber-900">No hay movimientos.</p>';
+    document.getElementById('stockPageInfo').textContent = `Página ${data.current_page} de ${data.last_page} · ${data.total} movimientos`;
+    document.getElementById('stockPrevPage').disabled = data.current_page <= 1;
+    document.getElementById('stockNextPage').disabled = data.current_page >= data.last_page;
 }
+
+window.changeStockHistoryPage = (delta) => {
+    const nextPage = stockHistory.current_page + delta;
+    if (nextPage < 1 || nextPage > stockHistory.last_page) return;
+    refreshHistory(nextPage);
+};
 
 window.switchTab = (tab) => {
     document.getElementById('stockTab').classList.toggle('hidden', tab !== 'stock');

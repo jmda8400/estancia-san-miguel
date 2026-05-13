@@ -110,7 +110,26 @@ Route::post('/logout', function (Request $request) { $request->session()->forget
 Route::middleware(RequireLogin::class)->group(function () {
     Route::get('/stock', fn () => view('stock', ['stockItems' => DB::table('stock')->orderBy('id')->get()]))->name('stock');
     Route::get('/stock/data', fn () => DB::table('stock')->orderBy('id')->get());
-    Route::get('/stock/historial/data', fn () => DB::table('stock_historial')->orderByDesc('created_at')->limit(100)->get());
+    Route::get('/stock/historial/data', function (Request $request) {
+        $page = max(1, (int) $request->query('page', 1));
+        $perPage = 10;
+        $total = DB::table('stock_historial')->count();
+        $lastPage = max(1, (int) ceil($total / $perPage));
+        $page = min($page, $lastPage);
+
+        $items = DB::table('stock_historial')
+            ->orderByDesc('created_at')
+            ->forPage($page, $perPage)
+            ->get();
+
+        return [
+            'data' => $items,
+            'current_page' => $page,
+            'per_page' => $perPage,
+            'total' => $total,
+            'last_page' => $lastPage,
+        ];
+    });
     Route::put('/stock/{id}', function (Request $r, int $id) {
         $data = $r->validate([
             'cantidad' => 'nullable|integer|min:0|required_without:ilimitado',

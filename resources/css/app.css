@@ -36,9 +36,9 @@
         .app-main-content { padding-top: .75rem; padding-bottom: 2.6rem; min-height: 0; }
     .app-brand-wrap { margin-left: -0.65rem; }
     .brand-logo {
-        height: clamp(3.5rem, 4.4vw, 4.9rem);
+        height: clamp(5.25rem, 6.6vw, 7.35rem);
         width: auto;
-        max-height: 4.9rem;
+        max-height: 7.35rem;
         object-fit: contain;
         display: block;
         filter: drop-shadow(0 2px 4px rgba(0,0,0,.28));
@@ -189,8 +189,8 @@
 
 @media (max-width: 640px) {
     .brand-logo {
-        height: clamp(2.9rem, 12vw, 4.2rem);
-        max-height: 4.2rem;
+        height: clamp(4.35rem, 18vw, 6.3rem);
+        max-height: 6.3rem;
     }
 }
 
@@ -263,6 +263,7 @@
     }
     .app-stock-input { width: 100%; min-width: 7rem; min-height: 2.25rem; border-radius: .8rem; }
     .app-stock-row-btn { min-width: 5.5rem; min-height: 2.2rem; padding-inline: .9rem; border-radius: 999px; }
+    .app-stock-actions { display: inline-flex; align-items: center; justify-content: flex-end; gap: .5rem; }
     .app-stock-add-btn { min-height: 2.25rem; padding-inline: 1rem; border-radius: 999px; }
 
      .app-unlimited-label {
