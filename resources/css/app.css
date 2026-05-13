@@ -261,6 +261,7 @@
         overflow-y: hidden;
         background: #f6faf7;
     }
+    .app-stock-field { display: flex; align-items: center; }
     .app-stock-input { width: 100%; min-width: 7rem; min-height: 2.25rem; border-radius: .8rem; }
     .app-stock-row-btn { min-width: 5.5rem; min-height: 2.2rem; padding-inline: .9rem; border-radius: 999px; }
     .app-stock-actions { display: flex; align-items: center; justify-content: flex-end; gap: .5rem; height: 100%; }
@@ -435,7 +436,7 @@
     pointer-events: auto;
 }
 .frontpage .app-shell-transparent { background: #0d2e1e; }
-.frontpage .brand-logo { height: clamp(6.2rem, 12vw, 10.2rem); max-height: 10.2rem; }
+.frontpage .brand-logo { height: clamp(5.4rem, 10vw, 8.6rem); max-height: 8.6rem; }
 .frontpage .front-header-links {
     display: flex;
     align-items: center;
@@ -500,8 +501,8 @@
     gap: .85rem;
 }
 .internal-page .brand-logo {
-    height: clamp(6.2rem, 12vw, 10.2rem);
-    max-height: 10.2rem;
+    height: clamp(5.4rem, 10vw, 8.6rem);
+    max-height: 8.6rem;
 }
 .internal-page .app-shell-transparent {
     background: rgba(24, 49, 39, 0.94);
