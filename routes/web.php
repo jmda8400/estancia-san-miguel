@@ -12,7 +12,7 @@ function comandasConProductos()
             ->leftJoin('stock as s', 's.producto', '=', 'p.nombre')
             ->where('p.comanda_id', $c->id)
             ->where(function ($q) {
-                $q->whereNull('s.id')->orWhere('s.cantidad', '>', 0);
+                $q->whereNull('s.id')->orWhere('s.cantidad', '>', 0)->orWhere('s.ilimitado', true);
             })
             ->orderBy('p.id')
             ->select('p.*', 's.precio')
@@ -33,119 +33,38 @@ function formatearMonedaArs(float $importe): string
     return '$' . number_format($importe, 0, ',', '.');
 }
 
-function guardarTicketPdf80mm(object $comanda, $productos, float $subtotal, float $total, string $telefono): string
+function guardarComprobante58mm(object $comanda, $productos, float $subtotal, float $total, string $telefono): string
 {
     $tzNow = now()->setTimezone('America/Argentina/Buenos_Aires');
-    $dir = storage_path('app/public/tickets-cobrados');
+    $dir = storage_path('app/public/comprobantes');
     if (!is_dir($dir)) {
         mkdir($dir, 0775, true);
     }
 
-    $logoPath = public_path('logo.png');
-    $ticketWidth = 226.77; // 80mm
-    $lineHeight = 13;
-    $marginX = 12;
-    $startY = 120;
-    $lines = [];
-    $lines[] = 'Fecha - Hora: ' . $tzNow->format('d/m/Y H:i:s');
-    $lines[] = 'Telefono: ' . $telefono;
-    $lines[] = str_repeat('-', 36);
-    foreach ($productos as $producto) {
-        $precioUnitario = (float) ($producto->precio ?? 0);
-        $importe = $precioUnitario * (int) $producto->cantidad;
-        $lines[] = sprintf('%s x%d  $%0.2f', $producto->nombre, $producto->cantidad, $importe);
-    }
-    $lines[] = str_repeat('-', 36);
-    $lines[] = sprintf('Subtotal: $%0.2f', $subtotal);
-    $lines[] = sprintf('Total: $%0.2f', $total);
+    $transferencia = [
+        'alias' => obtenerConfiguracion('transfer_alias'),
+        'cbu' => obtenerConfiguracion('transfer_cbu'),
+        'titular' => obtenerConfiguracion('transfer_account_holder'),
+        'cuit' => obtenerConfiguracion('transfer_account_tax_id'),
+    ];
 
-    $contentHeight = $startY + (count($lines) * $lineHeight) + 20;
-    $pdfHeight = max(350, $contentHeight);
+    $html = view('tickets.comprobante', [
+        'comanda' => $comanda,
+        'productos' => $productos,
+        'subtotal' => $subtotal,
+        'descuento' => 0,
+        'total' => $total,
+        'telefono' => $telefono,
+        'transferencia' => $transferencia,
+        'ars' => fn (float $importe) => formatearMonedaArs($importe),
+        'autoPrint' => false,
+        'separatorChar' => '_',
+    ])->render();
 
-    $tmpLogo = tempnam(sys_get_temp_dir(), 'logo_ticket_') . '.jpg';
-    $logoCreated = false;
-    if (file_exists($logoPath)) {
-        $img = @imagecreatefrompng($logoPath);
-        if ($img !== false) {
-            imagefilter($img, IMG_FILTER_GRAYSCALE);
-            imagejpeg($img, $tmpLogo, 85);
-            imagedestroy($img);
-            $logoCreated = true;
-        }
-    }
+    $file = 'comprobante-' . $tzNow->format('Ymd-His') . '-comanda-' . $comanda->id . '.html';
+    file_put_contents($dir . DIRECTORY_SEPARATOR . $file, $html);
 
-    $objects = [];
-    $content = "BT /F1 10 Tf
-";
-    $y = $startY;
-    foreach ($lines as $line) {
-        $safe = str_replace(['\\', '(', ')'], ['\\\\', '\(', '\)'], $line);
-        $content .= sprintf("1 0 0 1 %.2f %.2f Tm (%s) Tj
-", $marginX, $pdfHeight - $y, $safe);
-        $y += $lineHeight;
-    }
-    $content .= "ET
-";
-
-    $imageObjNum = null;
-    if ($logoCreated) {
-        $jpg = file_get_contents($tmpLogo);
-        [$w, $h] = getimagesize($tmpLogo);
-        $imageObjNum = 5;
-        $objects[5] = "<< /Type /XObject /Subtype /Image /Width $w /Height $h /ColorSpace /DeviceGray /BitsPerComponent 8 /Filter /DCTDecode /Length " . strlen($jpg) . " >>
-stream
-" . $jpg . "
-endstream";
-        $drawW = 120;
-        $drawH = max(28, ($h / max($w,1)) * $drawW);
-        $content = "q $drawW 0 0 $drawH 53 " . ($pdfHeight - 90) . " cm /Im1 Do Q
-" . $content;
-    }
-
-    $objects[1] = "<< /Type /Catalog /Pages 2 0 R >>";
-    $objects[2] = "<< /Type /Pages /Kids [3 0 R] /Count 1 >>";
-    $res = $imageObjNum ? "<< /Font << /F1 4 0 R >> /XObject << /Im1 5 0 R >> >>" : "<< /Font << /F1 4 0 R >> >>";
-    $objects[3] = "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 $ticketWidth $pdfHeight] /Resources $res /Contents 6 0 R >>";
-    $objects[4] = "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>";
-    $objects[6] = "<< /Length " . strlen($content) . " >>
-stream
-$content
-endstream";
-
-    $pdf = "%PDF-1.4
-";
-    $offsets = [0];
-    for ($i=1; $i<=6; $i++) {
-        if (!isset($objects[$i])) continue;
-        $offsets[$i] = strlen($pdf);
-        $pdf .= "$i 0 obj
-" . $objects[$i] . "
-endobj
-";
-    }
-    $xref = strlen($pdf);
-    $pdf .= "xref
-0 7
-0000000000 65535 f 
-";
-    for ($i=1; $i<=6; $i++) {
-        $off = $offsets[$i] ?? 0;
-        $pdf .= sprintf("%010d 00000 n 
-", $off);
-    }
-    $pdf .= "trailer
-<< /Size 7 /Root 1 0 R >>
-startxref
-$xref
-%%EOF";
-
-    $file = 'ticket-' . $tzNow->format('Ymd-His') . '-comanda-' . $comanda->id . '.pdf';
-    file_put_contents($dir . DIRECTORY_SEPARATOR . $file, $pdf);
-    if ($logoCreated && file_exists($tmpLogo)) {
-        unlink($tmpLogo);
-    }
-
-    return 'storage/tickets-cobrados/' . $file;
+    return 'storage/comprobantes/' . $file;
 }
 
 function historialComandasPaginado(int $page = 1, int $perPage = 10)
@@ -374,7 +293,7 @@ Route::middleware(RequireLogin::class)->group(function () {
         $subtotal = $productos->sum(fn ($p) => ((float) ($p->precio ?? 0)) * (int) $p->cantidad);
         $total = $subtotal;
         $telefonoLocal = obtenerConfiguracion('telefono_local', '+54 9 11 0000-0000');
-        $pdfPath = guardarTicketPdf80mm($comanda, $productos, $subtotal, $total, $telefonoLocal);
+        $pdfPath = guardarComprobante58mm($comanda, $productos, $subtotal, $total, $telefonoLocal);
 
         $historialId = DB::table('comandas_historial')->insertGetId([
             'comanda_id' => $comanda->id,
@@ -404,7 +323,7 @@ Route::middleware(RequireLogin::class)->group(function () {
             'updated_at' => now(),
         ]);
 
-        return response()->json(['pdf_path' => $pdfPath]);
+        return response()->json(['comprobante_path' => $pdfPath]);
     });
 
     Route::get('/comandas/{id}/ticket-58mm', function (int $id) {
@@ -429,7 +348,7 @@ Route::middleware(RequireLogin::class)->group(function () {
             'cuit' => obtenerConfiguracion('transfer_account_tax_id'),
         ];
 
-        return view('tickets.comanda-58mm', [
+        return view('tickets.comprobante', [
             'comanda' => $comanda,
             'productos' => $productos,
             'subtotal' => $subtotal,
