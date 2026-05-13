@@ -10,7 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@800;900&display=swap" rel="stylesheet">
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="min-h-screen flex flex-col {{ request()->path() === '/' ? 'frontpage' : 'internal-page' }}">
+<body class="{{ request()->path() === '/' ? 'frontpage' : 'internal-page' }}">
+<div class="app-page min-h-screen flex flex-col">
 <header class="app-shell app-fixed-header border-b app-shell-transparent">
     <nav class="mx-auto max-w-[78rem] w-full px-4 py-1.5 md:py-1 flex items-center justify-between gap-2.5 text-sm">
         <a href="/" aria-label="Volver a la Frontpage"><img src="/logo.png" alt="Estancia San Miguel" class="brand-logo" loading="eager" decoding="async"></a>
@@ -43,5 +44,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 @yield('scripts')
+</div>
 </body>
 </html>

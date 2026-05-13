@@ -11,13 +11,26 @@
 }
 
 @layer base {
-    body {
-        background: linear-gradient(180deg, #dbe8e1 0%, #cfe0d8 55%, #c4d8cf 100%);
+    html,
+    body,
+    .app-page {
+        min-height: 100%;
+        background-color: #c4d8cf;
+    }
+
+    body,
+    .app-page {
+        background-image: linear-gradient(180deg, #dbe8e1 0%, #cfe0d8 55%, #c4d8cf 100%);
         color: #1f342b;
     }
 
+    body.internal-page,
+    body.internal-page .app-page {
+        background-color: #758a80;
+        background-image: linear-gradient(180deg, #9ab0a4 0%, #869c91 55%, #758a80 100%);
+    }
+
     body.internal-page {
-        background: linear-gradient(180deg, #9ab0a4 0%, #869c91 55%, #758a80 100%);
         min-height: 100vh;
         overflow-y: scroll;
     }
