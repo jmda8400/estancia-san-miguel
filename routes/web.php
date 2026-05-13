@@ -28,6 +28,11 @@ function obtenerConfiguracion(string $clave, ?string $default = null): ?string
     return DB::table('configuraciones')->where('clave', $clave)->value('valor') ?? $default;
 }
 
+function formatearMonedaArs(float $importe): string
+{
+    return '$' . number_format($importe, 0, ',', '.');
+}
+
 function guardarTicketPdf80mm(object $comanda, $productos, float $subtotal, float $total, string $telefono): string
 {
     $tzNow = now()->setTimezone('America/Argentina/Buenos_Aires');
@@ -402,6 +407,40 @@ Route::middleware(RequireLogin::class)->group(function () {
         return response()->json(['pdf_path' => $pdfPath]);
     });
 
+    Route::get('/comandas/{id}/ticket-58mm', function (int $id) {
+        $comanda = DB::table('comandas')->where('id', $id)->first();
+        abort_unless($comanda, 404);
+
+        $productos = DB::table('productos as p')
+            ->leftJoin('stock as s', 's.producto', '=', 'p.nombre')
+            ->where('p.comanda_id', $id)
+            ->orderBy('p.id')
+            ->select('p.*', 's.precio')
+            ->get();
+
+        $subtotal = $productos->sum(fn ($p) => ((float) ($p->precio ?? 0)) * (int) $p->cantidad);
+        $descuento = 0;
+        $total = $subtotal - $descuento;
+
+        $transferencia = [
+            'alias' => obtenerConfiguracion('transfer_alias'),
+            'cbu' => obtenerConfiguracion('transfer_cbu'),
+            'titular' => obtenerConfiguracion('transfer_account_holder'),
+            'cuit' => obtenerConfiguracion('transfer_account_tax_id'),
+        ];
+
+        return view('tickets.comanda-58mm', [
+            'comanda' => $comanda,
+            'productos' => $productos,
+            'subtotal' => $subtotal,
+            'descuento' => $descuento,
+            'total' => $total,
+            'telefono' => obtenerConfiguracion('telefono_local'),
+            'transferencia' => $transferencia,
+            'ars' => fn (float $importe) => formatearMonedaArs($importe),
+        ]);
+    })->name('comandas.ticket58');
+
     Route::get('/admin/graficas/data', function (Request $request) {
         $end = $request->query('end') ? \Carbon\Carbon::parse($request->query('end'))->endOfDay() : now()->endOfDay();
         $start = $request->query('start') ? \Carbon\Carbon::parse($request->query('start'))->startOfDay() : $end->copy()->subDays(29)->startOfDay();
@@ -452,13 +491,37 @@ Route::middleware(RequireLogin::class)->group(function () {
         return ['days' => $days, 'start' => $start->toDateString(), 'end' => $end->toDateString(), 'series' => $series];
     });
 
-    Route::get('/admin/configuracion', fn () => ['telefono_local' => obtenerConfiguracion('telefono_local', '+54 9 11 0000-0000')]);
+    Route::get('/admin/configuracion', fn () => [
+        'telefono_local' => obtenerConfiguracion('telefono_local', '+54 9 11 0000-0000'),
+        'transfer_alias' => obtenerConfiguracion('transfer_alias'),
+        'transfer_cbu' => obtenerConfiguracion('transfer_cbu'),
+        'transfer_account_holder' => obtenerConfiguracion('transfer_account_holder'),
+        'transfer_account_tax_id' => obtenerConfiguracion('transfer_account_tax_id'),
+    ]);
     Route::put('/admin/configuracion/telefono', function (Request $r) {
-        $data = $r->validate(['telefono_local' => 'required|string|max:50']);
-        DB::table('configuraciones')->updateOrInsert(
-            ['clave' => 'telefono_local'],
-            ['valor' => $data['telefono_local'], 'updated_at' => now(), 'created_at' => now()]
-        );
+        $data = $r->validate([
+            'telefono_local' => 'required|string|max:50',
+            'transfer_alias' => 'nullable|string|max:50',
+            'transfer_cbu' => ['nullable', 'regex:/^[0-9]{22}$/'],
+            'transfer_account_holder' => 'nullable|string|max:80',
+            'transfer_account_tax_id' => 'nullable|string|max:20',
+        ]);
+
+        $configuraciones = [
+            'telefono_local' => $data['telefono_local'],
+            'transfer_alias' => $data['transfer_alias'] ?? null,
+            'transfer_cbu' => $data['transfer_cbu'] ?? null,
+            'transfer_account_holder' => $data['transfer_account_holder'] ?? null,
+            'transfer_account_tax_id' => $data['transfer_account_tax_id'] ?? null,
+        ];
+
+        foreach ($configuraciones as $clave => $valor) {
+            DB::table('configuraciones')->updateOrInsert(
+                ['clave' => $clave],
+                ['valor' => $valor, 'updated_at' => now(), 'created_at' => now()]
+            );
+        }
+
         return response()->noContent();
     });
 

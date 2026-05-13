@@ -21,9 +21,13 @@
     </div>
     <div class="app-chart-wrap mb-4">
         <h2 class="font-semibold mb-3">Configuración del ticket</h2>
-        <div class="grid md:grid-cols-[1fr_auto] gap-3">
+        <div class="grid md:grid-cols-2 gap-3">
             <input id="telefonoLocal" class="app-input w-full" placeholder="Número de teléfono">
-            <button id="savePhone" class="app-btn">Guardar teléfono</button>
+            <input id="transferAlias" class="app-input w-full" placeholder="Alias de transferencia">
+            <input id="transferCbu" class="app-input w-full" placeholder="CBU (22 dígitos)">
+            <input id="transferHolder" class="app-input w-full" placeholder="Titular de cuenta (opcional)">
+            <input id="transferTaxId" class="app-input w-full md:col-span-2" placeholder="CUIT/CUIL del titular (opcional)">
+            <button id="savePhone" class="app-btn md:col-span-2">Guardar configuración de ticket y pagos</button>
         </div>
         <p class="text-xs mt-2 text-neutral-700">Se imprimirá en: <code>storage/app/public/tickets-cobrados</code></p>
     </div>
@@ -116,18 +120,27 @@ async function loadPhoneConfig(){
     const response = await fetch('/admin/configuracion');
     const data = await response.json();
     document.getElementById('telefonoLocal').value = data.telefono_local || '';
+    document.getElementById('transferAlias').value = data.transfer_alias || '';
+    document.getElementById('transferCbu').value = data.transfer_cbu || '';
+    document.getElementById('transferHolder').value = data.transfer_account_holder || '';
+    document.getElementById('transferTaxId').value = data.transfer_account_tax_id || '';
 }
 
 document.getElementById('savePhone').addEventListener('click', async () => {
     const telefono_local = document.getElementById('telefonoLocal').value.trim();
+    const transfer_alias = document.getElementById('transferAlias').value.trim();
+    const transfer_cbu = document.getElementById('transferCbu').value.trim();
+    const transfer_account_holder = document.getElementById('transferHolder').value.trim();
+    const transfer_account_tax_id = document.getElementById('transferTaxId').value.trim();
     if (!telefono_local) return alert('Ingrese un teléfono válido.');
+    if (transfer_cbu && !/^\d{22}$/.test(transfer_cbu)) return alert('El CBU debe tener 22 dígitos numéricos.');
     const response = await fetch('/admin/configuracion/telefono', {
         method: 'PUT',
         headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'},
-        body: JSON.stringify({ telefono_local }),
+        body: JSON.stringify({ telefono_local, transfer_alias, transfer_cbu, transfer_account_holder, transfer_account_tax_id }),
     });
-    if (!response.ok) return alert('No se pudo guardar el teléfono.');
-    alert('Teléfono guardado.');
+    if (!response.ok) return alert('No se pudo guardar la configuración.');
+    alert('Configuración guardada.');
 });
 
 setRange(30);
