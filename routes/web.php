@@ -33,6 +33,13 @@ function formatearMonedaArs(float $importe): string
     return '$' . number_format($importe, 0, ',', '.');
 }
 
+function obtenerGaleriaImagenes()
+{
+    return DB::table('galeria_imagenes')
+        ->orderByDesc('id')
+        ->get(['id', 'titulo', 'categoria', 'ruta']);
+}
+
 function guardarComprobante58mm(object $comanda, $productos, float $subtotal, float $total, string $telefono): string
 {
     $tzNow = now()->setTimezone('America/Argentina/Buenos_Aires');
@@ -95,7 +102,7 @@ function historialComandasPaginado(int $page = 1, int $perPage = 10)
     ];
 }
 
-Route::view('/', 'home')->name('home');
+Route::get('/', fn () => view('home', ['galeriaImagenes' => obtenerGaleriaImagenes()]))->name('home');
 Route::view('/login', 'login')->name('login');
 Route::post('/login', function (Request $request) {
     $credentials = $request->validate(['username' => ['required', 'string'], 'password' => ['required', 'string']]);
@@ -470,4 +477,29 @@ Route::middleware(RequireLogin::class)->group(function () {
     });
 
     Route::view('/admin', 'admin')->name('admin');
+    Route::get('/admin/galeria/data', fn () => obtenerGaleriaImagenes());
+    Route::post('/admin/galeria', function (Request $r) {
+        $data = $r->validate([
+            'imagen' => 'required|image|max:8192',
+            'titulo' => 'nullable|string|max:80',
+            'categoria' => 'nullable|string|max:40',
+        ]);
+
+        $file = $data['imagen'];
+        $name = now()->format('YmdHis') . '-' . uniqid() . '.' . $file->getClientOriginalExtension();
+        if (!is_dir(public_path('galeria'))) {
+            mkdir(public_path('galeria'), 0775, true);
+        }
+        $file->move(public_path('galeria'), $name);
+
+        DB::table('galeria_imagenes')->insert([
+            'titulo' => $data['titulo'] ?? null,
+            'categoria' => $data['categoria'] ?? null,
+            'ruta' => '/galeria/' . $name,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        return response()->noContent();
+    });
 });

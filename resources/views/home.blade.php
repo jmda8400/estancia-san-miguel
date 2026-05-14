@@ -76,6 +76,33 @@
     </section>
     <div class="front-section-separator" style="background-image: url('/picture_15.png');" aria-hidden="true"></div>
 
+    <section id="galeria" class="front-section-block">
+        <div class="front-gallery-header">
+            <h2><span>06</span> Galería</h2>
+            <p>Momentos de la Estancia: paisajes, alojamiento, gastronomía, actividades y cabalgatas.</p>
+        </div>
+        <div class="front-masonry-gallery">
+            @forelse(($galeriaImagenes ?? collect()) as $imagen)
+                <figure class="front-masonry-item">
+                    <img src="{{ $imagen->ruta }}" alt="{{ $imagen->titulo ?: 'Galería Estancia San Miguel' }}" loading="lazy" decoding="async">
+                    @if($imagen->titulo || $imagen->categoria)
+                        <figcaption>
+                            @if($imagen->categoria)<span>{{ $imagen->categoria }}</span>@endif
+                            {{ $imagen->titulo }}
+                        </figcaption>
+                    @endif
+                </figure>
+            @empty
+                @foreach(['/picture_2.png','/picture_3.png','/picture_4.png','/picture_5.png','/picture_6.png','/picture_8.jpg','/picture_9.jpg','/picture_10.jpg','/picture_11.jpg','/picture_14.jpg'] as $ruta)
+                    <figure class="front-masonry-item">
+                        <img src="{{ $ruta }}" alt="Galería Estancia San Miguel" loading="lazy" decoding="async">
+                    </figure>
+                @endforeach
+            @endforelse
+        </div>
+    </section>
+    <div class="front-section-separator" style="background-image: url('/picture_13.png');" aria-hidden="true"></div>
+
     <div class="front-footer-separator" aria-hidden="true"></div>
     <footer class="frontpage-footer">
         <div class="frontpage-footer-inner">2026 - El Casco, Estancia San Miguel</div>
