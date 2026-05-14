@@ -477,29 +477,4 @@ Route::middleware(RequireLogin::class)->group(function () {
     });
 
     Route::view('/admin', 'admin')->name('admin');
-    Route::get('/admin/galeria/data', fn () => obtenerGaleriaImagenes());
-    Route::post('/admin/galeria', function (Request $r) {
-        $data = $r->validate([
-            'imagen' => 'required|image|max:8192',
-            'titulo' => 'nullable|string|max:80',
-            'categoria' => 'nullable|string|max:40',
-        ]);
-
-        $file = $data['imagen'];
-        $name = now()->format('YmdHis') . '-' . uniqid() . '.' . $file->getClientOriginalExtension();
-        if (!is_dir(public_path('galeria'))) {
-            mkdir(public_path('galeria'), 0775, true);
-        }
-        $file->move(public_path('galeria'), $name);
-
-        DB::table('galeria_imagenes')->insert([
-            'titulo' => $data['titulo'] ?? null,
-            'categoria' => $data['categoria'] ?? null,
-            'ruta' => '/galeria/' . $name,
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
-
-        return response()->noContent();
-    });
 });
