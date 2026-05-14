@@ -35,6 +35,16 @@
         </div>
         <p class="text-xs mt-2 text-neutral-700">Se imprimirá en: <code>storage/app/public/comprobantes</code></p>
     </div>
+    <div class="app-chart-wrap mt-4">
+        <h2 class="font-semibold mb-3">Galería Frontpage</h2>
+        <div class="grid md:grid-cols-4 gap-3">
+            <input id="galeriaTitulo" class="app-input w-full md:col-span-2" placeholder="Título de la imagen (opcional)">
+            <input id="galeriaCategoria" class="app-input w-full" placeholder="Categoría (ej: Paisajes)">
+            <input id="galeriaImagen" type="file" accept="image/*" class="app-input w-full">
+            <button id="subirGaleriaImagen" class="app-btn app-btn-pill md:col-span-4">Subir imagen a galería</button>
+        </div>
+        <div id="galeriaAdminList" class="admin-gallery-grid mt-3"></div>
+    </div>
 </div>
 @endsection
 @section('scripts')
@@ -125,6 +135,24 @@ async function loadPhoneConfig(){
     document.getElementById('transferHolder').value = data.transfer_account_holder || '';
     document.getElementById('transferTaxId').value = data.transfer_account_tax_id || '';
 }
+async function loadGalleryAdmin() {
+    const response = await fetch('/admin/galeria/data');
+    const data = await response.json();
+    const grid = document.getElementById('galeriaAdminList');
+    if (!data.length) {
+        grid.innerHTML = '<p class=\"text-sm text-neutral-700\">Todavía no hay imágenes cargadas.</p>';
+        return;
+    }
+    grid.innerHTML = data.map((item) => `
+        <article class=\"admin-gallery-card\">
+            <img src=\"${item.ruta}\" alt=\"${item.titulo || 'Imagen de galería'}\">
+            <div class=\"p-2 text-xs\">
+                <strong>${item.categoria || 'General'}</strong><br>
+                <span>${item.titulo || 'Sin título'}</span>
+            </div>
+        </article>
+    `).join('');
+}
 
 document.getElementById('savePhone').addEventListener('click', async () => {
     const telefono_local = document.getElementById('telefonoLocal').value.trim();
@@ -142,9 +170,29 @@ document.getElementById('savePhone').addEventListener('click', async () => {
     if (!response.ok) return alert('No se pudo guardar la configuración.');
     alert('Configuración guardada.');
 });
+document.getElementById('subirGaleriaImagen').addEventListener('click', async () => {
+    const fileInput = document.getElementById('galeriaImagen');
+    if (!fileInput.files.length) return alert('Seleccioná una imagen.');
+    const formData = new FormData();
+    formData.append('imagen', fileInput.files[0]);
+    formData.append('titulo', document.getElementById('galeriaTitulo').value.trim());
+    formData.append('categoria', document.getElementById('galeriaCategoria').value.trim());
+    const response = await fetch('/admin/galeria', {
+        method: 'POST',
+        headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
+        body: formData,
+    });
+    if (!response.ok) return alert('No se pudo subir la imagen.');
+    fileInput.value = '';
+    document.getElementById('galeriaTitulo').value = '';
+    document.getElementById('galeriaCategoria').value = '';
+    await loadGalleryAdmin();
+    alert('Imagen cargada en galería.');
+});
 
 setRange(30);
 loadPhoneConfig();
+loadGalleryAdmin();
 renderAdminCharts();
 document.getElementById('applyRange').addEventListener('click', renderAdminCharts);
 document.querySelectorAll('[data-range]').forEach((btn) => {
