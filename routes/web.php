@@ -132,13 +132,16 @@ Route::middleware(RequireLogin::class)->group(function () {
     });
     Route::put('/stock/{id}', function (Request $r, int $id) {
         $data = $r->validate([
+            'tipo' => 'nullable|in:producto,servicio',
             'cantidad' => 'nullable|integer|min:0|required_without:ilimitado',
             'ilimitado' => 'nullable|boolean',
             'precio' => 'required|numeric|min:0',
         ]);
         $stockItem = DB::table('stock')->where('id', $id)->first();
         abort_unless($stockItem, 404);
-        $isUnlimited = (bool) ($data['ilimitado'] ?? false);
+        $isUnlimited = array_key_exists('tipo', $data)
+            ? $data['tipo'] === 'servicio'
+            : (bool) ($data['ilimitado'] ?? false);
         $cantidadNueva = $isUnlimited ? 0 : (int) ($data['cantidad'] ?? 0);
 
         DB::table('stock')->where('id', $id)->update([
@@ -165,11 +168,14 @@ Route::middleware(RequireLogin::class)->group(function () {
     Route::post('/stock', function (Request $r) {
         $data = $r->validate([
             'producto' => 'required|string|max:100',
+            'tipo' => 'nullable|in:producto,servicio',
             'cantidad' => 'nullable|integer|min:0|required_without:ilimitado',
             'ilimitado' => 'nullable|boolean',
             'precio' => 'required|numeric|min:0',
         ]);
-        $isUnlimited = (bool) ($data['ilimitado'] ?? false);
+        $isUnlimited = array_key_exists('tipo', $data)
+            ? $data['tipo'] === 'servicio'
+            : (bool) ($data['ilimitado'] ?? false);
         $cantidadNueva = $isUnlimited ? 0 : (int) ($data['cantidad'] ?? 0);
         $id = DB::table('stock')->insertGetId([
             'producto' => $data['producto'],
