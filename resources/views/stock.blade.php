@@ -41,7 +41,7 @@ function rowTemplate(item){
     const tipoControl = item.id
         ? (isUnlimited
             ? `<span class='inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-900'>Servicio ilimitado</span>`
-            : `<span class='text-zinc-700'>Producto con stock</span>`)
+            : `<span class='inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-900'>Producto con stock</span>`)
         : `<select class='app-input app-stock-input' id='t_${item.tmpId}' onchange='toggleCantidadPorTipo(${item.tmpId})'>
                 <option value='producto'>Producto con stock</option>
                 <option value='servicio'>Servicio ilimitado</option>
@@ -53,7 +53,7 @@ function rowTemplate(item){
             : `<div class='app-stock-field'><input data-field='cantidad' type='number' min='0' value='${item.cantidad}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)'></div>`)
         : `<div class='app-stock-field'><input type='number' min='0' value='0' class='app-input app-stock-input' id='c_${item.tmpId}'></div>`;
 
-    return `<tr><td>${item.id ? item.producto : `<input class='app-input w-full' placeholder='Producto' id='p_${item.tmpId}'>`}</td><td>${item.id ? `<select data-field='tipo' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)'><option value='producto' ${isUnlimited ? '' : 'selected'}>Producto con stock</option><option value='servicio' ${isUnlimited ? 'selected' : ''}>Servicio ilimitado</option></select><div class='mt-1'>${tipoControl}</div>` : tipoControl}</td><td>${cantidadControl}</td><td>${item.id ? `<div class='app-stock-field'><input data-field='precio' type='number' min='0' step='0.01' value='${item.precio ?? 0}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)'></div>` : `<div class='app-stock-field'><input type='number' min='0' step='0.01' value='0' class='app-input app-stock-input' id='pr_${item.tmpId}'></div>`}</td><td class='text-right'>${item.id ? `<div class='app-stock-actions'><button class='app-btn app-stock-row-btn app-btn-pill' onclick='removeStock(${item.id})'>Quitar</button></div>` : `<button class='app-btn app-stock-row-btn app-btn-pill' onclick='saveRow(${item.tmpId})'>Guardar</button>`}</td></tr>`;
+    return `<tr><td>${item.id ? item.producto : `<input class='app-input w-full' placeholder='Producto' id='p_${item.tmpId}'>`}</td><td>${tipoControl}</td><td>${cantidadControl}</td><td>${item.id ? `<div class='app-stock-field'><input data-field='precio' type='number' min='0' step='0.01' value='${item.precio ?? 0}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)'></div>` : `<div class='app-stock-field'><input type='number' min='0' step='0.01' value='0' class='app-input app-stock-input' id='pr_${item.tmpId}'></div>`}</td><td class='text-right'>${item.id ? `<div class='app-stock-actions'><button class='app-btn app-stock-row-btn app-btn-pill' onclick='removeStock(${item.id})'>Quitar</button></div>` : `<button class='app-btn app-stock-row-btn app-btn-pill' onclick='saveRow(${item.tmpId})'>Guardar</button>`}</td></tr>`;
 }
 
 function renderStock(){
@@ -97,12 +97,12 @@ window.removeStock = async (id) => {
 
 window.updateStock=async(id,input)=>{
     const row = input.closest('tr');
-    const tipo = row.querySelector("select[data-field='tipo']").value;
-    const ilimitado = tipo === 'servicio';
+    const isUnlimited = !row.querySelector("input[data-field='cantidad']");
+    const tipo = isUnlimited ? 'servicio' : 'producto';
     const cantidadInput = row.querySelector("input[data-field='cantidad']");
-    const cantidad = ilimitado ? 0 : (cantidadInput ? cantidadInput.value : 0);
+    const cantidad = isUnlimited ? 0 : (cantidadInput ? cantidadInput.value : 0);
     const precio = row.querySelector("input[data-field='precio']").value;
-    await fetch(`/stock/${id}`,{method:'PUT',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({tipo,cantidad,ilimitado,precio})});
+    await fetch(`/stock/${id}`,{method:'PUT',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({tipo,cantidad,ilimitado:isUnlimited,precio})});
     await refreshStock();
     await refreshHistory();
 }
