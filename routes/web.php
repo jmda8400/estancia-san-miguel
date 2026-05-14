@@ -33,6 +33,18 @@ function formatearMonedaArs(float $importe): string
     return '$' . number_format($importe, 0, ',', '.');
 }
 
+
+function construirWhatsappUrl(?string $telefono): string
+{
+    $digits = preg_replace('/\D+/', '', $telefono ?? '');
+
+    if (!$digits) {
+        $digits = '5490000000000';
+    }
+
+    return 'https://wa.me/' . $digits;
+}
+
 function obtenerGaleriaImagenes()
 {
     return DB::table('galeria_imagenes')
@@ -102,7 +114,10 @@ function historialComandasPaginado(int $page = 1, int $perPage = 10)
     ];
 }
 
-Route::get('/', fn () => view('home', ['galeriaImagenes' => obtenerGaleriaImagenes()]))->name('home');
+Route::get('/', fn () => view('home', [
+    'galeriaImagenes' => obtenerGaleriaImagenes(),
+    'whatsappUrl' => construirWhatsappUrl(obtenerConfiguracion('telefono_local')),
+]))->name('home');
 Route::view('/login', 'login')->name('login');
 Route::post('/login', function (Request $request) {
     $credentials = $request->validate(['username' => ['required', 'string'], 'password' => ['required', 'string']]);
