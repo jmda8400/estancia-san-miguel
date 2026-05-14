@@ -24,6 +24,28 @@
                 <a class="app-btn app-nav-btn" href="#galeria">Galeria</a>
                 <a class="app-btn app-nav-btn" href="#reservar">Reservar</a>
             </div>
+
+            <button class="mobile-menu-toggle" type="button" aria-label="Abrir menú" aria-controls="mobileDrawer" aria-expanded="false" data-mobile-menu-toggle>
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+
+            <div class="mobile-menu-overlay" data-mobile-overlay hidden></div>
+            <aside id="mobileDrawer" class="mobile-menu-drawer" aria-hidden="true" aria-label="Menú mobile">
+                <div class="mobile-menu-header">
+                    <strong>Menú</strong>
+                    <button class="mobile-menu-close" type="button" aria-label="Cerrar menú" data-mobile-menu-close>&times;</button>
+                </div>
+                <nav class="mobile-menu-links" aria-label="Navegación frontpage mobile">
+                    <a href="#estancia">La Estancia</a>
+                    <a href="#gastronomia">Gastronomia</a>
+                    <a href="#sustentabilidad">Sustentabilidad</a>
+                    <a href="#actividades">Actividades</a>
+                    <a href="#galeria">Galeria</a>
+                    <a href="#reservar">Reservar</a>
+                </nav>
+            </aside>
         @elseif (request()->is('login'))
             {{-- Header sin etiqueta en login --}}
         @else
