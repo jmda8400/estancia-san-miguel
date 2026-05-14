@@ -21,8 +21,8 @@
                 <a class="app-btn app-nav-btn" href="#gastronomia">Gastronomia</a>
                 <a class="app-btn app-nav-btn" href="#sustentabilidad">Sustentabilidad</a>
                 <a class="app-btn app-nav-btn" href="#actividades">Actividades</a>
-                <a class="app-btn app-nav-btn" href="#reservar">Reservar</a>
                 <a class="app-btn app-nav-btn" href="#galeria">Galeria</a>
+                <a class="app-btn app-nav-btn" href="#reservar">Reservar</a>
             </div>
         @elseif (request()->is('login'))
             {{-- Header sin etiqueta en login --}}

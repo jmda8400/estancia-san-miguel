@@ -64,21 +64,9 @@
     </section>
     <div class="front-section-separator" style="background-image: url('/picture_11.jpg');" aria-hidden="true"></div>
 
-    <section id="reservar" class="front-section-block front-section-row">
-        <div class="front-section-media">
-            <img src="/picture_6.png" alt="Reservar">
-        </div>
-        <div class="front-section-content">
-            <h2><span>05</span> Reservar</h2>
-            <p>Coordiná tu estadía y viví la experiencia Estancia San Miguel.</p>
-            <a href="#" class="front-internal-btn">Reservar</a>
-        </div>
-    </section>
-    <div class="front-section-separator" style="background-image: url('/picture_15.png');" aria-hidden="true"></div>
-
     <section id="galeria" class="front-section-block">
         <div class="front-gallery-header front-section-content">
-            <h2><span>06</span> Galería</h2>
+            <h2><span>05</span> Galería</h2>
         </div>
         <div class="front-masonry-gallery">
             @forelse(($galeriaImagenes ?? collect()) as $imagen)
@@ -98,6 +86,18 @@
                     </figure>
                 @endforeach
             @endforelse
+        </div>
+    </section>
+    <div class="front-section-separator" style="background-image: url('/picture_15.png');" aria-hidden="true"></div>
+
+    <section id="reservar" class="front-section-block front-section-row">
+        <div class="front-section-media">
+            <img src="/picture_6.png" alt="Reservar">
+        </div>
+        <div class="front-section-content">
+            <h2><span>06</span> Reservar</h2>
+            <p>Coordiná tu estadía y viví la experiencia Estancia San Miguel.</p>
+            <a href="#" class="front-internal-btn">Reservar</a>
         </div>
     </section>
     <div class="front-section-separator" style="background-image: url('/picture_13.png');" aria-hidden="true"></div>
