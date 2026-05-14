@@ -16,7 +16,36 @@
         <tbody class="text-zinc-900" id="stockBody"></tbody>
     </table>
     </div>
-    <button class="mt-4 app-btn app-stock-add-btn app-btn-pill" onclick="addRow()">+ Agregar fila</button>
+    <button class="mt-4 app-btn app-stock-add-btn app-btn-pill" onclick="openProductForm()">+ Agregar producto</button>
+
+    <div id="addProductCard" class="mt-4 hidden rounded-2xl border border-emerald-200 bg-emerald-50/50 p-4 md:p-5">
+        <h3 class="text-sm font-semibold uppercase tracking-wide text-emerald-900">Nuevo producto</h3>
+        <div class="mt-4 grid gap-3 md:grid-cols-2">
+            <div>
+                <label for="newProducto" class="mb-1 block text-xs font-semibold text-emerald-950">Nombre del producto</label>
+                <input id="newProducto" class="app-input w-full" placeholder="Ej. Fernet" />
+            </div>
+            <div>
+                <label for="newTipo" class="mb-1 block text-xs font-semibold text-emerald-950">Tipo</label>
+                <select id="newTipo" class="app-input app-stock-input w-full" onchange="toggleNewCantidad()">
+                    <option value="producto">Producto con stock</option>
+                    <option value="servicio">Servicio ilimitado</option>
+                </select>
+            </div>
+            <div id="newCantidadWrap">
+                <label for="newCantidad" class="mb-1 block text-xs font-semibold text-emerald-950">Cantidad</label>
+                <input id="newCantidad" type="number" min="0" value="0" class="app-input app-stock-input w-full" />
+            </div>
+            <div>
+                <label for="newPrecio" class="mb-1 block text-xs font-semibold text-emerald-950">Precio</label>
+                <input id="newPrecio" type="number" min="0" step="0.01" value="0" class="app-input app-stock-input w-full" />
+            </div>
+        </div>
+        <div class="mt-4 flex flex-wrap justify-end gap-2">
+            <button class="app-btn app-btn-pill" onclick="cancelProductForm()">Cancelar</button>
+            <button class="app-btn app-stock-add-btn app-btn-pill" onclick="saveProduct()">Guardar</button>
+        </div>
+    </div>
 </div>
 
 <div id="historialTab" class="hidden app-card app-stock-card">
@@ -38,26 +67,19 @@ let stockHistory = { data: [], current_page: 1, last_page: 1, total: 0 };
 
 function rowTemplate(item){
     const isUnlimited = Boolean(item.ilimitado);
-    const tipoControl = item.id
-        ? (isUnlimited
-            ? `<span class='inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-900'>Servicio ilimitado</span>`
-            : `<span class='inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-900'>Producto con stock</span>`)
-        : `<select class='app-input app-stock-input' id='t_${item.tmpId}' onchange='toggleCantidadPorTipo(${item.tmpId})'>
-                <option value='producto'>Producto con stock</option>
-                <option value='servicio'>Servicio ilimitado</option>
-           </select>`;
+    const tipoControl = isUnlimited
+        ? `<span class='inline-flex items-center rounded-full bg-indigo-100 px-2 py-0.5 text-xs font-medium text-indigo-900'>Servicio ilimitado</span>`
+        : `<span class='inline-flex items-center rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-900'>Producto con stock</span>`;
 
-    const cantidadControl = item.id
-        ? (isUnlimited
-            ? `<span class='text-zinc-400'>—</span>`
-            : `<div class='app-stock-field'><input data-field='cantidad' type='number' min='0' value='${item.cantidad}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)'></div>`)
-        : `<div class='app-stock-field'><input type='number' min='0' value='0' class='app-input app-stock-input' id='c_${item.tmpId}'></div>`;
+    const cantidadControl = isUnlimited
+        ? `<span class='text-zinc-400'>—</span>`
+        : `<div class='app-stock-field'><input data-field='cantidad' type='number' min='0' value='${item.cantidad}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)'></div>`;
 
-    return `<tr><td>${item.id ? item.producto : `<input class='app-input w-full' placeholder='Producto' id='p_${item.tmpId}'>`}</td><td>${tipoControl}</td><td>${cantidadControl}</td><td>${item.id ? `<div class='app-stock-field'><input data-field='precio' type='number' min='0' step='0.01' value='${item.precio ?? 0}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)'></div>` : `<div class='app-stock-field'><input type='number' min='0' step='0.01' value='0' class='app-input app-stock-input' id='pr_${item.tmpId}'></div>`}</td><td class='text-right'>${item.id ? `<div class='app-stock-actions'><button class='app-btn app-stock-row-btn app-btn-pill' onclick='removeStock(${item.id})'>Quitar</button></div>` : `<button class='app-btn app-stock-row-btn app-btn-pill' onclick='saveRow(${item.tmpId})'>Guardar</button>`}</td></tr>`;
+    return `<tr><td>${item.producto}</td><td>${tipoControl}</td><td>${cantidadControl}</td><td><div class='app-stock-field'><input data-field='precio' type='number' min='0' step='0.01' value='${item.precio ?? 0}' class='app-input app-stock-input' onchange='updateStock(${item.id}, this)'></div></td><td class='text-right'><div class='app-stock-actions'><button class='app-btn app-stock-row-btn app-btn-pill' onclick='removeStock(${item.id})'>Quitar</button></div></td></tr>`;
 }
 
 function renderStock(){
-    const stock = stockItems.filter(item => item.id ? !item.ilimitado : true);
+    const stock = stockItems.filter(item => item.id && !item.ilimitado);
     const servicios = stockItems.filter(item => item.id && item.ilimitado);
     const grupos = [];
 
@@ -73,20 +95,41 @@ function renderStock(){
     document.getElementById('stockBody').innerHTML = grupos.join('');
 }
 
-window.addRow = () => {
-    stockItems.push({ tmpId: Date.now() + Math.floor(Math.random() * 1000) });
-    renderStock();
+window.openProductForm = () => {
+    document.getElementById('addProductCard').classList.remove('hidden');
+    document.getElementById('newProducto').focus();
 };
 
-window.saveRow = async (tmpId) => {
-    const producto = document.getElementById(`p_${tmpId}`).value;
-    const tipo = document.getElementById(`t_${tmpId}`).value;
+window.cancelProductForm = () => {
+    document.getElementById('addProductCard').classList.add('hidden');
+    document.getElementById('newProducto').value = '';
+    document.getElementById('newTipo').value = 'producto';
+    document.getElementById('newCantidad').value = 0;
+    document.getElementById('newPrecio').value = 0;
+    toggleNewCantidad();
+};
+
+window.saveProduct = async () => {
+    const producto = document.getElementById('newProducto').value.trim();
+    const tipo = document.getElementById('newTipo').value;
     const ilimitado = tipo === 'servicio';
-    const cantidad = ilimitado ? 0 : document.getElementById(`c_${tmpId}`).value;
-    const precio = document.getElementById(`pr_${tmpId}`).value;
+    const cantidad = ilimitado ? 0 : document.getElementById('newCantidad').value;
+    const precio = document.getElementById('newPrecio').value;
+    if (!producto) return;
     await fetch('/stock',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify({producto,tipo,cantidad,ilimitado,precio})});
+    cancelProductForm();
     await refreshStock();
     await refreshHistory();
+};
+
+window.toggleNewCantidad = () => {
+    const tipo = document.getElementById('newTipo').value;
+    const wrap = document.getElementById('newCantidadWrap');
+    const input = document.getElementById('newCantidad');
+    const isService = tipo === 'servicio';
+    wrap.classList.toggle('hidden', isService);
+    input.disabled = isService;
+    if (isService) input.value = 0;
 };
 
 window.removeStock = async (id) => {
@@ -106,15 +149,6 @@ window.updateStock=async(id,input)=>{
     await refreshStock();
     await refreshHistory();
 }
-
-window.toggleCantidadPorTipo = (tmpId) => {
-    const tipo = document.getElementById(`t_${tmpId}`).value;
-    const cantidadInput = document.getElementById(`c_${tmpId}`);
-    if (!cantidadInput) return;
-    cantidadInput.disabled = tipo === 'servicio';
-    if (tipo === 'servicio') cantidadInput.value = 0;
-};
-
 
 async function refreshStock(){
     const response = await fetch('/stock/data');
@@ -148,6 +182,7 @@ window.switchTab = (tab) => {
 };
 
 renderStock();
+toggleNewCantidad();
 refreshHistory();
 </script>
 @endsection
