@@ -77,9 +77,8 @@
     <div class="front-section-separator" style="background-image: url('/picture_15.png');" aria-hidden="true"></div>
 
     <section id="galeria" class="front-section-block">
-        <div class="front-gallery-header">
+        <div class="front-gallery-header front-section-content">
             <h2><span>06</span> Galería</h2>
-            <p>Momentos de la Estancia: paisajes, alojamiento, gastronomía, actividades y cabalgatas.</p>
         </div>
         <div class="front-masonry-gallery">
             @forelse(($galeriaImagenes ?? collect()) as $imagen)
