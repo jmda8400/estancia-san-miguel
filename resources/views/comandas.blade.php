@@ -14,7 +14,7 @@
 @section('internal_content')
 <section>
 <div id="comandasTab" class="orders-layout">
-    <div class="panel h-full flex flex-col">
+    <div class="panel h-full flex flex-col min-h-[22rem]">
         <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
             <h2 class="panel-title">Comandas</h2>
             <div class="flex items-center gap-2 flex-wrap">
@@ -22,12 +22,12 @@
                 
             </div>
         </div>
-        <div id="tables" class="tables-grid flex-1 min-h-[20rem] max-h-[calc(100vh-16rem)] overflow-y-auto pr-1"></div>
+        <div id="tables" class="tables-grid flex-1 min-h-[12rem] max-h-[calc(100vh-16rem)] overflow-y-auto pr-1"></div>
     </div>
 
-    <div class="panel h-full flex flex-col min-h-[30rem] max-h-[calc(100vh-14rem)]">
-        <h2 id="selectedTitle" class="panel-title mb-3">Seleccione una mesa</h2>
-        <div id="productsList" class="space-y-3 flex-1 overflow-y-auto pr-1 min-h-[16rem]"></div>
+    <div class="panel h-full flex flex-col min-h-[22rem] max-h-[calc(100vh-14rem)]">
+        <h2 id="selectedTitle" class="panel-title mb-3">Seleccione una comanda</h2>
+        <div id="productsList" class="space-y-3 flex-1 overflow-y-auto pr-1 min-h-[12rem]"></div>
         <div class="orders-summary mt-3 pt-3 flex items-center justify-between gap-3">
             <p id="selectedTotal" class="text-sm font-semibold text-emerald-950">Total: $ 0</p>
             <div class="flex items-center gap-2">
@@ -36,8 +36,11 @@
         </div>
     </div>
 
-    <div id="addProductCard" class="panel add-product-panel hidden">
+    <div id="addProductCard" class="panel add-product-panel min-h-[22rem]">
         <h2 class="panel-title mb-3">Agregar productos a comanda</h2>
+        <div id="addProductEmptyState" class="min-h-[12rem] flex items-center justify-center text-center text-sm text-emerald-900 px-4">
+            Seleccioná una comanda para agregar productos.
+        </div>
         <form id="newProductForm" class="grid gap-3">
             <div class="field">
                 <label for="stockItem" class="field-label">Producto</label>
@@ -56,18 +59,19 @@
     </div>
 </div>
 
-<div id="addComandaCard" class="panel add-product-panel hidden mt-3">
-    <h2 class="panel-title mb-3">Nueva comanda</h2>
-    <form id="newComandaForm" class="grid gap-3">
-        <input id="comandaNombre" class="app-input" placeholder="Nombre del cliente" required>
-        <input id="comandaDocumento" class="app-input" placeholder="Documento (opcional)">
-        <input id="comandaTelefono" class="app-input" placeholder="Teléfono (opcional)">
-        <input id="comandaDetalle" class="app-input" placeholder="Detalle adicional (opcional)">
-        <div class="flex gap-2">
-            <button type="button" class="btn btn-secondary w-full" onclick="closeComandaForm()">Cancelar</button>
-            <button class="btn btn-primary w-full">Guardar comanda</button>
-        </div>
-    </form>
+<div id="newComandaModal" class="hidden fixed inset-0 z-50 p-4 sm:p-6 flex items-center justify-center">
+    <div class="absolute inset-0 bg-emerald-950/45" onclick="closeComandaForm()"></div>
+    <div class="relative panel w-full max-w-xl !rounded-3xl">
+        <h2 class="panel-title mb-3">Nueva comanda</h2>
+        <form id="newComandaForm" class="grid gap-3">
+            <input id="comandaNombre" class="app-input" placeholder="Nombre del cliente" required>
+            <input id="comandaDocumento" class="app-input" placeholder="Documento (opcional)">
+            <div class="flex gap-2 pt-1">
+                <button type="button" class="btn btn-secondary w-full" onclick="closeComandaForm()">Cancelar</button>
+                <button class="btn btn-primary w-full">Crear comanda</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <div id="historialTab" class="hidden panel">
@@ -100,6 +104,8 @@ const productsEl = document.getElementById('productsList');
 const titleEl = document.getElementById('selectedTitle');
 const chargeBtn = document.getElementById('chargeBtn');
 const totalEl = document.getElementById('selectedTotal');
+const addProductForm = document.getElementById('newProductForm');
+const addProductEmptyState = document.getElementById('addProductEmptyState');
 
 function renderComandas() {
  const visible = state.comandas;
@@ -115,10 +121,19 @@ function renderComandas() {
     </div>`;
  }).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
- if(!comanda){titleEl.textContent='Seleccione una comanda'; productsEl.innerHTML=''; totalEl.textContent='Total: $ 0'; chargeBtn.classList.add('hidden'); document.getElementById('addProductCard').classList.add('hidden'); return;}
+ if(!comanda){
+    titleEl.textContent='Seleccione una comanda';
+    productsEl.innerHTML=`<div class="min-h-[12rem] flex items-center justify-center text-center px-4"><div><p class="text-base font-semibold text-emerald-950">Seleccione una comanda</p><p class="mt-2 text-sm text-emerald-900">Elegí una comanda del panel izquierdo para ver sus productos y cobrar.</p></div></div>`;
+    totalEl.textContent='Total: $ 0';
+    chargeBtn.classList.add('hidden');
+    addProductForm.classList.add('hidden');
+    addProductEmptyState.classList.remove('hidden');
+    return;
+ }
  titleEl.textContent = `Productos de ${comanda.nombre}`;
  chargeBtn.classList.remove('hidden');
- document.getElementById('addProductCard').classList.remove('hidden');
+ addProductForm.classList.remove('hidden');
+ addProductEmptyState.classList.add('hidden');
  const totalComanda = comanda.productos.reduce((acc, p) => acc + ((Number(p.precio) || 0) * p.cantidad), 0);
  totalEl.textContent = `Total: ${formatArs(totalComanda)}`;
  productsEl.innerHTML = comanda.productos.length
@@ -163,7 +178,6 @@ function renderHistorial() {
 window.switchTab = (tab) => {
     state.activeTab = tab;
     document.getElementById('comandasTab').classList.toggle('hidden', tab !== 'comandas');
-    document.getElementById('addProductCard').classList.toggle('hidden', tab !== 'comandas');
     document.getElementById('historialTab').classList.toggle('hidden', tab !== 'historial');
     document.getElementById('cajaTab').classList.toggle('hidden', tab !== 'caja');
     document.getElementById('tabComandas').className = `app-segment-btn ${tab === 'comandas' ? 'app-segment-btn-active' : ''}`;
@@ -174,8 +188,8 @@ window.switchTab = (tab) => {
 };
 
 window.selectComanda=(id)=>{state.selectedComandaId=id;renderComandas();}
-window.openComandaForm=()=>document.getElementById('addComandaCard').classList.remove('hidden');
-window.closeComandaForm=()=>{document.getElementById('addComandaCard').classList.add('hidden');document.getElementById('newComandaForm').reset();};
+window.openComandaForm=()=>document.getElementById('newComandaModal').classList.remove('hidden');
+window.closeComandaForm=()=>{document.getElementById('newComandaModal').classList.add('hidden');document.getElementById('newComandaForm').reset();};
 
 async function refreshComandas(){
  const c = await fetch('/comandas/data');
@@ -259,7 +273,7 @@ document.getElementById('newProductForm').onsubmit=async(e)=>{
 
 window.deleteComanda=async(id)=>{const r=await fetch(`/comandas/${id}`,{method:'DELETE',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}});if(!r.ok){const d=await r.json();alert(d.message||'No se pudo quitar');return;}if(state.selectedComandaId===id) state.selectedComandaId=null;refreshComandas();}
 
-document.getElementById('newComandaForm').onsubmit=async(e)=>{e.preventDefault(); const payload={nombre:comandaNombre.value,cliente_documento:comandaDocumento.value,cliente_telefono:comandaTelefono.value,cliente_detalle:comandaDetalle.value}; const response=await fetch('/comandas',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify(payload)}); if(!response.ok){const data=await response.json();alert(data.message??'No se pudo crear la comanda.');return;} closeComandaForm(); await refreshComandas();};
+document.getElementById('newComandaForm').onsubmit=async(e)=>{e.preventDefault(); const payload={nombre:comandaNombre.value,cliente_documento:comandaDocumento.value}; const response=await fetch('/comandas',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify(payload)}); if(!response.ok){const data=await response.json();alert(data.message??'No se pudo crear la comanda.');return;} closeComandaForm(); await refreshComandas();};
 
 refreshComandas();
 refreshStock();

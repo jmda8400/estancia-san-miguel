@@ -845,7 +845,7 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
 @layer components {
     .orders-layout {
         display: grid;
-        grid-template-columns: 380px minmax(480px, 1fr) 420px;
+        grid-template-columns: 25% 45% 30%;
         gap: 24px;
         align-items: start;
     }
@@ -1056,11 +1056,7 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
 
     @media (max-width: 1280px) {
         .orders-layout {
-            grid-template-columns: minmax(300px, 360px) minmax(420px, 1fr);
-        }
-
-        .add-product-panel {
-            grid-column: 1 / -1;
+            grid-template-columns: minmax(240px, 1fr) minmax(320px, 1.3fr) minmax(260px, 1fr);
         }
     }
 
