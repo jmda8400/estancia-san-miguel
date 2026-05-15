@@ -144,7 +144,11 @@ function resumenCierreCaja(): array
         'comandas_abiertas' => DB::table('comandas')->count(),
         'productos_vendidos' => $productosVendidos,
         'comandas_incluidas' => $comandasIncluidas,
-        'historial_cierres' => DB::table('cierres_caja')->orderByDesc('created_at')->limit(20)->get(),
+        'historial_cierres' => DB::table('cierres_caja')
+            ->select('id', 'created_at', 'turno', 'responsable', 'total_cobrado', 'diferencia_efectivo')
+            ->orderByDesc('created_at')
+            ->limit(20)
+            ->get(),
     ];
 }
 
