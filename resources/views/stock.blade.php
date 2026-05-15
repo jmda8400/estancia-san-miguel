@@ -1,7 +1,6 @@
 @extends('layouts.internal')
 @section('title', 'Stock')
 @section('internal_title', 'Vista de stock')
-@section('internal_subtitle', 'Gestioná productos, cantidades y precios')
 
 @section('internal_tabs')
 <div class="stock-tabs app-segmented-control">
