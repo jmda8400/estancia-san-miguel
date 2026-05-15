@@ -64,14 +64,12 @@
         <div class="row total"><span>TOTAL</span><span class="right">{{ $ars($total) }}</span></div>
     </section>
 
-    @if(!empty($transferencia['alias']) || !empty($transferencia['cbu']) || !empty($transferencia['titular']) || !empty($transferencia['cuit']))
+    @if(!empty($adminAliasQrUrl))
         <div class="line">{{ str_repeat($separatorChar ?? "_", 34) }}</div>
-        <section class="meta">
-            <div><strong>Datos de transferencia</strong></div>
-            @if(!empty($transferencia['alias']))<div>Alias: {{ $transferencia['alias'] }}</div>@endif
-            @if(!empty($transferencia['cbu']))<div>CBU: {{ $transferencia['cbu'] }}</div>@endif
-            @if(!empty($transferencia['titular']))<div>Titular: {{ $transferencia['titular'] }}</div>@endif
-            @if(!empty($transferencia['cuit']))<div>CUIT/CUIL: {{ $transferencia['cuit'] }}</div>@endif
+        <section class="center meta">
+            <div><strong>Alias administración</strong></div>
+            <div>{{ $adminAlias }}</div>
+            <img src="{{ $adminAliasQrUrl }}" alt="QR Alias" style="width:24mm;height:24mm;image-rendering:pixelated;margin:1.5mm auto 0;display:block;">
         </section>
     @endif
 
