@@ -3,13 +3,14 @@
 @section('internal_title', 'Vista de stock')
 
 @section('internal_content')
-<section class="stock-view mx-auto w-full max-w-[78rem] space-y-4">
-<div class="stock-tabs app-internal-tabs mb-4">
-    <button id="tabStock" class="app-btn app-btn-pill app-btn-active" onclick="switchTab('stock')">Stock</button>
-    <button id="tabHistorial" class="app-btn app-btn-pill" onclick="switchTab('historial')">Historial</button>
-</div>
+<section class="stock-view mx-auto w-full max-w-[78rem]">
+<div class="app-card app-stock-card">
+    <div class="stock-tabs app-internal-tabs mb-4">
+        <button id="tabStock" class="app-btn app-btn-pill app-btn-active" onclick="switchTab('stock')">Stock</button>
+        <button id="tabHistorial" class="app-btn app-btn-pill" onclick="switchTab('historial')">Historial</button>
+    </div>
 
-<div id="stockTab" class="app-card app-stock-card">
+<div id="stockTab">
     <div class="app-stock-table-wrap">
     <table class="w-full text-sm app-list-table">
         <thead><tr><th class="text-left">Producto</th><th class="text-left">Tipo</th><th class="text-left">Cantidad</th><th class="text-left">Precio</th><th class="text-right">Acciones</th></tr></thead>
@@ -48,7 +49,7 @@
     </div>
 </div>
 
-<div id="historialTab" class="hidden app-card app-stock-card">
+<div id="historialTab" class="hidden">
     <h2 class="font-semibold mb-3">Historial de cambios de stock</h2>
     <div id="stockHistoryList" class="space-y-2"></div>
     <div class="mt-4 flex items-center justify-between">
@@ -56,6 +57,7 @@
         <span id="stockPageInfo" class="text-sm text-emerald-950"></span>
         <button id="stockNextPage" class="app-btn app-btn-pill" onclick="changeStockHistoryPage(1)">Siguiente</button>
     </div>
+</div>
 </div>
 </section>
 
