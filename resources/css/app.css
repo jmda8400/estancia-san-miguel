@@ -48,9 +48,9 @@
         border-color: rgba(166, 196, 182, 0.35);
     }
     .app-fixed-header { @apply sticky top-0 inset-x-0 z-50; }
-        .app-main-content { padding-top: .75rem; padding-bottom: 2.6rem; min-height: 0; }
+        .app-main-content { padding-top: .35rem; padding-bottom: 2.1rem; min-height: 0; }
     body.internal-page .app-main-content {
-        min-height: calc(100vh - 15rem);
+        min-height: calc(100vh - 12.5rem);
         padding-bottom: clamp(4rem, 10vh, 7.5rem);
     }
     .app-brand-wrap { margin-left: -0.65rem; }
@@ -107,13 +107,11 @@
 
     .internal-layout {
         width: 100%;
-        max-width: 72rem;
+        max-width: 100%;
         margin-inline: auto;
-        min-height: clamp(42rem, 82vh, 58rem);
-        padding-bottom: clamp(2.5rem, 7vh, 5rem);
+        min-height: clamp(40rem, 80vh, 56rem);
+        padding-bottom: clamp(1.2rem, 4vh, 2.6rem);
     }
-
-    .internal-page-head { max-width: 44rem; }
 
     .app-input {
         @apply rounded-lg border px-3 py-2;
@@ -800,18 +798,25 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
 
 @layer components {
     .internal-layout {
-        @apply mx-auto w-full max-w-[78rem] space-y-4;
+        @apply mx-auto w-full max-w-7xl;
     }
 
-    .internal-page-head {
-        @apply rounded-2xl border px-4 py-3 md:px-5 md:py-3;
-        border-color: #9cb4a8;
-        background: linear-gradient(140deg, rgba(235, 243, 239, 0.95), rgba(218, 231, 224, 0.92));
-        box-shadow: 0 8px 22px rgba(20, 44, 35, 0.08);
+    .internal-dashboard-shell {
+        border-radius: 32px;
+        border: 1px solid #d3e2d9;
+        box-shadow: 0 12px 26px rgba(25, 45, 36, 0.08);
+        background: linear-gradient(180deg, #fdfefd 0%, #f7fbf8 100%);
+        overflow: hidden;
+    }
+
+    .internal-dashboard-head {
+        @apply px-4 pt-4 pb-3 md:px-6 md:pt-5 md:pb-4;
+        background: linear-gradient(180deg, rgba(236, 244, 240, 0.95) 0%, rgba(230, 239, 234, 0.92) 100%);
+        border-bottom: 1px solid #cfe0d7;
     }
 
     .internal-page-title {
-        @apply text-xl md:text-[1.35rem] font-semibold tracking-tight;
+        @apply text-2xl md:text-[1.9rem] font-semibold tracking-tight;
         color: #1f3b2d;
     }
 
@@ -820,11 +825,8 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
         color: #355245;
     }
 
-    .internal-page-head + .app-card,
-    .internal-page-head + .stock-view {
-        margin-top: 1rem;
-    }
-
+    .internal-tabs-wrap { @apply mt-4; }
+    .internal-dashboard-body { @apply p-3 md:p-4; }
     .stock-view { @apply space-y-4; }
 
     .stock-tabs,
@@ -1084,10 +1086,7 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
 
 
 @layer components {
-    .internal-page-head {
-        width: fit-content;
-        max-width: min(100%, 36rem);
-    }
+    .internal-page-head { width: 100%; max-width: 100%; }
 
     .app-stock-field,
     .app-stock-price-field {
