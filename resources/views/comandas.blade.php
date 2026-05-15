@@ -14,7 +14,7 @@
         <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
             <h2 class="panel-title">Comandas</h2>
             <div class="flex items-center gap-2 flex-wrap">
-                <button class="btn btn-secondary text-xs sm:text-sm" onclick="addComanda()">+ Agregar comanda</button>
+                <button class="btn btn-secondary text-xs sm:text-sm" onclick="openComandaForm()">+ Agregar comanda</button>
                 
             </div>
         </div>
@@ -50,6 +50,20 @@
             <button class="btn btn-primary btn-add-comanda w-full">Agregar a comanda</button>
         </form>
     </div>
+</div>
+
+<div id="addComandaCard" class="panel add-product-panel hidden mt-3">
+    <h2 class="panel-title mb-3">Nueva comanda</h2>
+    <form id="newComandaForm" class="grid gap-3">
+        <input id="comandaNombre" class="app-input" placeholder="Nombre del cliente" required>
+        <input id="comandaDocumento" class="app-input" placeholder="Documento (opcional)">
+        <input id="comandaTelefono" class="app-input" placeholder="Teléfono (opcional)">
+        <input id="comandaDetalle" class="app-input" placeholder="Detalle adicional (opcional)">
+        <div class="flex gap-2">
+            <button type="button" class="btn btn-secondary w-full" onclick="closeComandaForm()">Cancelar</button>
+            <button class="btn btn-primary w-full">Guardar comanda</button>
+        </div>
+    </form>
 </div>
 
 <div id="historialTab" class="hidden panel">
@@ -92,7 +106,7 @@ function renderComandas() {
             <p class="table-card-meta">${c.productos.length} producto(s)</p>
             <p class="table-card-total">${formatArs(totalMesa)}</p>
         </button>
-        
+        <button class="btn btn-danger text-xs mt-2" onclick="deleteComanda(${c.id})">Quitar</button>
     </div>`;
  }).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
@@ -155,17 +169,9 @@ window.switchTab = (tab) => {
 };
 
 window.selectComanda=(id)=>{state.selectedComandaId=id;renderComandas();}
-window.addComanda=async()=>{
- const nombre = prompt('Nombre del cliente');
- if(!nombre){ return; }
- const cliente_documento = prompt('Documento (opcional)','') || '';
- const cliente_telefono = prompt('Teléfono (opcional)','') || '';
- const cliente_detalle = prompt('Detalle adicional (opcional)','') || '';
- const medio_pago = prompt('Medio de pago (efectivo, transferencia, mercado_pago_qr, tarjeta)','efectivo') || 'efectivo';
- const response = await fetch('/comandas',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body: JSON.stringify({nombre,cliente_documento,cliente_telefono,cliente_detalle,medio_pago})});
- if(!response.ok){ const data = await response.json(); alert(data.message ?? 'No se pudo crear la comanda.'); return; }
- await refreshComandas();
-}
+window.openComandaForm=()=>document.getElementById('addComandaCard').classList.remove('hidden');
+window.closeComandaForm=()=>{document.getElementById('addComandaCard').classList.add('hidden');document.getElementById('newComandaForm').reset();};
+
 async function refreshComandas(){
  const c = await fetch('/comandas/data');
  state.comandas = await c.json();
@@ -186,9 +192,7 @@ async function refreshHistorial(page = 1) {
 }
 
 
-const PAYMENT_LABELS = {efectivo:'Efectivo',transferencia:'Transferencia',mercado_pago_qr:'Mercado Pago QR',tarjeta:'Tarjeta'};
 const formatArs = (value) => '$ ' + Number(value || 0).toLocaleString('es-AR', {minimumFractionDigits: 0, maximumFractionDigits: 0});
-const formatPayment = (key) => PAYMENT_LABELS[key] || key;
 
 window.changePage = (delta) => {
     const nextPage = state.historial.current_page + delta;
@@ -198,7 +202,6 @@ window.changePage = (delta) => {
 async function refreshCaja() {
     const response = await fetch('/comandas/cierre/data');
     const caja = await response.json();
-    const mp = caja.metodos_pago || {};
     const abiertas = caja.comandas_abiertas > 0 ? `<div class="rounded-xl border border-amber-300 bg-amber-50 p-3 text-amber-900">Atención: hay ${caja.comandas_abiertas} comandas abiertas. Revisar antes de cerrar caja.</div>` : '';
     document.getElementById('cajaResumen').innerHTML = `
         ${abiertas}
@@ -208,10 +211,9 @@ async function refreshCaja() {
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Productos cobrados:</strong> ${caja.productos_cobrados}</div>
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Comandas abiertas:</strong> ${caja.comandas_abiertas}</div>
         </div>
-        <div class="rounded-2xl border border-emerald-200 bg-white p-3"><h3 class="font-semibold mb-2">Medios de pago</h3><div class='divide-y divide-emerald-100'>${Object.entries(mp).map(([k,v],i,arr)=>{ const max=Math.max(...Object.values(mp).map(Number)); const muted=Number(v)===0?'text-emerald-700/60':''; const strong=Number(v)===max&&max>0?'bg-emerald-50':''; return `<div class='flex items-center justify-between py-2 text-sm ${muted} ${strong}'><span>${formatPayment(k)}</span><span class='font-semibold text-right'>${formatArs(v)}</span></div>`; }).join('')}</div></div>
         <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Control de efectivo</h3><div class="grid md:grid-cols-2 gap-2"><input id='cajaInicial' class='app-input' placeholder='Caja inicial'><input id='efectivoContado' class='app-input' placeholder='Efectivo contado'></div><div id='efectivoEsperadoTxt' class='mt-2 text-sm'>Efectivo esperado: $ 0</div><div id='diferenciaTxt' class='text-sm'>Diferencia: $ 0</div></div>
         <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Productos vendidos</h3><table class='w-full text-sm'><tr><th class='text-left'>Producto</th><th>Cant.</th><th class='text-right'>Total</th></tr>${(caja.productos_vendidos||[]).map(p=>`<tr><td>${p.producto}</td><td class='text-center'>${p.cantidad}</td><td class='text-right'>${formatArs(p.total)}</td></tr>`).join('')}</table></div>
-        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Comandas incluidas</h3><table class='w-full text-sm'><tr><th class='text-left'>Comanda</th><th>Hora</th><th>Pago</th><th class='text-right'>Total</th></tr>${(caja.comandas_incluidas||[]).map(c=>`<tr><td>${c.nombre}</td><td>${new Date(c.cobrada_en).toLocaleTimeString()}</td><td>${formatPayment(c.medio_pago)}</td><td class='text-right'>${formatArs(c.total)}</td></tr>`).join('')}</table></div>
+        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Comandas incluidas</h3><table class='w-full text-sm'><tr><th class='text-left'>Comanda</th><th>Hora</th><th class='text-right'>Total</th></tr>${(caja.comandas_incluidas||[]).map(c=>`<tr><td>${c.nombre}</td><td>${new Date(c.cobrada_en).toLocaleTimeString()}</td><td class='text-right'>${formatArs(c.total)}</td></tr>`).join('')}</table></div>
         <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Historial de cierres</h3>${(caja.historial_cierres||[]).map(c=>`<div class='flex justify-between text-sm border-b py-1'><span>${new Date(c.created_at).toLocaleString()} · ${c.turno||'-'} · ${c.responsable||'-'}</span><span>${formatArs(c.total_cobrado)} / Dif: ${formatArs(c.diferencia_efectivo||0)}</span></div>`).join('')}</div>`;
 }
 window.cerrarCaja = async () => {
@@ -235,9 +237,7 @@ window.updateProducto=async(id,data)=>{await fetch(`/productos/${id}`,{method:'P
 window.deleteProducto=async(id)=>{await fetch(`/productos/${id}`,{method:'DELETE',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}}); refreshComandas();}
 window.cobrarComanda=async()=>{
  if(!state.selectedComandaId){return;}
- const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
- const medioPago = prompt('Medio de pago (efectivo, transferencia, mercado_pago_qr, tarjeta)', comanda?.medio_pago || 'efectivo') || (comanda?.medio_pago || 'efectivo');
- await fetch(`/comandas/${state.selectedComandaId}/cobrar`,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'}, body: JSON.stringify({ medio_pago: medioPago })});
+ await fetch(`/comandas/${state.selectedComandaId}/cobrar`,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'}});
  await refreshComandas();
  if (state.activeTab === 'historial') refreshHistorial();
 };
@@ -251,6 +251,10 @@ document.getElementById('newProductForm').onsubmit=async(e)=>{
  await refreshComandas();
  await refreshStock();
 };
+
+window.deleteComanda=async(id)=>{const r=await fetch(`/comandas/${id}`,{method:'DELETE',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}});if(!r.ok){const d=await r.json();alert(d.message||'No se pudo quitar');return;}if(state.selectedComandaId===id) state.selectedComandaId=null;refreshComandas();}
+
+document.getElementById('newComandaForm').onsubmit=async(e)=>{e.preventDefault(); const payload={nombre:comandaNombre.value,cliente_documento:comandaDocumento.value,cliente_telefono:comandaTelefono.value,cliente_detalle:comandaDetalle.value}; const response=await fetch('/comandas',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify(payload)}); if(!response.ok){const data=await response.json();alert(data.message??'No se pudo crear la comanda.');return;} closeComandaForm(); await refreshComandas();};
 
 refreshComandas();
 refreshStock();

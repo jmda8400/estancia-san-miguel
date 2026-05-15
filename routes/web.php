@@ -60,12 +60,8 @@ function guardarComprobante58mm(object $comanda, $productos, float $subtotal, fl
         mkdir($dir, 0775, true);
     }
 
-    $transferencia = [
-        'alias' => obtenerConfiguracion('transfer_alias'),
-        'cbu' => obtenerConfiguracion('transfer_cbu'),
-        'titular' => obtenerConfiguracion('transfer_account_holder'),
-        'cuit' => obtenerConfiguracion('transfer_account_tax_id'),
-    ];
+    $adminAlias = obtenerConfiguracion('admin_alias');
+    $adminAliasQrUrl = $adminAlias ? ('https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' . urlencode($adminAlias)) : null;
 
     $html = view('tickets.comprobante', [
         'comanda' => $comanda,
@@ -74,9 +70,10 @@ function guardarComprobante58mm(object $comanda, $productos, float $subtotal, fl
         'descuento' => 0,
         'total' => $total,
         'telefono' => $telefono,
-        'transferencia' => $transferencia,
         'ars' => fn (float $importe) => formatearMonedaArs($importe),
         'autoPrint' => false,
+        'adminAlias' => $adminAlias,
+        'adminAliasQrUrl' => $adminAliasQrUrl,
         'separatorChar' => '_',
     ])->render();
 
@@ -130,16 +127,10 @@ function resumenCierreCaja(): array
             'id' => $h->id,
             'nombre' => $h->nombre ?? ('Mesa ' . $h->mesa_numero),
             'cobrada_en' => $h->cobrada_en,
-            'medio_pago' => $h->medio_pago ?? 'efectivo',
             'total' => round($items->sum(fn ($p) => ((float) ($p->precio ?? 0)) * (int) $p->cantidad), 2),
         ];
     })->values();
     $totalCobrado = $comandasIncluidas->sum('total');
-    $metodosBase = ['efectivo', 'transferencia', 'mercado_pago_qr', 'tarjeta'];
-    $metodosPago = [];
-    foreach ($metodosBase as $metodo) {
-        $metodosPago[$metodo] = round($comandasIncluidas->where('medio_pago', $metodo)->sum('total'), 2);
-    }
     $productosVendidos = $productos->groupBy('nombre')->map(function ($group, $nombre) {
         $cantidad = (int) $group->sum('cantidad');
         $total = $group->sum(fn ($p) => ((float) ($p->precio ?? 0)) * (int) $p->cantidad);
@@ -151,7 +142,6 @@ function resumenCierreCaja(): array
         'comandas_cobradas' => $comandasIncluidas->count(),
         'productos_cobrados' => (int) $productos->sum('cantidad'),
         'comandas_abiertas' => DB::table('comandas')->count(),
-        'metodos_pago' => $metodosPago,
         'productos_vendidos' => $productosVendidos,
         'comandas_incluidas' => $comandasIncluidas,
         'historial_cierres' => DB::table('cierres_caja')->orderByDesc('created_at')->limit(20)->get(),
@@ -284,7 +274,6 @@ Route::middleware(RequireLogin::class)->group(function () {
             'cliente_documento' => 'nullable|string|max:40',
             'cliente_telefono' => 'nullable|string|max:40',
             'cliente_detalle' => 'nullable|string|max:255',
-            'medio_pago' => 'nullable|in:efectivo,transferencia,mercado_pago_qr,tarjeta',
         ]);
 
         $count = DB::table('comandas')->count();
@@ -309,7 +298,6 @@ Route::middleware(RequireLogin::class)->group(function () {
             'cliente_documento' => $data['cliente_documento'] ?? null,
             'cliente_telefono' => $data['cliente_telefono'] ?? null,
             'cliente_detalle' => $data['cliente_detalle'] ?? null,
-            'medio_pago' => $data['medio_pago'] ?? 'efectivo',
             'estado' => 'abierta',
             'created_at' => now(),
             'updated_at' => now(),
@@ -339,7 +327,7 @@ Route::middleware(RequireLogin::class)->group(function () {
             'movimientos' => 'nullable|array',
         ]);
         $cierre = resumenCierreCaja();
-        $efectivoEsperado = (float) $payload['caja_inicial'] + (float) ($cierre['metodos_pago']['efectivo'] ?? 0);
+        $efectivoEsperado = (float) $payload['caja_inicial'] + (float) $cierre['total_cobrado'];
         $diferencia = (float) $payload['efectivo_contado'] - $efectivoEsperado;
         $id = DB::table('cierres_caja')->insertGetId([
             'total_cobrado' => $cierre['total_cobrado'],
@@ -436,13 +424,11 @@ Route::middleware(RequireLogin::class)->group(function () {
         $telefonoLocal = obtenerConfiguracion('telefono_local', '+54 9 11 0000-0000');
         $pdfPath = guardarComprobante58mm($comanda, $productos, $subtotal, $total, $telefonoLocal);
 
-        $medioPago = request()->input('medio_pago', $comanda->medio_pago ?? 'efectivo');
         $historialId = DB::table('comandas_historial')->insertGetId([
             'comanda_id' => $comanda->id,
             'nombre' => $comanda->nombre,
             'mesa_numero' => $comanda->mesa_numero,
             'estado' => $comanda->estado,
-            'medio_pago' => $medioPago,
             'cobrada_en' => now(),
             'created_at' => now(),
             'updated_at' => now(),
@@ -480,13 +466,6 @@ Route::middleware(RequireLogin::class)->group(function () {
         $descuento = 0;
         $total = $subtotal - $descuento;
 
-        $transferencia = [
-            'alias' => obtenerConfiguracion('transfer_alias'),
-            'cbu' => obtenerConfiguracion('transfer_cbu'),
-            'titular' => obtenerConfiguracion('transfer_account_holder'),
-            'cuit' => obtenerConfiguracion('transfer_account_tax_id'),
-        ];
-
         return view('tickets.comprobante', [
             'comanda' => $comanda,
             'productos' => $productos,
@@ -494,8 +473,9 @@ Route::middleware(RequireLogin::class)->group(function () {
             'descuento' => $descuento,
             'total' => $total,
             'telefono' => obtenerConfiguracion('telefono_local'),
-            'transferencia' => $transferencia,
-            'ars' => fn (float $importe) => formatearMonedaArs($importe),
+                'ars' => fn (float $importe) => formatearMonedaArs($importe),
+            'adminAlias' => obtenerConfiguracion('admin_alias'),
+            'adminAliasQrUrl' => ($alias = obtenerConfiguracion('admin_alias')) ? ('https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' . urlencode($alias)) : null,
         ]);
     })->name('comandas.ticket58');
 
@@ -551,7 +531,7 @@ Route::middleware(RequireLogin::class)->group(function () {
 
     Route::get('/admin/configuracion', fn () => [
         'telefono_local' => obtenerConfiguracion('telefono_local', '+54 9 11 0000-0000'),
-        'transfer_alias' => obtenerConfiguracion('transfer_alias'),
+        'admin_alias' => obtenerConfiguracion('admin_alias'),
         'transfer_cbu' => obtenerConfiguracion('transfer_cbu'),
         'transfer_account_holder' => obtenerConfiguracion('transfer_account_holder'),
         'transfer_account_tax_id' => obtenerConfiguracion('transfer_account_tax_id'),
@@ -559,18 +539,12 @@ Route::middleware(RequireLogin::class)->group(function () {
     Route::put('/admin/configuracion/telefono', function (Request $r) {
         $data = $r->validate([
             'telefono_local' => 'required|string|max:50',
-            'transfer_alias' => 'nullable|string|max:50',
-            'transfer_cbu' => ['nullable', 'regex:/^[0-9]{22}$/'],
-            'transfer_account_holder' => 'nullable|string|max:80',
-            'transfer_account_tax_id' => 'nullable|string|max:20',
+            'admin_alias' => 'nullable|string|max:80',
         ]);
 
         $configuraciones = [
             'telefono_local' => $data['telefono_local'],
-            'transfer_alias' => $data['transfer_alias'] ?? null,
-            'transfer_cbu' => $data['transfer_cbu'] ?? null,
-            'transfer_account_holder' => $data['transfer_account_holder'] ?? null,
-            'transfer_account_tax_id' => $data['transfer_account_tax_id'] ?? null,
+            'admin_alias' => $data['admin_alias'] ?? null,
         ];
 
         foreach ($configuraciones as $clave => $valor) {
