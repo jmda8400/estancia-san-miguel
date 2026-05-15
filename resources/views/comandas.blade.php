@@ -89,7 +89,7 @@
 @endsection
 @section('scripts')
 <script>
-let state = { selectedComandaId: null, comandas: @json($comandas), activeTab: 'comandas', stock: [], historial: { data: [], current_page: 1, last_page: 1, total: 0 } };
+let state = { selectedComandaId: null, comandas: @json($comandas), activeTab: 'comandas', stock: [], historial: { data: [], current_page: 1, last_page: 1, total: 0 }, caja: { comandas_page: 1, productos_page: 1, cierres_page: 1 } };
 const tablesEl = document.getElementById('tables');
 const productsEl = document.getElementById('productsList');
 const titleEl = document.getElementById('selectedTitle');
@@ -199,8 +199,17 @@ window.changePage = (delta) => {
     if (nextPage < 1 || nextPage > state.historial.last_page) return;
     refreshHistorial(nextPage);
 };
+window.changeCajaPage = (group, delta) => {
+    const key = `${group}_page`;
+    const next = (state.caja[key] || 1) + delta;
+    if (next < 1) return;
+    state.caja[key] = next;
+    refreshCaja();
+};
+
 async function refreshCaja() {
-    const response = await fetch('/comandas/cierre/data');
+    const query = new URLSearchParams(state.caja).toString();
+    const response = await fetch('/comandas/cierre/data?' + query);
     const caja = await response.json();
     const abiertas = caja.comandas_abiertas > 0 ? `<div class="rounded-xl border border-amber-300 bg-amber-50 p-3 text-amber-900">Atención: hay ${caja.comandas_abiertas} comandas abiertas. Revisar antes de cerrar caja.</div>` : '';
     document.getElementById('cajaResumen').innerHTML = `
@@ -212,9 +221,9 @@ async function refreshCaja() {
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Comandas abiertas:</strong> ${caja.comandas_abiertas}</div>
         </div>
         <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Control de efectivo</h3><div class="grid md:grid-cols-2 gap-2"><input id='cajaInicial' class='app-input' placeholder='Caja inicial'><input id='efectivoContado' class='app-input' placeholder='Efectivo contado'></div><div id='efectivoEsperadoTxt' class='mt-2 text-sm'>Efectivo esperado: $ 0</div><div id='diferenciaTxt' class='text-sm'>Diferencia: $ 0</div></div>
-        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Productos vendidos</h3><table class='w-full text-sm'><tr><th class='text-left'>Producto</th><th>Cant.</th><th class='text-right'>Total</th></tr>${(caja.productos_vendidos||[]).map(p=>`<tr><td>${p.producto}</td><td class='text-center'>${p.cantidad}</td><td class='text-right'>${formatArs(p.total)}</td></tr>`).join('')}</table></div>
-        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Comandas incluidas</h3><table class='w-full text-sm'><tr><th class='text-left'>Comanda</th><th>Hora</th><th class='text-right'>Total</th></tr>${(caja.comandas_incluidas||[]).map(c=>`<tr><td>${c.nombre}</td><td>${new Date(c.cobrada_en).toLocaleTimeString()}</td><td class='text-right'>${formatArs(c.total)}</td></tr>`).join('')}</table></div>
-        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Historial de cierres</h3>${(caja.historial_cierres||[]).map(c=>`<div class='flex justify-between text-sm border-b py-1'><span>${new Date(c.created_at).toLocaleString()} · ${c.turno||'-'} · ${c.responsable||'-'}</span><span>${formatArs(c.total_cobrado)} / Dif: ${formatArs(c.diferencia_efectivo||0)}</span></div>`).join('')}</div>`;
+        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Productos vendidos</h3><table class='w-full text-sm'><tr><th class='text-left'>Producto</th><th>Cant.</th><th class='text-right'>Total</th></tr>${(caja.productos_vendidos?.data||[]).map(p=>`<tr><td>${p.producto}</td><td class='text-center'>${p.cantidad}</td><td class='text-right'>${formatArs(p.total)}</td></tr>`).join('')}</table><div class='flex justify-between mt-2'><button class='btn btn-secondary text-xs' ${caja.productos_vendidos.current_page<=1?'disabled':''} onclick="changeCajaPage('productos',-1)">Anterior</button><span class='text-xs'>${caja.productos_vendidos.current_page}/${caja.productos_vendidos.last_page}</span><button class='btn btn-secondary text-xs' ${caja.productos_vendidos.current_page>=caja.productos_vendidos.last_page?'disabled':''} onclick="changeCajaPage('productos',1)">Siguiente</button></div></div>
+        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Comandas incluidas</h3><table class='w-full text-sm'><tr><th class='text-left'>Comanda</th><th>Hora</th><th class='text-right'>Total</th></tr>${(caja.comandas_incluidas?.data||[]).map(c=>`<tr><td>${c.nombre}</td><td>${new Date(c.cobrada_en).toLocaleTimeString()}</td><td class='text-right'>${formatArs(c.total)}</td></tr>`).join('')}</table><div class='flex justify-between mt-2'><button class='btn btn-secondary text-xs' ${caja.comandas_incluidas.current_page<=1?'disabled':''} onclick="changeCajaPage('comandas',-1)">Anterior</button><span class='text-xs'>${caja.comandas_incluidas.current_page}/${caja.comandas_incluidas.last_page}</span><button class='btn btn-secondary text-xs' ${caja.comandas_incluidas.current_page>=caja.comandas_incluidas.last_page?'disabled':''} onclick="changeCajaPage('comandas',1)">Siguiente</button></div></div>
+        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Historial de cierres</h3>${(caja.historial_cierres?.data||[]).map(c=>`<div class='flex justify-between text-sm border-b py-1'><span>${new Date(c.created_at).toLocaleString()} · ${c.turno||'-'} · ${c.responsable||'-'}</span><span>${formatArs(c.total_cobrado)} / Dif: ${formatArs(c.diferencia_efectivo||0)}</span></div>`).join('')}<div class='flex justify-between mt-2'><button class='btn btn-secondary text-xs' ${caja.historial_cierres.current_page<=1?'disabled':''} onclick="changeCajaPage('cierres',-1)">Anterior</button><span class='text-xs'>${caja.historial_cierres.current_page}/${caja.historial_cierres.last_page}</span><button class='btn btn-secondary text-xs' ${caja.historial_cierres.current_page>=caja.historial_cierres.last_page?'disabled':''} onclick="changeCajaPage('cierres',1)">Siguiente</button></div></div>`;
 }
 window.cerrarCaja = async () => {
  const payload = {
