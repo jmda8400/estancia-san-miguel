@@ -86,7 +86,7 @@
     <div id="cierreCajaForm" class="hidden rounded-xl border border-emerald-200 bg-emerald-50 p-3 space-y-3">
         <h3 class="font-semibold">Datos para cierre de caja</h3>
         <div class="grid gap-2 md:grid-cols-2">
-            <input id="cierreTurno" class="app-input" placeholder="Turno (ej: Noche)">
+            <input id="cierreTurno" class="app-input" placeholder="Turno (dd/mm/aaaa hh:mm)">
             <input id="cierreResponsable" class="app-input" placeholder="Responsable">
         </div>
         <textarea id="cierreObservaciones" class="app-input w-full" placeholder="Observaciones" rows="2"></textarea>
@@ -206,6 +206,17 @@ async function refreshHistorial(page = 1) {
 
 const formatArs = (value) => '$ ' + Number(value || 0).toLocaleString('es-AR', {minimumFractionDigits: 0, maximumFractionDigits: 0});
 
+
+function formatFechaHoraTurno() {
+    const ahora = new Date();
+    const dia = String(ahora.getDate()).padStart(2, '0');
+    const mes = String(ahora.getMonth() + 1).padStart(2, '0');
+    const anio = ahora.getFullYear();
+    const horas = String(ahora.getHours()).padStart(2, '0');
+    const minutos = String(ahora.getMinutes()).padStart(2, '0');
+    return `${dia}/${mes}/${anio} ${horas}:${minutos}`;
+}
+
 window.changePage = (delta) => {
     const nextPage = state.historial.current_page + delta;
     if (nextPage < 1 || nextPage > state.historial.last_page) return;
@@ -263,8 +274,8 @@ window.changeCajaPage = (key, delta) => {
 
 window.cerrarCaja = () => {
  document.getElementById('cierreCajaForm').classList.remove('hidden');
- document.getElementById('cierreTurno').value = 'Noche';
- document.getElementById('cierreResponsable').value = 'Caja';
+ document.getElementById('cierreTurno').value = formatFechaHoraTurno();
+ document.getElementById('cierreResponsable').value = 'Diego Lopez';
 };
 
 window.cancelarCierreCaja = () => {
@@ -275,8 +286,8 @@ window.confirmarCierreCaja = async () => {
  const payload = {
   caja_inicial: Number(document.getElementById('cajaInicial')?.value||0),
   efectivo_contado: Number(document.getElementById('efectivoContado')?.value||0),
-  turno: document.getElementById('cierreTurno')?.value || 'Noche',
-  responsable: document.getElementById('cierreResponsable')?.value || 'Caja',
+  turno: document.getElementById('cierreTurno')?.value || formatFechaHoraTurno(),
+  responsable: document.getElementById('cierreResponsable')?.value || 'Diego Lopez',
   observaciones: document.getElementById('cierreObservaciones')?.value || ''
  };
  const res = await fetch('/comandas/cierre/cerrar',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify(payload)});
