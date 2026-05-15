@@ -3,9 +3,10 @@
 @section('internal_title', 'Sistema de comandas')
 
 @section('internal_content')
-<div class="mb-3 flex gap-2">
-    <button id="tabComandas" class="app-btn app-btn-active app-btn-pill" onclick="switchTab('comandas')">Comandas</button>
-    <button id="tabHistorial" class="app-btn app-btn-pill" onclick="switchTab('historial')">Historial</button>
+<div class="mb-3 app-segmented-control">
+    <button id="tabComandas" class="app-segment-btn app-segment-btn-active" onclick="switchTab('comandas')">Comandas</button>
+    <button id="tabHistorial" class="app-segment-btn" onclick="switchTab('historial')">Historial</button>
+    <button id="tabCaja" class="app-segment-btn" onclick="switchTab('caja')">Caja</button>
 </div>
 
 <div id="comandasTab" class="orders-layout">
@@ -59,6 +60,13 @@
         <span id="pageInfo" class="text-sm text-emerald-950"></span>
         <button id="nextPage" class="btn btn-secondary" onclick="changePage(1)">Siguiente</button>
     </div>
+</div>
+<div id="cajaTab" class="hidden panel">
+    <div class="flex items-center justify-between gap-2 mb-3 flex-wrap">
+        <h2 class="panel-title">Cierre de caja</h2>
+        <button class="btn btn-primary" onclick="imprimirCierre()">Imprimir cierre</button>
+    </div>
+    <div id="cajaResumen" class="space-y-2 text-emerald-950"></div>
 </div>
 
 @endsection
@@ -135,9 +143,12 @@ window.switchTab = (tab) => {
     document.getElementById('comandasTab').classList.toggle('hidden', tab !== 'comandas');
     document.getElementById('addProductCard').classList.toggle('hidden', tab !== 'comandas');
     document.getElementById('historialTab').classList.toggle('hidden', tab !== 'historial');
-    document.getElementById('tabComandas').className = `app-btn app-btn-pill ${tab === 'comandas' ? 'app-btn-active' : ''}`;
-    document.getElementById('tabHistorial').className = `app-btn app-btn-pill ${tab === 'historial' ? 'app-btn-active' : ''}`;
+    document.getElementById('cajaTab').classList.toggle('hidden', tab !== 'caja');
+    document.getElementById('tabComandas').className = `app-segment-btn ${tab === 'comandas' ? 'app-segment-btn-active' : ''}`;
+    document.getElementById('tabHistorial').className = `app-segment-btn ${tab === 'historial' ? 'app-segment-btn-active' : ''}`;
+    document.getElementById('tabCaja').className = `app-segment-btn ${tab === 'caja' ? 'app-segment-btn-active' : ''}`;
     if (tab === 'historial') refreshHistorial(state.historial.current_page);
+    if (tab === 'caja') refreshCaja();
 };
 
 window.selectComanda=(id)=>{state.selectedComandaId=id;renderComandas();}
@@ -180,6 +191,23 @@ window.changePage = (delta) => {
     const nextPage = state.historial.current_page + delta;
     if (nextPage < 1 || nextPage > state.historial.last_page) return;
     refreshHistorial(nextPage);
+};
+async function refreshCaja() {
+    const response = await fetch('/comandas/cierre/data');
+    const caja = await response.json();
+    document.getElementById('cajaResumen').innerHTML = `
+        <div class="grid gap-2 md:grid-cols-2">
+            <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Total cobrado:</strong> $${Number(caja.total_cobrado).toFixed(2)}</div>
+            <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Comandas cobradas:</strong> ${caja.comandas_cobradas}</div>
+            <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Productos cobrados:</strong> ${caja.productos_cobrados}</div>
+            <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Comandas abiertas:</strong> ${caja.comandas_abiertas}</div>
+        </div>`;
+}
+
+window.imprimirCierre = async () => {
+    const response = await fetch('/comandas/cierre/imprimir', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } });
+    const data = await response.json();
+    if (data.comprobante_path) window.open('/' + data.comprobante_path, '_blank');
 };
 
 window.updateProducto=async(id,data)=>{await fetch(`/productos/${id}`,{method:'PUT',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify(data)}); refreshComandas();}

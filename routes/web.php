@@ -114,6 +114,26 @@ function historialComandasPaginado(int $page = 1, int $perPage = 10)
     ];
 }
 
+function resumenCierreCaja(): array
+{
+    $historial = DB::table('comandas_historial')->get(['id']);
+    $historialIds = $historial->pluck('id');
+    $productos = $historialIds->isEmpty()
+        ? collect()
+        : DB::table('productos_historial as ph')
+            ->leftJoin('stock as s', 's.producto', '=', 'ph.nombre')
+            ->whereIn('ph.comanda_historial_id', $historialIds)
+            ->select('ph.*', 's.precio')
+            ->get();
+    $totalCobrado = $productos->sum(fn ($p) => ((float) ($p->precio ?? 0)) * (int) $p->cantidad);
+    return [
+        'total_cobrado' => round($totalCobrado, 2),
+        'comandas_cobradas' => $historial->count(),
+        'productos_cobrados' => (int) $productos->sum('cantidad'),
+        'comandas_abiertas' => DB::table('comandas')->count(),
+    ];
+}
+
 Route::get('/', fn () => view('home', [
     'galeriaImagenes' => obtenerGaleriaImagenes(),
     'whatsappUrl' => construirWhatsappUrl(obtenerConfiguracion('telefono_local')),
@@ -271,6 +291,26 @@ Route::middleware(RequireLogin::class)->group(function () {
     });
     Route::get('/comandas/historial/data', function (Request $request) {
         return historialComandasPaginado((int) $request->query('page', 1), 10);
+    });
+    Route::get('/comandas/cierre/data', fn () => resumenCierreCaja());
+    Route::post('/comandas/cierre/imprimir', function () {
+        $cierre = resumenCierreCaja();
+        $html = view('tickets.cierre-caja', ['cierre' => $cierre])->render();
+        $dir = storage_path('app/public/comprobantes');
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
+        $file = 'cierre-caja-' . now()->format('Ymd-His') . '.html';
+        file_put_contents($dir . DIRECTORY_SEPARATOR . $file, $html);
+        $path = 'storage/comprobantes/' . $file;
+        DB::table('cierres_caja')->insert([
+            ...$cierre,
+            'detalle' => json_encode($cierre),
+            'comprobante_path' => $path,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+        return response()->json(['comprobante_path' => $path]);
     });
 
     Route::post('/productos', function (Request $r) {
