@@ -30,7 +30,7 @@ function obtenerConfiguracion(string $clave, ?string $default = null): ?string
 
 function formatearMonedaArs(float $importe): string
 {
-    return '$' . number_format($importe, 0, ',', '.');
+    return '$' . number_format($importe, 2, ',', '.');
 }
 
 
@@ -116,21 +116,45 @@ function historialComandasPaginado(int $page = 1, int $perPage = 10)
 
 function resumenCierreCaja(): array
 {
-    $historial = DB::table('comandas_historial')->get(['id']);
+    $historial = DB::table('comandas_historial')->orderByDesc('cobrada_en')->get();
     $historialIds = $historial->pluck('id');
-    $productos = $historialIds->isEmpty()
-        ? collect()
-        : DB::table('productos_historial as ph')
-            ->leftJoin('stock as s', 's.producto', '=', 'ph.nombre')
-            ->whereIn('ph.comanda_historial_id', $historialIds)
-            ->select('ph.*', 's.precio')
-            ->get();
-    $totalCobrado = $productos->sum(fn ($p) => ((float) ($p->precio ?? 0)) * (int) $p->cantidad);
+    $productos = $historialIds->isEmpty() ? collect() : DB::table('productos_historial as ph')
+        ->leftJoin('stock as s', 's.producto', '=', 'ph.nombre')
+        ->whereIn('ph.comanda_historial_id', $historialIds)
+        ->select('ph.*', 's.precio')
+        ->get();
+    $porComanda = $productos->groupBy('comanda_historial_id');
+    $comandasIncluidas = $historial->map(function ($h) use ($porComanda) {
+        $items = $porComanda->get($h->id, collect());
+        return [
+            'id' => $h->id,
+            'nombre' => $h->nombre ?? ('Mesa ' . $h->mesa_numero),
+            'cobrada_en' => $h->cobrada_en,
+            'medio_pago' => $h->medio_pago ?? 'efectivo',
+            'total' => round($items->sum(fn ($p) => ((float) ($p->precio ?? 0)) * (int) $p->cantidad), 2),
+        ];
+    })->values();
+    $totalCobrado = $comandasIncluidas->sum('total');
+    $metodosBase = ['efectivo', 'transferencia', 'mercado_pago_qr', 'tarjeta', 'cuenta_corriente', 'mixto'];
+    $metodosPago = [];
+    foreach ($metodosBase as $metodo) {
+        $metodosPago[$metodo] = round($comandasIncluidas->where('medio_pago', $metodo)->sum('total'), 2);
+    }
+    $productosVendidos = $productos->groupBy('nombre')->map(function ($group, $nombre) {
+        $cantidad = (int) $group->sum('cantidad');
+        $total = $group->sum(fn ($p) => ((float) ($p->precio ?? 0)) * (int) $p->cantidad);
+        return ['producto' => $nombre, 'cantidad' => $cantidad, 'total' => round($total, 2)];
+    })->values()->sortByDesc('total')->values();
+
     return [
         'total_cobrado' => round($totalCobrado, 2),
-        'comandas_cobradas' => $historial->count(),
+        'comandas_cobradas' => $comandasIncluidas->count(),
         'productos_cobrados' => (int) $productos->sum('cantidad'),
         'comandas_abiertas' => DB::table('comandas')->count(),
+        'metodos_pago' => $metodosPago,
+        'productos_vendidos' => $productosVendidos,
+        'comandas_incluidas' => $comandasIncluidas,
+        'historial_cierres' => DB::table('cierres_caja')->orderByDesc('created_at')->limit(20)->get(),
     ];
 }
 
@@ -303,14 +327,37 @@ Route::middleware(RequireLogin::class)->group(function () {
         $file = 'cierre-caja-' . now()->format('Ymd-His') . '.html';
         file_put_contents($dir . DIRECTORY_SEPARATOR . $file, $html);
         $path = 'storage/comprobantes/' . $file;
-        DB::table('cierres_caja')->insert([
-            ...$cierre,
-            'detalle' => json_encode($cierre),
-            'comprobante_path' => $path,
+        return response()->json(['comprobante_path' => $path]);
+    });
+    Route::post('/comandas/cierre/cerrar', function (Request $request) {
+        $payload = $request->validate([
+            'caja_inicial' => 'required|numeric|min:0',
+            'efectivo_contado' => 'required|numeric|min:0',
+            'turno' => 'required|string|max:100',
+            'responsable' => 'required|string|max:100',
+            'observaciones' => 'nullable|string|max:500',
+            'movimientos' => 'nullable|array',
+        ]);
+        $cierre = resumenCierreCaja();
+        $efectivoEsperado = (float) $payload['caja_inicial'] + (float) ($cierre['metodos_pago']['efectivo'] ?? 0);
+        $diferencia = (float) $payload['efectivo_contado'] - $efectivoEsperado;
+        $id = DB::table('cierres_caja')->insertGetId([
+            'total_cobrado' => $cierre['total_cobrado'],
+            'comandas_cobradas' => $cierre['comandas_cobradas'],
+            'productos_cobrados' => $cierre['productos_cobrados'],
+            'comandas_abiertas' => $cierre['comandas_abiertas'],
+            'turno' => $payload['turno'],
+            'responsable' => $payload['responsable'],
+            'caja_inicial' => $payload['caja_inicial'],
+            'efectivo_esperado' => $efectivoEsperado,
+            'efectivo_contado' => $payload['efectivo_contado'],
+            'diferencia_efectivo' => $diferencia,
+            'observaciones' => $payload['observaciones'] ?? null,
+            'detalle' => json_encode([...$cierre, 'movimientos' => $payload['movimientos'] ?? []]),
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        return response()->json(['comprobante_path' => $path]);
+        return response()->json(['id' => $id]);
     });
 
     Route::post('/productos', function (Request $r) {
@@ -382,11 +429,13 @@ Route::middleware(RequireLogin::class)->group(function () {
         $telefonoLocal = obtenerConfiguracion('telefono_local', '+54 9 11 0000-0000');
         $pdfPath = guardarComprobante58mm($comanda, $productos, $subtotal, $total, $telefonoLocal);
 
+        $medioPago = request()->input('medio_pago', 'efectivo');
         $historialId = DB::table('comandas_historial')->insertGetId([
             'comanda_id' => $comanda->id,
             'nombre' => $comanda->nombre,
             'mesa_numero' => $comanda->mesa_numero,
             'estado' => $comanda->estado,
+            'medio_pago' => $medioPago,
             'cobrada_en' => now(),
             'created_at' => now(),
             'updated_at' => now(),

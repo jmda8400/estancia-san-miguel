@@ -61,12 +61,15 @@
         <button id="nextPage" class="btn btn-secondary" onclick="changePage(1)">Siguiente</button>
     </div>
 </div>
-<div id="cajaTab" class="hidden panel">
-    <div class="flex items-center justify-between gap-2 mb-3 flex-wrap">
+<div id="cajaTab" class="hidden panel space-y-4">
+    <div class="flex items-center justify-between gap-2 mb-1 flex-wrap">
         <h2 class="panel-title">Cierre de caja</h2>
-        <button class="btn btn-primary" onclick="imprimirCierre()">Imprimir cierre</button>
+        <div class="flex gap-2">
+            <button class="btn btn-secondary" onclick="cerrarCaja()">Cerrar caja</button>
+            <button class="btn btn-primary" onclick="imprimirCierre()">Imprimir cierre</button>
+        </div>
     </div>
-    <div id="cajaResumen" class="space-y-2 text-emerald-950"></div>
+    <div id="cajaResumen" class="space-y-3 text-emerald-950"></div>
 </div>
 
 @endsection
@@ -195,14 +198,35 @@ window.changePage = (delta) => {
 async function refreshCaja() {
     const response = await fetch('/comandas/cierre/data');
     const caja = await response.json();
+    const mp = caja.metodos_pago || {};
+    const abiertas = caja.comandas_abiertas > 0 ? `<div class="rounded-xl border border-amber-300 bg-amber-50 p-3 text-amber-900">Atención: hay ${caja.comandas_abiertas} comandas abiertas. Revisar antes de cerrar caja.</div>` : '';
     document.getElementById('cajaResumen').innerHTML = `
+        ${abiertas}
         <div class="grid gap-2 md:grid-cols-2">
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Total cobrado:</strong> $${Number(caja.total_cobrado).toFixed(2)}</div>
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Comandas cobradas:</strong> ${caja.comandas_cobradas}</div>
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Productos cobrados:</strong> ${caja.productos_cobrados}</div>
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Comandas abiertas:</strong> ${caja.comandas_abiertas}</div>
-        </div>`;
+        </div>
+        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Medios de pago</h3>${Object.entries(mp).map(([k,v])=>`<div class='flex justify-between'><span>${k}</span><span>$${Number(v).toFixed(2)}</span></div>`).join('')}</div>
+        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Control de efectivo</h3><div class="grid md:grid-cols-2 gap-2"><input id='cajaInicial' class='app-input' placeholder='Caja inicial'><input id='efectivoContado' class='app-input' placeholder='Efectivo contado'></div><div id='efectivoEsperadoTxt' class='mt-2 text-sm'>Efectivo esperado: $0.00</div><div id='diferenciaTxt' class='text-sm'>Diferencia: $0.00</div></div>
+        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Productos vendidos</h3><table class='w-full text-sm'><tr><th class='text-left'>Producto</th><th>Cant.</th><th class='text-right'>Total</th></tr>${(caja.productos_vendidos||[]).map(p=>`<tr><td>${p.producto}</td><td class='text-center'>${p.cantidad}</td><td class='text-right'>$${Number(p.total).toFixed(2)}</td></tr>`).join('')}</table></div>
+        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Comandas incluidas</h3><table class='w-full text-sm'><tr><th class='text-left'>Comanda</th><th>Hora</th><th>Pago</th><th class='text-right'>Total</th></tr>${(caja.comandas_incluidas||[]).map(c=>`<tr><td>${c.nombre}</td><td>${new Date(c.cobrada_en).toLocaleTimeString()}</td><td>${c.medio_pago}</td><td class='text-right'>$${Number(c.total).toFixed(2)}</td></tr>`).join('')}</table></div>
+        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Historial de cierres</h3>${(caja.historial_cierres||[]).map(c=>`<div class='flex justify-between text-sm border-b py-1'><span>${new Date(c.created_at).toLocaleString()} · ${c.turno||'-'} · ${c.responsable||'-'}</span><span>$${Number(c.total_cobrado).toFixed(2)} / Dif: $${Number(c.diferencia_efectivo||0).toFixed(2)}</span></div>`).join('')}</div>`;
 }
+window.cerrarCaja = async () => {
+ const payload = {
+  caja_inicial: Number(document.getElementById('cajaInicial')?.value||0),
+  efectivo_contado: Number(document.getElementById('efectivoContado')?.value||0),
+  turno: prompt('Turno','Noche')||'Noche',
+  responsable: prompt('Responsable','Caja')||'Caja',
+  observaciones: prompt('Observaciones','')||''
+ };
+ const res = await fetch('/comandas/cierre/cerrar',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify(payload)});
+ if(!res.ok){ alert('No se pudo cerrar caja'); return; }
+ alert('Caja cerrada correctamente');
+ refreshCaja();
+};
 
 window.imprimirCierre = async () => {
     const response = await fetch('/comandas/cierre/imprimir', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } });
@@ -214,7 +238,8 @@ window.updateProducto=async(id,data)=>{await fetch(`/productos/${id}`,{method:'P
 window.deleteProducto=async(id)=>{await fetch(`/productos/${id}`,{method:'DELETE',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}}); refreshComandas();}
 window.cobrarComanda=async()=>{
  if(!state.selectedComandaId){return;}
- await fetch(`/comandas/${state.selectedComandaId}/cobrar`,{method:'POST',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}});
+ const medioPago = prompt("Medio de pago (efectivo, transferencia, mercado_pago_qr, tarjeta, cuenta_corriente, mixto)", "efectivo") || "efectivo";
+ await fetch(`/comandas/${state.selectedComandaId}/cobrar`,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'}, body: JSON.stringify({ medio_pago: medioPago })});
  await refreshComandas();
  if (state.activeTab === 'historial') refreshHistorial();
 };
