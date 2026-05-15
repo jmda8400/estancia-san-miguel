@@ -5,10 +5,6 @@
     <div class="dashboard-tabs-shell internal-dashboard-shell">
         <div class="internal-page-head internal-dashboard-head">
             <h1 class="internal-page-title">@yield('internal_title', 'Panel interno')</h1>
-            @hasSection('internal_subtitle')
-                <p class="internal-page-subtitle">@yield('internal_subtitle')</p>
-            @endif
-
             @hasSection('internal_tabs')
                 <div class="dashboard-tabs-header internal-tabs-wrap">
                     @yield('internal_tabs')

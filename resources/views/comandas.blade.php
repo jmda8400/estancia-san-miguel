@@ -1,7 +1,6 @@
 @extends('layouts.internal')
 @section('title', 'Comandas')
 @section('internal_title', 'Sistema de comandas')
-@section('internal_subtitle', 'Administrá comandas activas, historial y cierre de caja')
 
 @section('internal_tabs')
 <div class="app-segmented-control">
@@ -25,17 +24,6 @@
         <div id="tables" class="tables-grid flex-1 min-h-[12rem] max-h-[calc(100vh-16rem)] overflow-y-auto pr-1"></div>
     </div>
 
-    <div class="panel h-full flex flex-col min-h-[22rem] max-h-[calc(100vh-14rem)]">
-        <h2 id="selectedTitle" class="panel-title mb-3">Seleccione una comanda</h2>
-        <div id="productsList" class="space-y-3 flex-1 overflow-y-auto pr-1 min-h-[12rem]"></div>
-        <div class="orders-summary mt-3 pt-3 flex items-center justify-between gap-3">
-            <p id="selectedTotal" class="text-sm font-semibold text-emerald-950">Total: $ 0</p>
-            <div class="flex items-center gap-2">
-                                <button id="chargeBtn" class="hidden btn btn-primary btn-charge" onclick="cobrarComanda()">Cobrar</button>
-            </div>
-        </div>
-    </div>
-
     <div id="addProductCard" class="panel add-product-panel min-h-[22rem]">
         <h2 class="panel-title mb-3">Agregar productos a comanda</h2>
         <div id="addProductEmptyState" class="min-h-[12rem] flex items-center justify-center text-center text-sm text-emerald-900 px-4">
@@ -56,6 +44,17 @@
             </div>
             <button class="btn btn-primary btn-add-comanda w-full">Agregar a comanda</button>
         </form>
+    </div>
+
+    <div class="panel h-full flex flex-col min-h-[22rem] max-h-[calc(100vh-14rem)]">
+        <h2 id="selectedTitle" class="panel-title mb-3">Seleccione una comanda</h2>
+        <div id="productsList" class="space-y-3 flex-1 overflow-y-auto pr-1 min-h-[12rem]"></div>
+        <div class="orders-summary mt-3 pt-3 flex items-center justify-between gap-3">
+            <p id="selectedTotal" class="text-sm font-semibold text-emerald-950">Total: $ 0</p>
+            <div class="flex items-center gap-2">
+                                <button id="chargeBtn" class="hidden btn btn-primary btn-charge" onclick="cobrarComanda()">Cobrar</button>
+            </div>
+        </div>
     </div>
 </div>
 
