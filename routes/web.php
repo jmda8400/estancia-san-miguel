@@ -63,24 +63,58 @@ function guardarComprobante58mm(object $comanda, $productos, float $subtotal, fl
     $adminAlias = obtenerConfiguracion('admin_alias');
     $adminAliasQrUrl = $adminAlias ? ('https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' . urlencode($adminAlias)) : null;
 
-    $html = view('tickets.comprobante', [
-        'comanda' => $comanda,
-        'productos' => $productos,
-        'subtotal' => $subtotal,
-        'descuento' => 0,
-        'total' => $total,
-        'telefono' => $telefono,
-        'ars' => fn (float $importe) => formatearMonedaArs($importe),
-        'autoPrint' => false,
-        'adminAlias' => $adminAlias,
-        'adminAliasQrUrl' => $adminAliasQrUrl,
-        'separatorChar' => '_',
-    ])->render();
+    $lines = [
+        'ESTANCIA SAN MIGUEL',
+        'COMPROBANTE',
+        'Fecha: ' . $tzNow->format('d/m/Y H:i'),
+        'Comanda: ' . $comanda->id,
+        'Cliente: ' . ($comanda->nombre ?? '-'),
+        str_repeat('-', 32),
+    ];
+    foreach ($productos as $item) {
+        $lineTotal = ((float) ($item->precio ?? 0)) * (int) $item->cantidad;
+        $lines[] = $item->cantidad . 'x ' . $item->nombre;
+        $lines[] = formatearMonedaArs($lineTotal);
+    }
+    $lines[] = str_repeat('-', 32);
+    $lines[] = 'Subtotal: ' . formatearMonedaArs($subtotal);
+    $lines[] = 'Total: ' . formatearMonedaArs($total);
+    $lines[] = 'Tel: ' . $telefono;
+    if ($adminAlias) {
+        $lines[] = 'Alias: ' . $adminAlias;
+    }
+    if ($adminAliasQrUrl) {
+        $lines[] = 'QR: ' . $adminAliasQrUrl;
+    }
+    return guardarPdf58mmDesdeLineas($lines, 'comprobante-' . $tzNow->format('Ymd-His') . '-comanda-' . $comanda->id . '.pdf');
+}
 
-    $file = 'comprobante-' . $tzNow->format('Ymd-His') . '-comanda-' . $comanda->id . '.html';
-    file_put_contents($dir . DIRECTORY_SEPARATOR . $file, $html);
-
-    return 'storage/comprobantes/' . $file;
+function guardarPdf58mmDesdeLineas(array $lineas, string $filename): string
+{
+    $esc = fn (string $t) => str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $t);
+    $content = "BT\n/F1 8 Tf\n";
+    $y = 800;
+    foreach ($lineas as $linea) {
+        $content .= "1 0 0 1 18 {$y} Tm (" . $esc(mb_substr($linea, 0, 42)) . ") Tj\n";
+        $y -= 14;
+    }
+    $content .= "ET";
+    $len = strlen($content);
+    $pdf = "%PDF-1.4\n";
+    $offsets = [];
+    $offsets[] = strlen($pdf); $pdf .= "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n";
+    $offsets[] = strlen($pdf); $pdf .= "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n";
+    $offsets[] = strlen($pdf); $pdf .= "3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 164 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >> endobj\n";
+    $offsets[] = strlen($pdf); $pdf .= "4 0 obj << /Length {$len} >> stream\n{$content}\nendstream endobj\n";
+    $offsets[] = strlen($pdf); $pdf .= "5 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj\n";
+    $xref = strlen($pdf);
+    $pdf .= "xref\n0 6\n0000000000 65535 f \n";
+    foreach ($offsets as $off) $pdf .= sprintf("%010d 00000 n \n", $off);
+    $pdf .= "trailer << /Size 6 /Root 1 0 R >>\nstartxref\n{$xref}\n%%EOF";
+    $dir = storage_path('app/public/comprobantes');
+    if (!is_dir($dir)) mkdir($dir, 0775, true);
+    file_put_contents($dir . DIRECTORY_SEPARATOR . $filename, $pdf);
+    return 'storage/comprobantes/' . $filename;
 }
 
 function historialComandasPaginado(int $page = 1, int $perPage = 10)
@@ -111,7 +145,21 @@ function historialComandasPaginado(int $page = 1, int $perPage = 10)
     ];
 }
 
-function resumenCierreCaja(): array
+function paginateCollection($items, int $page = 1, int $perPage = 10): array
+{
+    $total = $items->count();
+    $lastPage = max(1, (int) ceil($total / $perPage));
+    $page = min(max(1, $page), $lastPage);
+    return [
+        'data' => $items->forPage($page, $perPage)->values(),
+        'current_page' => $page,
+        'per_page' => $perPage,
+        'total' => $total,
+        'last_page' => $lastPage,
+    ];
+}
+
+function resumenCierreCaja(int $comandasPage = 1, int $productosPage = 1, int $cierresPage = 1): array
 {
     $historial = DB::table('comandas_historial')->orderByDesc('cobrada_en')->get();
     $historialIds = $historial->pluck('id');
@@ -137,18 +185,18 @@ function resumenCierreCaja(): array
         return ['producto' => $nombre, 'cantidad' => $cantidad, 'total' => round($total, 2)];
     })->values()->sortByDesc('total')->values();
 
+    $historialCierres = DB::table('cierres_caja')
+        ->select('id', 'created_at', 'turno', 'responsable', 'total_cobrado', 'diferencia_efectivo')
+        ->orderByDesc('created_at')
+        ->get();
     return [
         'total_cobrado' => round($totalCobrado, 2),
         'comandas_cobradas' => $comandasIncluidas->count(),
         'productos_cobrados' => (int) $productos->sum('cantidad'),
         'comandas_abiertas' => DB::table('comandas')->count(),
-        'productos_vendidos' => $productosVendidos,
-        'comandas_incluidas' => $comandasIncluidas,
-        'historial_cierres' => DB::table('cierres_caja')
-            ->select('id', 'created_at', 'turno', 'responsable', 'total_cobrado', 'diferencia_efectivo')
-            ->orderByDesc('created_at')
-            ->limit(20)
-            ->get(),
+        'productos_vendidos' => paginateCollection($productosVendidos, $productosPage, 10),
+        'comandas_incluidas' => paginateCollection($comandasIncluidas, $comandasPage, 10),
+        'historial_cierres' => paginateCollection($historialCierres, $cierresPage, 10),
     ];
 }
 
@@ -320,7 +368,13 @@ Route::middleware(RequireLogin::class)->group(function () {
     Route::get('/comandas/historial/data', function (Request $request) {
         return historialComandasPaginado((int) $request->query('page', 1), 10);
     });
-    Route::get('/comandas/cierre/data', fn () => resumenCierreCaja());
+    Route::get('/comandas/cierre/data', function (Request $request) {
+        return resumenCierreCaja(
+            (int) $request->query('comandas_page', 1),
+            (int) $request->query('productos_page', 1),
+            (int) $request->query('cierres_page', 1),
+        );
+    });
     Route::post('/comandas/cierre/cerrar', function (Request $request) {
         $payload = $request->validate([
             'caja_inicial' => 'required|numeric|min:0',
@@ -349,14 +403,24 @@ Route::middleware(RequireLogin::class)->group(function () {
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        $html = view('tickets.cierre-caja', ['cierre' => $cierre])->render();
-        $dir = storage_path('app/public/comprobantes');
-        if (!is_dir($dir)) {
-            mkdir($dir, 0775, true);
-        }
-        $file = 'cierre-caja-' . now()->format('Ymd-His') . '.html';
-        file_put_contents($dir . DIRECTORY_SEPARATOR . $file, $html);
-        return response()->json(['id' => $id, 'comprobante_path' => 'storage/comprobantes/' . $file]);
+        $file = 'cierre-caja-' . now()->format('Ymd-His') . '.pdf';
+        $path = guardarPdf58mmDesdeLineas([
+            'ESTANCIA SAN MIGUEL',
+            'CIERRE DE CAJA',
+            'Fecha: ' . now()->setTimezone('America/Argentina/Buenos_Aires')->format('d/m/Y H:i'),
+            str_repeat('-', 32),
+            'Total cobrado: ' . formatearMonedaArs((float) $cierre['total_cobrado']),
+            'Comandas cobradas: ' . $cierre['comandas_cobradas'],
+            'Productos cobrados: ' . $cierre['productos_cobrados'],
+            'Comandas abiertas: ' . $cierre['comandas_abiertas'],
+            str_repeat('-', 32),
+            'Turno: ' . $payload['turno'],
+            'Responsable: ' . $payload['responsable'],
+            'Caja inicial: ' . formatearMonedaArs((float) $payload['caja_inicial']),
+            'Efectivo contado: ' . formatearMonedaArs((float) $payload['efectivo_contado']),
+            'Diferencia: ' . formatearMonedaArs($diferencia),
+        ], $file);
+        return response()->json(['id' => $id, 'comprobante_path' => $path]);
     });
 
     Route::post('/productos', function (Request $r) {

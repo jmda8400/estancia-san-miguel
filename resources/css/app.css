@@ -1004,10 +1004,10 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
     }
 
     .btn-danger {
-        background: linear-gradient(180deg, #fff5f7 0%, #fbecef 100%);
-        color: #7d3a45;
-        border-color: #eacbd1;
-        box-shadow: 0 5px 12px rgba(123, 62, 73, 0.1);
+        background: #b91c1c;
+        color: #ffffff;
+        border-color: #991b1b;
+        box-shadow: 0 8px 16px rgba(153, 27, 27, 0.28);
     }
 
     
