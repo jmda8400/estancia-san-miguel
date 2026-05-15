@@ -4,6 +4,7 @@ use App\Http\Middleware\RequireLogin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Schema;
 
 function comandasConProductos()
 {
@@ -117,6 +118,7 @@ function historialComandasPaginado(int $page = 1, int $perPage = 10)
 
 function resumenCierreCaja(): array
 {
+    $hasCierresCaja = Schema::hasTable('cierres_caja');
     $historial = DB::table('comandas_historial')->orderByDesc('cobrada_en')->get();
     $historialIds = $historial->pluck('id');
     $productos = $historialIds->isEmpty() ? collect() : DB::table('productos_historial as ph')
@@ -148,7 +150,7 @@ function resumenCierreCaja(): array
         'comandas_abiertas' => DB::table('comandas')->count(),
         'productos_vendidos' => $productosVendidos,
         'comandas_incluidas' => $comandasIncluidas,
-        'historial_cierres' => DB::table('cierres_caja')->orderByDesc('created_at')->limit(20)->get(),
+        'historial_cierres' => $hasCierresCaja ? DB::table('cierres_caja')->orderByDesc('created_at')->limit(20)->get() : collect(),
     ];
 }
 
@@ -322,6 +324,12 @@ Route::middleware(RequireLogin::class)->group(function () {
     });
     Route::get('/comandas/cierre/data', fn () => resumenCierreCaja());
     Route::post('/comandas/cierre/cerrar', function (Request $request) {
+        if (!Schema::hasTable('cierres_caja')) {
+            return response()->json([
+                'message' => 'Falta la tabla de cierres de caja. Ejecutá las migraciones pendientes.',
+            ], 500);
+        }
+
         $payload = $request->validate([
             'caja_inicial' => 'required|numeric|min:0',
             'efectivo_contado' => 'required|numeric|min:0',
