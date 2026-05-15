@@ -135,7 +135,7 @@ function resumenCierreCaja(): array
         ];
     })->values();
     $totalCobrado = $comandasIncluidas->sum('total');
-    $metodosBase = ['efectivo', 'transferencia', 'mercado_pago_qr', 'tarjeta', 'cuenta_corriente', 'mixto'];
+    $metodosBase = ['efectivo', 'transferencia', 'mercado_pago_qr', 'tarjeta'];
     $metodosPago = [];
     foreach ($metodosBase as $metodo) {
         $metodosPago[$metodo] = round($comandasIncluidas->where('medio_pago', $metodo)->sum('total'), 2);
@@ -278,7 +278,15 @@ Route::middleware(RequireLogin::class)->group(function () {
 
     Route::get('/comandas', fn () => view('comandas', ['comandas' => comandasConProductos()]))->name('comandas');
     Route::get('/comandas/data', fn () => comandasConProductos());
-    Route::post('/comandas', function () {
+    Route::post('/comandas', function (Request $request) {
+        $data = $request->validate([
+            'nombre' => 'required|string|max:120',
+            'cliente_documento' => 'nullable|string|max:40',
+            'cliente_telefono' => 'nullable|string|max:40',
+            'cliente_detalle' => 'nullable|string|max:255',
+            'medio_pago' => 'nullable|in:efectivo,transferencia,mercado_pago_qr,tarjeta',
+        ]);
+
         $count = DB::table('comandas')->count();
         if ($count >= 50) {
             return response()->json(['message' => 'Se alcanzó el máximo de 50 comandas.'], 422);
@@ -297,7 +305,11 @@ Route::middleware(RequireLogin::class)->group(function () {
         DB::table('comandas')->insert([
             'mesa_numero' => $mesaNumero,
             'mesa' => 'Mesa ' . $mesaNumero,
-            'nombre' => 'Mesa ' . $mesaNumero,
+            'nombre' => $data['nombre'],
+            'cliente_documento' => $data['cliente_documento'] ?? null,
+            'cliente_telefono' => $data['cliente_telefono'] ?? null,
+            'cliente_detalle' => $data['cliente_detalle'] ?? null,
+            'medio_pago' => $data['medio_pago'] ?? 'efectivo',
             'estado' => 'abierta',
             'created_at' => now(),
             'updated_at' => now(),
@@ -317,18 +329,6 @@ Route::middleware(RequireLogin::class)->group(function () {
         return historialComandasPaginado((int) $request->query('page', 1), 10);
     });
     Route::get('/comandas/cierre/data', fn () => resumenCierreCaja());
-    Route::post('/comandas/cierre/imprimir', function () {
-        $cierre = resumenCierreCaja();
-        $html = view('tickets.cierre-caja', ['cierre' => $cierre])->render();
-        $dir = storage_path('app/public/comprobantes');
-        if (!is_dir($dir)) {
-            mkdir($dir, 0775, true);
-        }
-        $file = 'cierre-caja-' . now()->format('Ymd-His') . '.html';
-        file_put_contents($dir . DIRECTORY_SEPARATOR . $file, $html);
-        $path = 'storage/comprobantes/' . $file;
-        return response()->json(['comprobante_path' => $path]);
-    });
     Route::post('/comandas/cierre/cerrar', function (Request $request) {
         $payload = $request->validate([
             'caja_inicial' => 'required|numeric|min:0',
@@ -357,7 +357,14 @@ Route::middleware(RequireLogin::class)->group(function () {
             'created_at' => now(),
             'updated_at' => now(),
         ]);
-        return response()->json(['id' => $id]);
+        $html = view('tickets.cierre-caja', ['cierre' => $cierre])->render();
+        $dir = storage_path('app/public/comprobantes');
+        if (!is_dir($dir)) {
+            mkdir($dir, 0775, true);
+        }
+        $file = 'cierre-caja-' . now()->format('Ymd-His') . '.html';
+        file_put_contents($dir . DIRECTORY_SEPARATOR . $file, $html);
+        return response()->json(['id' => $id, 'comprobante_path' => 'storage/comprobantes/' . $file]);
     });
 
     Route::post('/productos', function (Request $r) {
@@ -429,7 +436,7 @@ Route::middleware(RequireLogin::class)->group(function () {
         $telefonoLocal = obtenerConfiguracion('telefono_local', '+54 9 11 0000-0000');
         $pdfPath = guardarComprobante58mm($comanda, $productos, $subtotal, $total, $telefonoLocal);
 
-        $medioPago = request()->input('medio_pago', 'efectivo');
+        $medioPago = request()->input('medio_pago', $comanda->medio_pago ?? 'efectivo');
         $historialId = DB::table('comandas_historial')->insertGetId([
             'comanda_id' => $comanda->id,
             'nombre' => $comanda->nombre,
@@ -453,11 +460,7 @@ Route::middleware(RequireLogin::class)->group(function () {
         }
 
         DB::table('productos')->where('comanda_id', $id)->delete();
-        DB::table('comandas')->where('id', $id)->update([
-            'nombre' => 'Mesa ' . $comanda->mesa_numero,
-            'estado' => 'abierta',
-            'updated_at' => now(),
-        ]);
+        DB::table('comandas')->where('id', $id)->delete();
 
         return response()->json(['comprobante_path' => $pdfPath]);
     });

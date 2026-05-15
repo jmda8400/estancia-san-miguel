@@ -6,16 +6,16 @@
 <div class="mb-3 app-segmented-control">
     <button id="tabComandas" class="app-segment-btn app-segment-btn-active" onclick="switchTab('comandas')">Comandas</button>
     <button id="tabHistorial" class="app-segment-btn" onclick="switchTab('historial')">Historial</button>
-    <button id="tabCaja" class="app-segment-btn" onclick="switchTab('caja')">Caja</button>
+    <button id="tabCaja" class="app-segment-btn" onclick="switchTab('caja')">Cierre de Caja</button>
 </div>
 
 <div id="comandasTab" class="orders-layout">
     <div class="panel h-full flex flex-col">
         <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
-            <h2 class="panel-title">Mesas</h2>
+            <h2 class="panel-title">Comandas</h2>
             <div class="flex items-center gap-2 flex-wrap">
                 <button class="btn btn-secondary text-xs sm:text-sm" onclick="addComanda()">+ Agregar comanda</button>
-                <button class="btn btn-danger btn-remove-comanda text-xs sm:text-sm" onclick="removeLastComanda()">- Quitar comanda</button>
+                
             </div>
         </div>
         <div id="tables" class="tables-grid flex-1 min-h-[20rem] max-h-[calc(100vh-16rem)] overflow-y-auto pr-1"></div>
@@ -25,7 +25,7 @@
         <h2 id="selectedTitle" class="panel-title mb-3">Seleccione una mesa</h2>
         <div id="productsList" class="space-y-3 flex-1 overflow-y-auto pr-1 min-h-[16rem]"></div>
         <div class="orders-summary mt-3 pt-3 flex items-center justify-between gap-3">
-            <p id="selectedTotal" class="text-sm font-semibold text-emerald-950">Total: $0.00</p>
+            <p id="selectedTotal" class="text-sm font-semibold text-emerald-950">Total: $ 0</p>
             <div class="flex items-center gap-2">
                                 <button id="chargeBtn" class="hidden btn btn-primary btn-charge" onclick="cobrarComanda()">Cobrar</button>
             </div>
@@ -66,7 +66,7 @@
         <h2 class="panel-title">Cierre de caja</h2>
         <div class="flex gap-2">
             <button class="btn btn-secondary" onclick="cerrarCaja()">Cerrar caja</button>
-            <button class="btn btn-primary" onclick="imprimirCierre()">Imprimir cierre</button>
+            
         </div>
     </div>
     <div id="cajaResumen" class="space-y-3 text-emerald-950"></div>
@@ -88,20 +88,20 @@ function renderComandas() {
     const totalMesa = c.productos.reduce((acc, p) => acc + ((Number(p.precio) || 0) * p.cantidad), 0);
     return `<div class="table-card ${state.selectedComandaId===c.id?'active':''}">
         <button class="table-card-select" onclick="selectComanda(${c.id})">
-            <p class="table-card-title">${c.nombre ?? ('Mesa ' + c.mesa_numero)}</p>
+            <p class="table-card-title">${c.nombre}</p>
             <p class="table-card-meta">${c.productos.length} producto(s)</p>
-            <p class="table-card-total">$${totalMesa.toFixed(2)}</p>
+            <p class="table-card-total">${formatArs(totalMesa)}</p>
         </button>
-        <button class="btn btn-danger btn-remove-comandera btn-compact table-card-remove mt-2 app-btn-pill" onclick="removeComanda(${c.id})">Quitar</button>
+        
     </div>`;
  }).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
- if(!comanda){titleEl.textContent='Seleccione una mesa'; productsEl.innerHTML=''; totalEl.textContent='Total: $0.00'; chargeBtn.classList.add('hidden'); document.getElementById('addProductCard').classList.add('hidden'); return;}
- titleEl.textContent = `Productos de ${comanda.nombre ?? ('Mesa ' + comanda.mesa_numero)}`;
+ if(!comanda){titleEl.textContent='Seleccione una comanda'; productsEl.innerHTML=''; totalEl.textContent='Total: $ 0'; chargeBtn.classList.add('hidden'); document.getElementById('addProductCard').classList.add('hidden'); return;}
+ titleEl.textContent = `Productos de ${comanda.nombre}`;
  chargeBtn.classList.remove('hidden');
  document.getElementById('addProductCard').classList.remove('hidden');
  const totalComanda = comanda.productos.reduce((acc, p) => acc + ((Number(p.precio) || 0) * p.cantidad), 0);
- totalEl.textContent = `Total: $${totalComanda.toFixed(2)}`;
+ totalEl.textContent = `Total: ${formatArs(totalComanda)}`;
  productsEl.innerHTML = comanda.productos.length
     ? comanda.productos.map(p=>`<div class="order-item">
         <div class="order-item-head">
@@ -156,19 +156,14 @@ window.switchTab = (tab) => {
 
 window.selectComanda=(id)=>{state.selectedComandaId=id;renderComandas();}
 window.addComanda=async()=>{
- const response = await fetch('/comandas',{method:'POST',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}});
+ const nombre = prompt('Nombre del cliente');
+ if(!nombre){ return; }
+ const cliente_documento = prompt('Documento (opcional)','') || '';
+ const cliente_telefono = prompt('Teléfono (opcional)','') || '';
+ const cliente_detalle = prompt('Detalle adicional (opcional)','') || '';
+ const medio_pago = prompt('Medio de pago (efectivo, transferencia, mercado_pago_qr, tarjeta)','efectivo') || 'efectivo';
+ const response = await fetch('/comandas',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body: JSON.stringify({nombre,cliente_documento,cliente_telefono,cliente_detalle,medio_pago})});
  if(!response.ok){ const data = await response.json(); alert(data.message ?? 'No se pudo crear la comanda.'); return; }
- await refreshComandas();
-}
-window.removeLastComanda=async()=>{
- const last = state.comandas[state.comandas.length - 1];
- if(!last){ return; }
- await removeComanda(last.id);
-}
-window.removeComanda=async(id)=>{
- const response = await fetch(`/comandas/${id}`,{method:'DELETE',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}});
- if(!response.ok){ const data = await response.json(); alert(data.message ?? 'No se pudo quitar la comanda.'); return; }
- if(state.selectedComandaId===id) state.selectedComandaId = null;
  await refreshComandas();
 }
 async function refreshComandas(){
@@ -190,6 +185,11 @@ async function refreshHistorial(page = 1) {
     renderHistorial();
 }
 
+
+const PAYMENT_LABELS = {efectivo:'Efectivo',transferencia:'Transferencia',mercado_pago_qr:'Mercado Pago QR',tarjeta:'Tarjeta'};
+const formatArs = (value) => '$ ' + Number(value || 0).toLocaleString('es-AR', {minimumFractionDigits: 0, maximumFractionDigits: 0});
+const formatPayment = (key) => PAYMENT_LABELS[key] || key;
+
 window.changePage = (delta) => {
     const nextPage = state.historial.current_page + delta;
     if (nextPage < 1 || nextPage > state.historial.last_page) return;
@@ -203,16 +203,16 @@ async function refreshCaja() {
     document.getElementById('cajaResumen').innerHTML = `
         ${abiertas}
         <div class="grid gap-2 md:grid-cols-2">
-            <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Total cobrado:</strong> $${Number(caja.total_cobrado).toFixed(2)}</div>
+            <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Total cobrado:</strong> ${formatArs(caja.total_cobrado)}</div>
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Comandas cobradas:</strong> ${caja.comandas_cobradas}</div>
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Productos cobrados:</strong> ${caja.productos_cobrados}</div>
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Comandas abiertas:</strong> ${caja.comandas_abiertas}</div>
         </div>
-        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Medios de pago</h3>${Object.entries(mp).map(([k,v])=>`<div class='flex justify-between'><span>${k}</span><span>$${Number(v).toFixed(2)}</span></div>`).join('')}</div>
-        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Control de efectivo</h3><div class="grid md:grid-cols-2 gap-2"><input id='cajaInicial' class='app-input' placeholder='Caja inicial'><input id='efectivoContado' class='app-input' placeholder='Efectivo contado'></div><div id='efectivoEsperadoTxt' class='mt-2 text-sm'>Efectivo esperado: $0.00</div><div id='diferenciaTxt' class='text-sm'>Diferencia: $0.00</div></div>
-        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Productos vendidos</h3><table class='w-full text-sm'><tr><th class='text-left'>Producto</th><th>Cant.</th><th class='text-right'>Total</th></tr>${(caja.productos_vendidos||[]).map(p=>`<tr><td>${p.producto}</td><td class='text-center'>${p.cantidad}</td><td class='text-right'>$${Number(p.total).toFixed(2)}</td></tr>`).join('')}</table></div>
-        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Comandas incluidas</h3><table class='w-full text-sm'><tr><th class='text-left'>Comanda</th><th>Hora</th><th>Pago</th><th class='text-right'>Total</th></tr>${(caja.comandas_incluidas||[]).map(c=>`<tr><td>${c.nombre}</td><td>${new Date(c.cobrada_en).toLocaleTimeString()}</td><td>${c.medio_pago}</td><td class='text-right'>$${Number(c.total).toFixed(2)}</td></tr>`).join('')}</table></div>
-        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Historial de cierres</h3>${(caja.historial_cierres||[]).map(c=>`<div class='flex justify-between text-sm border-b py-1'><span>${new Date(c.created_at).toLocaleString()} · ${c.turno||'-'} · ${c.responsable||'-'}</span><span>$${Number(c.total_cobrado).toFixed(2)} / Dif: $${Number(c.diferencia_efectivo||0).toFixed(2)}</span></div>`).join('')}</div>`;
+        <div class="rounded-2xl border border-emerald-200 bg-white p-3"><h3 class="font-semibold mb-2">Medios de pago</h3><div class='divide-y divide-emerald-100'>${Object.entries(mp).map(([k,v],i,arr)=>{ const max=Math.max(...Object.values(mp).map(Number)); const muted=Number(v)===0?'text-emerald-700/60':''; const strong=Number(v)===max&&max>0?'bg-emerald-50':''; return `<div class='flex items-center justify-between py-2 text-sm ${muted} ${strong}'><span>${formatPayment(k)}</span><span class='font-semibold text-right'>${formatArs(v)}</span></div>`; }).join('')}</div></div>
+        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Control de efectivo</h3><div class="grid md:grid-cols-2 gap-2"><input id='cajaInicial' class='app-input' placeholder='Caja inicial'><input id='efectivoContado' class='app-input' placeholder='Efectivo contado'></div><div id='efectivoEsperadoTxt' class='mt-2 text-sm'>Efectivo esperado: $ 0</div><div id='diferenciaTxt' class='text-sm'>Diferencia: $ 0</div></div>
+        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Productos vendidos</h3><table class='w-full text-sm'><tr><th class='text-left'>Producto</th><th>Cant.</th><th class='text-right'>Total</th></tr>${(caja.productos_vendidos||[]).map(p=>`<tr><td>${p.producto}</td><td class='text-center'>${p.cantidad}</td><td class='text-right'>${formatArs(p.total)}</td></tr>`).join('')}</table></div>
+        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Comandas incluidas</h3><table class='w-full text-sm'><tr><th class='text-left'>Comanda</th><th>Hora</th><th>Pago</th><th class='text-right'>Total</th></tr>${(caja.comandas_incluidas||[]).map(c=>`<tr><td>${c.nombre}</td><td>${new Date(c.cobrada_en).toLocaleTimeString()}</td><td>${formatPayment(c.medio_pago)}</td><td class='text-right'>${formatArs(c.total)}</td></tr>`).join('')}</table></div>
+        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Historial de cierres</h3>${(caja.historial_cierres||[]).map(c=>`<div class='flex justify-between text-sm border-b py-1'><span>${new Date(c.created_at).toLocaleString()} · ${c.turno||'-'} · ${c.responsable||'-'}</span><span>${formatArs(c.total_cobrado)} / Dif: ${formatArs(c.diferencia_efectivo||0)}</span></div>`).join('')}</div>`;
 }
 window.cerrarCaja = async () => {
  const payload = {
@@ -224,21 +224,19 @@ window.cerrarCaja = async () => {
  };
  const res = await fetch('/comandas/cierre/cerrar',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify(payload)});
  if(!res.ok){ alert('No se pudo cerrar caja'); return; }
+ const data = await res.json();
  alert('Caja cerrada correctamente');
+ if (data.comprobante_path) window.open('/' + data.comprobante_path, '_blank');
  refreshCaja();
 };
 
-window.imprimirCierre = async () => {
-    const response = await fetch('/comandas/cierre/imprimir', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' } });
-    const data = await response.json();
-    if (data.comprobante_path) window.open('/' + data.comprobante_path, '_blank');
-};
 
 window.updateProducto=async(id,data)=>{await fetch(`/productos/${id}`,{method:'PUT',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify(data)}); refreshComandas();}
 window.deleteProducto=async(id)=>{await fetch(`/productos/${id}`,{method:'DELETE',headers:{'X-CSRF-TOKEN':'{{ csrf_token() }}'}}); refreshComandas();}
 window.cobrarComanda=async()=>{
  if(!state.selectedComandaId){return;}
- const medioPago = prompt("Medio de pago (efectivo, transferencia, mercado_pago_qr, tarjeta, cuenta_corriente, mixto)", "efectivo") || "efectivo";
+ const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
+ const medioPago = prompt('Medio de pago (efectivo, transferencia, mercado_pago_qr, tarjeta)', comanda?.medio_pago || 'efectivo') || (comanda?.medio_pago || 'efectivo');
  await fetch(`/comandas/${state.selectedComandaId}/cobrar`,{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'}, body: JSON.stringify({ medio_pago: medioPago })});
  await refreshComandas();
  if (state.activeTab === 'historial') refreshHistorial();
