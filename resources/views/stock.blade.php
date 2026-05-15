@@ -6,8 +6,8 @@
 <section class="stock-view mx-auto w-full max-w-[78rem]">
 <div class="app-card app-stock-card">
     <div class="stock-tabs app-internal-tabs mb-4">
-        <button id="tabStock" class="app-btn app-btn-pill app-btn-active" onclick="switchTab('stock')">Stock</button>
-        <button id="tabHistorial" class="app-btn app-btn-pill" onclick="switchTab('historial')">Historial</button>
+        <button id="tabStock" class="app-internal-tab-btn app-btn-active" onclick="switchTab('stock')">Stock</button>
+        <button id="tabHistorial" class="app-internal-tab-btn" onclick="switchTab('historial')">Historial</button>
     </div>
 
 <div id="stockTab">
@@ -178,8 +178,8 @@ window.changeStockHistoryPage = (delta) => {
 window.switchTab = (tab) => {
     document.getElementById('stockTab').classList.toggle('hidden', tab !== 'stock');
     document.getElementById('historialTab').classList.toggle('hidden', tab !== 'historial');
-    document.getElementById('tabStock').className = `app-btn app-btn-pill ${tab === 'stock' ? 'app-btn-active' : ''}`;
-    document.getElementById('tabHistorial').className = `app-btn app-btn-pill ${tab === 'historial' ? 'app-btn-active' : ''}`;
+    document.getElementById('tabStock').className = `app-internal-tab-btn ${tab === 'stock' ? 'app-btn-active' : ''}`;
+    document.getElementById('tabHistorial').className = `app-internal-tab-btn ${tab === 'historial' ? 'app-btn-active' : ''}`;
     if (tab === 'historial') refreshHistory();
 };
 
