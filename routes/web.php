@@ -77,8 +77,12 @@ function guardarComprobante58mm(object $comanda, $productos, float $subtotal, fl
         'separatorChar' => '_',
     ])->render();
 
-    $file = 'comprobante-' . $tzNow->format('Ymd-His') . '-comanda-' . $comanda->id . '.html';
-    file_put_contents($dir . DIRECTORY_SEPARATOR . $file, $html);
+    $file = 'comprobante-' . $tzNow->format('Ymd-His') . '-comanda-' . $comanda->id . '.pdf';
+
+    app('dompdf.wrapper')
+        ->loadHTML($html)
+        ->setPaper([0, 0, 164, 1200], 'portrait')
+        ->save($dir . DIRECTORY_SEPARATOR . $file);
 
     return 'storage/comprobantes/' . $file;
 }
@@ -350,8 +354,13 @@ Route::middleware(RequireLogin::class)->group(function () {
         if (!is_dir($dir)) {
             mkdir($dir, 0775, true);
         }
-        $file = 'cierre-caja-' . now()->format('Ymd-His') . '.html';
-        file_put_contents($dir . DIRECTORY_SEPARATOR . $file, $html);
+        $file = 'cierre-caja-' . now()->format('Ymd-His') . '.pdf';
+
+        app('dompdf.wrapper')
+            ->loadHTML($html)
+            ->setPaper([0, 0, 164, 1200], 'portrait')
+            ->save($dir . DIRECTORY_SEPARATOR . $file);
+
         return response()->json(['id' => $id, 'comprobante_path' => 'storage/comprobantes/' . $file]);
     });
 
