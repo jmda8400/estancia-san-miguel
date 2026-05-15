@@ -3,10 +3,10 @@
 @section('internal_title', 'Sistema de comandas')
 
 @section('internal_content')
-<div class="mb-3 app-segmented-control">
-    <button id="tabComandas" class="app-segment-btn app-segment-btn-active" onclick="switchTab('comandas')">Comandas</button>
-    <button id="tabHistorial" class="app-segment-btn" onclick="switchTab('historial')">Historial</button>
-    <button id="tabCaja" class="app-segment-btn" onclick="switchTab('caja')">Cierre de Caja</button>
+<div class="mb-3 app-internal-tabs">
+    <button id="tabComandas" class="app-btn app-btn-pill app-btn-active" onclick="switchTab('comandas')">Comandas</button>
+    <button id="tabHistorial" class="app-btn app-btn-pill" onclick="switchTab('historial')">Historial</button>
+    <button id="tabCaja" class="app-btn app-btn-pill" onclick="switchTab('caja')">Cierre de Caja</button>
 </div>
 
 <div id="comandasTab" class="orders-layout">
@@ -161,9 +161,9 @@ window.switchTab = (tab) => {
     document.getElementById('addProductCard').classList.toggle('hidden', tab !== 'comandas');
     document.getElementById('historialTab').classList.toggle('hidden', tab !== 'historial');
     document.getElementById('cajaTab').classList.toggle('hidden', tab !== 'caja');
-    document.getElementById('tabComandas').className = `app-segment-btn ${tab === 'comandas' ? 'app-segment-btn-active' : ''}`;
-    document.getElementById('tabHistorial').className = `app-segment-btn ${tab === 'historial' ? 'app-segment-btn-active' : ''}`;
-    document.getElementById('tabCaja').className = `app-segment-btn ${tab === 'caja' ? 'app-segment-btn-active' : ''}`;
+    document.getElementById('tabComandas').className = `app-btn app-btn-pill ${tab === 'comandas' ? 'app-btn-active' : ''}`;
+    document.getElementById('tabHistorial').className = `app-btn app-btn-pill ${tab === 'historial' ? 'app-btn-active' : ''}`;
+    document.getElementById('tabCaja').className = `app-btn app-btn-pill ${tab === 'caja' ? 'app-btn-active' : ''}`;
     if (tab === 'historial') refreshHistorial(state.historial.current_page);
     if (tab === 'caja') refreshCaja();
 };
