@@ -4,9 +4,9 @@
 
 @section('internal_content')
 <section class="stock-view mx-auto w-full max-w-[78rem] space-y-4">
-<div class="stock-tabs flex gap-2">
-    <button id="tabStock" class="app-btn app-stock-tab app-btn-active app-btn-pill" onclick="switchTab('stock')">Stock</button>
-    <button id="tabHistorial" class="app-btn app-stock-tab app-btn-pill" onclick="switchTab('historial')">Historial</button>
+<div class="stock-tabs app-segmented-control">
+    <button id="tabStock" class="app-segment-btn app-stock-tab app-segment-btn-active" onclick="switchTab('stock')">Stock</button>
+    <button id="tabHistorial" class="app-segment-btn app-stock-tab" onclick="switchTab('historial')">Historial</button>
 </div>
 
 <div id="stockTab" class="app-card app-stock-card">
@@ -176,8 +176,8 @@ window.changeStockHistoryPage = (delta) => {
 window.switchTab = (tab) => {
     document.getElementById('stockTab').classList.toggle('hidden', tab !== 'stock');
     document.getElementById('historialTab').classList.toggle('hidden', tab !== 'historial');
-    document.getElementById('tabStock').className = `app-btn app-stock-tab app-btn-pill ${tab === 'stock' ? 'app-btn-active' : ''}`;
-    document.getElementById('tabHistorial').className = `app-btn app-stock-tab app-btn-pill ${tab === 'historial' ? 'app-btn-active' : ''}`;
+    document.getElementById('tabStock').className = `app-segment-btn app-stock-tab ${tab === 'stock' ? 'app-segment-btn-active' : ''}`;
+    document.getElementById('tabHistorial').className = `app-segment-btn app-stock-tab ${tab === 'historial' ? 'app-segment-btn-active' : ''}`;
     if (tab === 'historial') refreshHistory();
 };
 

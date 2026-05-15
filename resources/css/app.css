@@ -624,6 +624,59 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
     box-shadow: 0 8px 20px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.08);
 }
 
+.internal-page .app-segmented-control {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 0;
+    width: min(980px, 100%);
+    min-height: 2.9rem;
+    padding: 0;
+    border-radius: 999px;
+    border: 1px solid rgba(201, 166, 82, 0.42);
+    background: linear-gradient(145deg, #1f513a, #133a29);
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.26), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+.internal-page .app-segment-btn {
+    position: relative;
+    flex: 1 1 0;
+    min-height: 2.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: none;
+    border-radius: 0;
+    background: transparent;
+    color: #f9f7ef;
+    font-weight: 600;
+    font-size: 0.72rem;
+    letter-spacing: 0.09em;
+    text-transform: uppercase;
+    transition: background-color 180ms ease, color 180ms ease;
+}
+
+.internal-page .app-segment-btn:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    right: 0;
+    top: 28%;
+    height: 44%;
+    width: 1px;
+    background: rgba(190, 165, 90, 0.35);
+}
+
+.internal-page .app-segment-btn:hover {
+    background: rgba(255, 255, 255, 0.035);
+    color: #d8bd6a;
+}
+
+.internal-page .app-segment-btn.app-segment-btn-active {
+    background: #2f7d4f;
+    color: #f3f5ef;
+}
+
 .internal-page .internal-header-links .app-nav-btn {
     position: relative;
     flex: 1 1 0;
