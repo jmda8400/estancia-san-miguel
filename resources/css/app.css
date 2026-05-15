@@ -105,6 +105,11 @@
 
     .app-btn-pill { border-radius: 999px !important; }
 
+
+
+    .app-internal-tab-btn {
+        @apply app-btn app-btn-pill;
+    }
     .app-internal-tabs {
         display: flex;
         align-items: center;

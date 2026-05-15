@@ -3,9 +3,9 @@
 @section('internal_title', 'Vista de administración')
 @section('internal_content')
 <div class="app-card">
-    <div class="mb-4 flex gap-2 flex-wrap">
-        <button id="sectionConfig" class="app-btn app-btn-pill app-btn-active">Configuración</button>
-        <button id="sectionDb" class="app-btn app-btn-pill">Base de Datos</button>
+    <div class="mb-4 app-internal-tabs">
+        <button id="sectionConfig" class="app-internal-tab-btn app-btn-active">Configuración</button>
+        <button id="sectionDb" class="app-internal-tab-btn">Base de Datos</button>
     </div>
 
     <section id="configSection">
