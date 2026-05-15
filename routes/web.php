@@ -574,16 +574,6 @@ Route::middleware(RequireLogin::class)->group(function () {
     });
 
     Route::get('/admin/base-datos/tabla/{tabla}/descargar', function (string $tabla) {
-        $tablas = request()->attributes->get('tablas_bd_admin', null);
-        if (!is_array($tablas) || !in_array($tabla, $tablas, true)) {
-            return response()->json(['message' => 'Tabla inválida.'], 404);
-        }
-
-        $rows = DB::table($tabla)->get();
-        return response()->json(['tabla' => $tabla, 'rows' => $rows], 200, [
-            'Content-Disposition' => 'attachment; filename="' . $tabla . '.json"',
-        ]);
-    })->middleware(function ($request, $next) {
         $driver = DB::connection()->getDriverName();
         if ($driver === 'sqlite') {
             $tablas = collect(DB::select("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"))->pluck('name')->all();
@@ -595,13 +585,28 @@ Route::middleware(RequireLogin::class)->group(function () {
             $tablas = [];
         }
 
-        $request->attributes->set('tablas_bd_admin', $tablas);
+        if (!in_array($tabla, $tablas, true)) {
+            return response()->json(['message' => 'Tabla inválida.'], 404);
+        }
 
-        return $next($request);
+        $rows = DB::table($tabla)->get();
+        return response()->json(['tabla' => $tabla, 'rows' => $rows], 200, [
+            'Content-Disposition' => 'attachment; filename="' . $tabla . '.json"',
+        ]);
     });
 
     Route::post('/admin/base-datos/tabla/{tabla}/cargar', function (Request $request, string $tabla) {
-        $tablas = $request->attributes->get('tablas_bd_admin', []);
+        $driver = DB::connection()->getDriverName();
+        if ($driver === 'sqlite') {
+            $tablas = collect(DB::select("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"))->pluck('name')->all();
+        } elseif (in_array($driver, ['mysql', 'mariadb'], true)) {
+            $tablas = collect(DB::select('SHOW TABLES'))->map(fn ($row) => (array) $row)->map(fn ($row) => array_values($row)[0])->all();
+        } elseif ($driver === 'pgsql') {
+            $tablas = collect(DB::select("SELECT tablename FROM pg_tables WHERE schemaname = 'public'"))->pluck('tablename')->all();
+        } else {
+            $tablas = [];
+        }
+
         if (!in_array($tabla, $tablas, true)) {
             return response()->json(['message' => 'Tabla inválida.'], 404);
         }
@@ -616,7 +621,9 @@ Route::middleware(RequireLogin::class)->group(function () {
         });
 
         return response()->noContent();
-    })->middleware(function ($request, $next) {
+    });
+
+    Route::delete('/admin/base-datos/tabla/{tabla}', function (string $tabla) {
         $driver = DB::connection()->getDriverName();
         if ($driver === 'sqlite') {
             $tablas = collect(DB::select("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"))->pluck('name')->all();
@@ -628,13 +635,6 @@ Route::middleware(RequireLogin::class)->group(function () {
             $tablas = [];
         }
 
-        $request->attributes->set('tablas_bd_admin', $tablas);
-
-        return $next($request);
-    });
-
-    Route::delete('/admin/base-datos/tabla/{tabla}', function (Request $request, string $tabla) {
-        $tablas = $request->attributes->get('tablas_bd_admin', []);
         if (!in_array($tabla, $tablas, true)) {
             return response()->json(['message' => 'Tabla inválida.'], 404);
         }
@@ -642,21 +642,6 @@ Route::middleware(RequireLogin::class)->group(function () {
         DB::table($tabla)->delete();
 
         return response()->noContent();
-    })->middleware(function ($request, $next) {
-        $driver = DB::connection()->getDriverName();
-        if ($driver === 'sqlite') {
-            $tablas = collect(DB::select("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"))->pluck('name')->all();
-        } elseif (in_array($driver, ['mysql', 'mariadb'], true)) {
-            $tablas = collect(DB::select('SHOW TABLES'))->map(fn ($row) => (array) $row)->map(fn ($row) => array_values($row)[0])->all();
-        } elseif ($driver === 'pgsql') {
-            $tablas = collect(DB::select("SELECT tablename FROM pg_tables WHERE schemaname = 'public'"))->pluck('tablename')->all();
-        } else {
-            $tablas = [];
-        }
-
-        $request->attributes->set('tablas_bd_admin', $tablas);
-
-        return $next($request);
     });
 
     Route::get('/admin/base-datos/descargar', function () {
