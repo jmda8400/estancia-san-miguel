@@ -70,7 +70,8 @@
         box-shadow: 0 8px 18px rgba(18, 34, 28, 0.08);
     }
 
-    .app-btn {
+    .app-btn,
+    .app-internal-tab-btn {
         @apply inline-flex items-center justify-center rounded-2xl border px-4 py-2 text-sm font-semibold transition-all duration-200;
         border-color: rgba(203, 224, 214, 0.55);
         background: linear-gradient(145deg, rgba(53, 95, 78, 0.97), rgba(41, 73, 61, 0.97));
@@ -82,12 +83,16 @@
 
     .app-btn:visited,
     .app-btn:active,
-    .app-btn:focus {
+    .app-btn:focus,
+    .app-internal-tab-btn:visited,
+    .app-internal-tab-btn:active,
+    .app-internal-tab-btn:focus {
         color: #ffffff !important;
         text-decoration: none !important;
     }
 
-    .app-btn:hover {
+    .app-btn:hover,
+    .app-internal-tab-btn:hover {
         background: linear-gradient(145deg, rgba(79, 128, 108, 0.98), rgba(58, 96, 80, 0.98));
         transform: translateY(-1px);
         box-shadow: 0 4px 10px rgba(17, 38, 31, 0.18);
@@ -99,17 +104,15 @@
         color: #ffffff;
     }
     .app-btn,
-    .app-btn * {
+    .app-btn *,
+    .app-internal-tab-btn,
+    .app-internal-tab-btn * {
         color: inherit;
     }
 
-    .app-btn-pill { border-radius: 999px !important; }
+    .app-btn-pill,
+    .app-internal-tab-btn { border-radius: 999px !important; }
 
-
-
-    .app-internal-tab-btn {
-        @apply app-btn app-btn-pill;
-    }
     .app-internal-tabs {
         display: flex;
         align-items: center;
