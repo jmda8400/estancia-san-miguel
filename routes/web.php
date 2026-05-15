@@ -557,5 +557,176 @@ Route::middleware(RequireLogin::class)->group(function () {
         return response()->noContent();
     });
 
+
+    Route::get('/admin/base-datos/tablas', function () {
+        $driver = DB::connection()->getDriverName();
+        if ($driver === 'sqlite') {
+            $tables = collect(DB::select("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"))->pluck('name');
+        } elseif (in_array($driver, ['mysql', 'mariadb'], true)) {
+            $tables = collect(DB::select('SHOW TABLES'))->map(fn ($row) => (array) $row)->map(fn ($row) => array_values($row)[0]);
+        } elseif ($driver === 'pgsql') {
+            $tables = collect(DB::select("SELECT tablename FROM pg_tables WHERE schemaname = 'public'"))->pluck('tablename');
+        } else {
+            return response()->json(['message' => 'Motor de base de datos no soportado para esta función.'], 422);
+        }
+
+        return $tables->sort()->values();
+    });
+
+    Route::get('/admin/base-datos/tabla/{tabla}/descargar', function (string $tabla) {
+        $tablas = request()->attributes->get('tablas_bd_admin', null);
+        if (!is_array($tablas) || !in_array($tabla, $tablas, true)) {
+            return response()->json(['message' => 'Tabla inválida.'], 404);
+        }
+
+        $rows = DB::table($tabla)->get();
+        return response()->json(['tabla' => $tabla, 'rows' => $rows], 200, [
+            'Content-Disposition' => 'attachment; filename="' . $tabla . '.json"',
+        ]);
+    })->middleware(function ($request, $next) {
+        $driver = DB::connection()->getDriverName();
+        if ($driver === 'sqlite') {
+            $tablas = collect(DB::select("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"))->pluck('name')->all();
+        } elseif (in_array($driver, ['mysql', 'mariadb'], true)) {
+            $tablas = collect(DB::select('SHOW TABLES'))->map(fn ($row) => (array) $row)->map(fn ($row) => array_values($row)[0])->all();
+        } elseif ($driver === 'pgsql') {
+            $tablas = collect(DB::select("SELECT tablename FROM pg_tables WHERE schemaname = 'public'"))->pluck('tablename')->all();
+        } else {
+            $tablas = [];
+        }
+
+        $request->attributes->set('tablas_bd_admin', $tablas);
+
+        return $next($request);
+    });
+
+    Route::post('/admin/base-datos/tabla/{tabla}/cargar', function (Request $request, string $tabla) {
+        $tablas = $request->attributes->get('tablas_bd_admin', []);
+        if (!in_array($tabla, $tablas, true)) {
+            return response()->json(['message' => 'Tabla inválida.'], 404);
+        }
+
+        $rows = $request->validate(['rows' => 'required|array'])['rows'];
+
+        DB::transaction(function () use ($tabla, $rows) {
+            DB::table($tabla)->delete();
+            foreach ($rows as $row) {
+                DB::table($tabla)->insert((array) $row);
+            }
+        });
+
+        return response()->noContent();
+    })->middleware(function ($request, $next) {
+        $driver = DB::connection()->getDriverName();
+        if ($driver === 'sqlite') {
+            $tablas = collect(DB::select("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"))->pluck('name')->all();
+        } elseif (in_array($driver, ['mysql', 'mariadb'], true)) {
+            $tablas = collect(DB::select('SHOW TABLES'))->map(fn ($row) => (array) $row)->map(fn ($row) => array_values($row)[0])->all();
+        } elseif ($driver === 'pgsql') {
+            $tablas = collect(DB::select("SELECT tablename FROM pg_tables WHERE schemaname = 'public'"))->pluck('tablename')->all();
+        } else {
+            $tablas = [];
+        }
+
+        $request->attributes->set('tablas_bd_admin', $tablas);
+
+        return $next($request);
+    });
+
+    Route::delete('/admin/base-datos/tabla/{tabla}', function (Request $request, string $tabla) {
+        $tablas = $request->attributes->get('tablas_bd_admin', []);
+        if (!in_array($tabla, $tablas, true)) {
+            return response()->json(['message' => 'Tabla inválida.'], 404);
+        }
+
+        DB::table($tabla)->delete();
+
+        return response()->noContent();
+    })->middleware(function ($request, $next) {
+        $driver = DB::connection()->getDriverName();
+        if ($driver === 'sqlite') {
+            $tablas = collect(DB::select("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"))->pluck('name')->all();
+        } elseif (in_array($driver, ['mysql', 'mariadb'], true)) {
+            $tablas = collect(DB::select('SHOW TABLES'))->map(fn ($row) => (array) $row)->map(fn ($row) => array_values($row)[0])->all();
+        } elseif ($driver === 'pgsql') {
+            $tablas = collect(DB::select("SELECT tablename FROM pg_tables WHERE schemaname = 'public'"))->pluck('tablename')->all();
+        } else {
+            $tablas = [];
+        }
+
+        $request->attributes->set('tablas_bd_admin', $tablas);
+
+        return $next($request);
+    });
+
+    Route::get('/admin/base-datos/descargar', function () {
+        $driver = DB::connection()->getDriverName();
+        if ($driver === 'sqlite') {
+            $tablas = collect(DB::select("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"))->pluck('name');
+        } elseif (in_array($driver, ['mysql', 'mariadb'], true)) {
+            $tablas = collect(DB::select('SHOW TABLES'))->map(fn ($row) => (array) $row)->map(fn ($row) => array_values($row)[0]);
+        } elseif ($driver === 'pgsql') {
+            $tablas = collect(DB::select("SELECT tablename FROM pg_tables WHERE schemaname = 'public'"))->pluck('tablename');
+        } else {
+            return response()->json(['message' => 'Motor de base de datos no soportado para esta función.'], 422);
+        }
+
+        $payload = $tablas->values()->mapWithKeys(fn ($tabla) => [$tabla => DB::table($tabla)->get()]);
+
+        return response()->json(['tablas' => $payload], 200, [
+            'Content-Disposition' => 'attachment; filename="base_de_datos.json"',
+        ]);
+    });
+
+    Route::post('/admin/base-datos/cargar', function (Request $request) {
+        $driver = DB::connection()->getDriverName();
+        if ($driver === 'sqlite') {
+            $tablas = collect(DB::select("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"))->pluck('name')->all();
+        } elseif (in_array($driver, ['mysql', 'mariadb'], true)) {
+            $tablas = collect(DB::select('SHOW TABLES'))->map(fn ($row) => (array) $row)->map(fn ($row) => array_values($row)[0])->all();
+        } elseif ($driver === 'pgsql') {
+            $tablas = collect(DB::select("SELECT tablename FROM pg_tables WHERE schemaname = 'public'"))->pluck('tablename')->all();
+        } else {
+            return response()->json(['message' => 'Motor de base de datos no soportado para esta función.'], 422);
+        }
+
+        $incoming = $request->validate(['tablas' => 'required|array'])['tablas'];
+
+        DB::transaction(function () use ($incoming, $tablas) {
+            foreach ($tablas as $tabla) {
+                if (!array_key_exists($tabla, $incoming)) {
+                    continue;
+                }
+                DB::table($tabla)->delete();
+                foreach ((array) $incoming[$tabla] as $row) {
+                    DB::table($tabla)->insert((array) $row);
+                }
+            }
+        });
+
+        return response()->noContent();
+    });
+
+    Route::delete('/admin/base-datos', function () {
+        $driver = DB::connection()->getDriverName();
+        if ($driver === 'sqlite') {
+            $tablas = collect(DB::select("SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'"))->pluck('name');
+        } elseif (in_array($driver, ['mysql', 'mariadb'], true)) {
+            $tablas = collect(DB::select('SHOW TABLES'))->map(fn ($row) => (array) $row)->map(fn ($row) => array_values($row)[0]);
+        } elseif ($driver === 'pgsql') {
+            $tablas = collect(DB::select("SELECT tablename FROM pg_tables WHERE schemaname = 'public'"))->pluck('tablename');
+        } else {
+            return response()->json(['message' => 'Motor de base de datos no soportado para esta función.'], 422);
+        }
+
+        DB::transaction(function () use ($tablas) {
+            foreach ($tablas as $tabla) {
+                DB::table($tabla)->delete();
+            }
+        });
+
+        return response()->noContent();
+    });
+
     Route::view('/admin', 'admin')->name('admin');
 });
