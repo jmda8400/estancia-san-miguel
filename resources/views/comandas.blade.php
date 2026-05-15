@@ -83,13 +83,25 @@
             
         </div>
     </div>
+    <div id="cierreCajaForm" class="hidden rounded-xl border border-emerald-200 bg-emerald-50 p-3 space-y-3">
+        <h3 class="font-semibold">Datos para cierre de caja</h3>
+        <div class="grid gap-2 md:grid-cols-2">
+            <input id="cierreTurno" class="app-input" placeholder="Turno (ej: Noche)">
+            <input id="cierreResponsable" class="app-input" placeholder="Responsable">
+        </div>
+        <textarea id="cierreObservaciones" class="app-input w-full" placeholder="Observaciones" rows="2"></textarea>
+        <div class="flex gap-2">
+            <button class="btn btn-secondary w-full" onclick="cancelarCierreCaja()">Cancelar</button>
+            <button class="btn btn-primary w-full" onclick="confirmarCierreCaja()">Confirmar y generar comprobante</button>
+        </div>
+    </div>
     <div id="cajaResumen" class="space-y-3 text-emerald-950"></div>
 </div>
 
 @endsection
 @section('scripts')
 <script>
-let state = { selectedComandaId: null, comandas: @json($comandas), activeTab: 'comandas', stock: [], historial: { data: [], current_page: 1, last_page: 1, total: 0 } };
+let state = { selectedComandaId: null, comandas: @json($comandas), activeTab: 'comandas', stock: [], historial: { data: [], current_page: 1, last_page: 1, total: 0 }, caja: null, cajaPages: { productos: 1, comandas: 1, cierres: 1 } };
 const tablesEl = document.getElementById('tables');
 const productsEl = document.getElementById('productsList');
 const titleEl = document.getElementById('selectedTitle');
@@ -202,7 +214,34 @@ window.changePage = (delta) => {
 async function refreshCaja() {
     const response = await fetch('/comandas/cierre/data');
     const caja = await response.json();
+    state.caja = caja;
+    renderCaja();
+}
+
+function paginateRows(rows, key, perPage = 8) {
+    const page = state.cajaPages[key] || 1;
+    const totalPages = Math.max(1, Math.ceil(rows.length / perPage));
+    const safePage = Math.min(page, totalPages);
+    state.cajaPages[key] = safePage;
+    const start = (safePage - 1) * perPage;
+    const paged = rows.slice(start, start + perPage);
+    const controls = totalPages > 1
+        ? `<div class="mt-2 flex items-center justify-between text-xs">
+            <button class="btn btn-secondary !px-2 !py-1" onclick="changeCajaPage('${key}', -1)" ${safePage <= 1 ? 'disabled' : ''}>Anterior</button>
+            <span>Página ${safePage} de ${totalPages}</span>
+            <button class="btn btn-secondary !px-2 !py-1" onclick="changeCajaPage('${key}', 1)" ${safePage >= totalPages ? 'disabled' : ''}>Siguiente</button>
+          </div>`
+        : '';
+    return { paged, controls };
+}
+
+function renderCaja() {
+    const caja = state.caja;
+    if (!caja) return;
     const abiertas = caja.comandas_abiertas > 0 ? `<div class="rounded-xl border border-amber-300 bg-amber-50 p-3 text-amber-900">Atención: hay ${caja.comandas_abiertas} comandas abiertas. Revisar antes de cerrar caja.</div>` : '';
+    const productosRows = paginateRows(caja.productos_vendidos || [], 'productos');
+    const comandasRows = paginateRows(caja.comandas_incluidas || [], 'comandas');
+    const cierresRows = paginateRows(caja.historial_cierres || [], 'cierres');
     document.getElementById('cajaResumen').innerHTML = `
         ${abiertas}
         <div class="grid gap-2 md:grid-cols-2">
@@ -212,22 +251,39 @@ async function refreshCaja() {
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Comandas abiertas:</strong> ${caja.comandas_abiertas}</div>
         </div>
         <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Control de efectivo</h3><div class="grid md:grid-cols-2 gap-2"><input id='cajaInicial' class='app-input' placeholder='Caja inicial'><input id='efectivoContado' class='app-input' placeholder='Efectivo contado'></div><div id='efectivoEsperadoTxt' class='mt-2 text-sm'>Efectivo esperado: $ 0</div><div id='diferenciaTxt' class='text-sm'>Diferencia: $ 0</div></div>
-        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Productos vendidos</h3><table class='w-full text-sm'><tr><th class='text-left'>Producto</th><th>Cant.</th><th class='text-right'>Total</th></tr>${(caja.productos_vendidos||[]).map(p=>`<tr><td>${p.producto}</td><td class='text-center'>${p.cantidad}</td><td class='text-right'>${formatArs(p.total)}</td></tr>`).join('')}</table></div>
-        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Comandas incluidas</h3><table class='w-full text-sm'><tr><th class='text-left'>Comanda</th><th>Hora</th><th class='text-right'>Total</th></tr>${(caja.comandas_incluidas||[]).map(c=>`<tr><td>${c.nombre}</td><td>${new Date(c.cobrada_en).toLocaleTimeString()}</td><td class='text-right'>${formatArs(c.total)}</td></tr>`).join('')}</table></div>
-        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Historial de cierres</h3>${(caja.historial_cierres||[]).map(c=>`<div class='flex justify-between text-sm border-b py-1'><span>${new Date(c.created_at).toLocaleString()} · ${c.turno||'-'} · ${c.responsable||'-'}</span><span>${formatArs(c.total_cobrado)} / Dif: ${formatArs(c.diferencia_efectivo||0)}</span></div>`).join('')}</div>`;
+        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Productos vendidos</h3><table class='w-full text-sm'><tr><th class='text-left'>Producto</th><th>Cant.</th><th class='text-right'>Total</th></tr>${productosRows.paged.map(p=>`<tr><td>${p.producto}</td><td class='text-center'>${p.cantidad}</td><td class='text-right'>${formatArs(p.total)}</td></tr>`).join('')}</table>${productosRows.controls}</div>
+        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Comandas incluidas</h3><table class='w-full text-sm'><tr><th class='text-left'>Comanda</th><th>Hora</th><th class='text-right'>Total</th></tr>${comandasRows.paged.map(c=>`<tr><td>${c.nombre}</td><td>${new Date(c.cobrada_en).toLocaleTimeString()}</td><td class='text-right'>${formatArs(c.total)}</td></tr>`).join('')}</table>${comandasRows.controls}</div>
+        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Historial de cierres</h3>${cierresRows.paged.map(c=>`<div class='flex justify-between text-sm border-b py-1'><span>${new Date(c.created_at).toLocaleString()} · ${c.turno||'-'} · ${c.responsable||'-'}</span><span>${formatArs(c.total_cobrado)} / Dif: ${formatArs(c.diferencia_efectivo||0)}</span></div>`).join('')}${cierresRows.controls}</div>`;
 }
-window.cerrarCaja = async () => {
+
+window.changeCajaPage = (key, delta) => {
+    state.cajaPages[key] = (state.cajaPages[key] || 1) + delta;
+    renderCaja();
+};
+
+window.cerrarCaja = () => {
+ document.getElementById('cierreCajaForm').classList.remove('hidden');
+ document.getElementById('cierreTurno').value = 'Noche';
+ document.getElementById('cierreResponsable').value = 'Caja';
+};
+
+window.cancelarCierreCaja = () => {
+ document.getElementById('cierreCajaForm').classList.add('hidden');
+};
+
+window.confirmarCierreCaja = async () => {
  const payload = {
   caja_inicial: Number(document.getElementById('cajaInicial')?.value||0),
   efectivo_contado: Number(document.getElementById('efectivoContado')?.value||0),
-  turno: prompt('Turno','Noche')||'Noche',
-  responsable: prompt('Responsable','Caja')||'Caja',
-  observaciones: prompt('Observaciones','')||''
+  turno: document.getElementById('cierreTurno')?.value || 'Noche',
+  responsable: document.getElementById('cierreResponsable')?.value || 'Caja',
+  observaciones: document.getElementById('cierreObservaciones')?.value || ''
  };
  const res = await fetch('/comandas/cierre/cerrar',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify(payload)});
  if(!res.ok){ alert('No se pudo cerrar caja'); return; }
  const data = await res.json();
  alert('Caja cerrada correctamente');
+ document.getElementById('cierreCajaForm').classList.add('hidden');
  if (data.comprobante_path) window.open('/' + data.comprobante_path, '_blank');
  refreshCaja();
 };

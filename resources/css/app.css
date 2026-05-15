@@ -108,7 +108,14 @@
 
 
     .app-internal-tab-btn {
-        @apply app-btn app-btn-pill;
+        @apply inline-flex items-center justify-center rounded-2xl border px-4 py-2 text-sm font-semibold transition-all duration-200;
+        border-color: rgba(203, 224, 214, 0.55);
+        background: linear-gradient(145deg, rgba(53, 95, 78, 0.97), rgba(41, 73, 61, 0.97));
+        color: #ffffff !important;
+        min-height: 2.25rem;
+        box-shadow: 0 2px 8px rgba(17, 38, 31, 0.16);
+        text-decoration: none !important;
+        border-radius: 999px !important;
     }
     .app-internal-tabs {
         display: flex;
