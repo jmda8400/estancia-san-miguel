@@ -79,11 +79,26 @@
     <div class="flex items-center justify-between gap-2 mb-1 flex-wrap">
         <h2 class="panel-title">Cierre de caja</h2>
         <div class="flex gap-2">
-            <button class="btn btn-secondary" onclick="cerrarCaja()">Cerrar caja</button>
+            <button class="btn btn-secondary" onclick="abrirCierreCajaPanel()">Cerrar caja</button>
             
         </div>
     </div>
     <div id="cajaResumen" class="space-y-3 text-emerald-950"></div>
+<div id="cierreCajaPanel" class="hidden rounded-xl border border-emerald-300 bg-emerald-50 p-4 space-y-3">
+    <h3 class="font-semibold text-emerald-950">Confirmar cierre de caja</h3>
+    <p class="text-sm text-emerald-800">Completá los datos para generar el comprobante de cierre.</p>
+    <div class="grid md:grid-cols-3 gap-2">
+        <input id="cierreTurno" class="app-input" placeholder="Turno" value="Noche">
+        <input id="cierreResponsable" class="app-input" placeholder="Responsable" value="Caja">
+        <input id="cierreObservaciones" class="app-input" placeholder="Observaciones (opcional)">
+    </div>
+    <div class="flex gap-2">
+        <button class="btn btn-secondary" onclick="cancelarCierreCajaPanel()">Cancelar</button>
+        <button class="btn btn-primary" onclick="confirmarCierreCaja()">Confirmar cierre</button>
+    </div>
+    <p id="cierreCajaEstado" class="text-sm text-emerald-900"></p>
+</div>
+
 </div>
 
 @endsection
@@ -225,18 +240,30 @@ async function refreshCaja() {
         <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Comandas incluidas</h3><table class='w-full text-sm'><tr><th class='text-left'>Comanda</th><th>Hora</th><th class='text-right'>Total</th></tr>${(caja.comandas_incluidas?.data||[]).map(c=>`<tr><td>${c.nombre}</td><td>${new Date(c.cobrada_en).toLocaleTimeString()}</td><td class='text-right'>${formatArs(c.total)}</td></tr>`).join('')}</table><div class='flex justify-between mt-2'><button class='btn btn-secondary text-xs' ${caja.comandas_incluidas.current_page<=1?'disabled':''} onclick="changeCajaPage('comandas',-1)">Anterior</button><span class='text-xs'>${caja.comandas_incluidas.current_page}/${caja.comandas_incluidas.last_page}</span><button class='btn btn-secondary text-xs' ${caja.comandas_incluidas.current_page>=caja.comandas_incluidas.last_page?'disabled':''} onclick="changeCajaPage('comandas',1)">Siguiente</button></div></div>
         <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Historial de cierres</h3>${(caja.historial_cierres?.data||[]).map(c=>`<div class='flex justify-between text-sm border-b py-1'><span>${new Date(c.created_at).toLocaleString()} · ${c.turno||'-'} · ${c.responsable||'-'}</span><span>${formatArs(c.total_cobrado)} / Dif: ${formatArs(c.diferencia_efectivo||0)}</span></div>`).join('')}<div class='flex justify-between mt-2'><button class='btn btn-secondary text-xs' ${caja.historial_cierres.current_page<=1?'disabled':''} onclick="changeCajaPage('cierres',-1)">Anterior</button><span class='text-xs'>${caja.historial_cierres.current_page}/${caja.historial_cierres.last_page}</span><button class='btn btn-secondary text-xs' ${caja.historial_cierres.current_page>=caja.historial_cierres.last_page?'disabled':''} onclick="changeCajaPage('cierres',1)">Siguiente</button></div></div>`;
 }
-window.cerrarCaja = async () => {
+window.abrirCierreCajaPanel = () => {
+ document.getElementById('cierreCajaPanel').classList.remove('hidden');
+ document.getElementById('cierreCajaEstado').textContent = '';
+};
+
+window.cancelarCierreCajaPanel = () => {
+ document.getElementById('cierreCajaPanel').classList.add('hidden');
+ document.getElementById('cierreCajaEstado').textContent = '';
+};
+
+window.confirmarCierreCaja = async () => {
+ const estadoEl = document.getElementById('cierreCajaEstado');
+ estadoEl.textContent = 'Procesando cierre...';
  const payload = {
   caja_inicial: Number(document.getElementById('cajaInicial')?.value||0),
   efectivo_contado: Number(document.getElementById('efectivoContado')?.value||0),
-  turno: prompt('Turno','Noche')||'Noche',
-  responsable: prompt('Responsable','Caja')||'Caja',
-  observaciones: prompt('Observaciones','')||''
+  turno: document.getElementById('cierreTurno')?.value || 'Noche',
+  responsable: document.getElementById('cierreResponsable')?.value || 'Caja',
+  observaciones: document.getElementById('cierreObservaciones')?.value || ''
  };
  const res = await fetch('/comandas/cierre/cerrar',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify(payload)});
- if(!res.ok){ alert('No se pudo cerrar caja'); return; }
+ if(!res.ok){ estadoEl.textContent = 'No se pudo cerrar caja. Verificá los datos e intentá nuevamente.'; return; }
  const data = await res.json();
- alert('Caja cerrada correctamente');
+ estadoEl.textContent = 'Caja cerrada correctamente.';
  if (data.comprobante_path) window.open('/' + data.comprobante_path, '_blank');
  refreshCaja();
 };
