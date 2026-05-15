@@ -1,6 +1,7 @@
 @extends('layouts.internal')
 @section('title', 'Comandas')
 @section('internal_title', 'Sistema de comandas')
+@section('internal_plain', true)
 
 @section('internal_tabs')
 <div class="app-segmented-control">
@@ -11,57 +12,76 @@
 @endsection
 
 @section('internal_content')
-<section>
-<div id="comandasTab" class="orders-layout">
-    <div class="panel h-full flex flex-col min-h-[22rem]">
-        <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
-            <h2 class="panel-title">Comandas</h2>
-            <div class="flex items-center gap-2 flex-wrap">
-                <button class="btn btn-secondary text-xs sm:text-sm" onclick="openComandaForm()">+ Agregar comanda</button>
-                
+<div class="space-y-6">
+    <header class="space-y-1">
+        <h1 class="text-2xl md:text-3xl font-semibold tracking-tight text-emerald-950">Sistema de comandas</h1>
+        <p class="text-sm md:text-base text-emerald-900">Administrá comandas activas, historial y cierre de caja</p>
+    </header>
+
+    <div class="internal-tabs-wrap">@yield('internal_tabs')</div>
+
+    <section id="comandasTab" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-12 gap-6 items-start">
+        <div class="bg-white rounded-3xl border border-slate-200/70 shadow-sm p-6 min-w-0 md:col-span-1 xl:col-span-3">
+            <div class="flex items-center justify-between gap-2 flex-wrap mb-4">
+                <h2 class="text-lg font-semibold text-slate-900">Comandas</h2>
+                <button class="btn btn-secondary btn-compact text-xs sm:text-sm" onclick="openComandaForm()">+ Agregar comanda</button>
+            </div>
+            <div id="tables" class="space-y-2 max-h-[32rem] overflow-y-auto pr-1"></div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-slate-200/70 shadow-sm p-6 min-w-0 md:col-span-1 xl:col-span-5 flex flex-col">
+            <h2 id="selectedTitle" class="text-lg font-semibold text-slate-900 mb-4">Seleccione una comanda</h2>
+            <div id="productsList" class="space-y-3 flex-1"></div>
+            <div id="selectedSummary" class="mt-4 pt-4 border-t border-slate-200 flex items-center justify-between gap-3 hidden">
+                <p id="selectedTotal" class="text-base font-semibold text-emerald-950">Total: $ 0</p>
+                <button id="chargeBtn" class="hidden btn btn-primary btn-charge" onclick="cobrarComanda()">Cobrar</button>
             </div>
         </div>
-        <div id="tables" class="tables-grid flex-1 min-h-[12rem] max-h-[calc(100vh-16rem)] overflow-y-auto pr-1"></div>
+
+        <div id="addProductCard" class="bg-white rounded-3xl border border-slate-200/70 shadow-sm p-6 min-w-0 md:col-span-2 xl:col-span-4">
+            <h2 class="text-lg font-semibold text-slate-900 mb-4">Agregar producto</h2>
+            <div id="addProductEmptyState" class="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-center text-sm text-slate-600">Seleccioná una comanda para agregar productos.</div>
+            <form id="newProductForm" class="grid gap-3 hidden">
+                <div class="field">
+                    <label for="stockItem" class="field-label">Producto</label>
+                    <select id="stockItem" class="app-input mt-1 w-full" required></select>
+                </div>
+                <div class="field">
+                    <label for="productQty" class="field-label">Cantidad</label>
+                    <input id="productQty" type="number" min="1" value="1" class="app-input mt-1 w-full" required>
+                </div>
+                <div class="field">
+                    <label for="productNotes" class="field-label">Notas</label>
+                    <input id="productNotes" class="app-input mt-1 w-full" placeholder="Notas">
+                </div>
+                <button class="btn btn-primary w-full">Agregar a comanda</button>
+            </form>
+        </div>
+    </section>
+
+    <div id="historialTab" class="hidden bg-white rounded-3xl border border-slate-200/70 shadow-sm p-6 min-w-0">
+        <h2 class="text-lg font-semibold text-slate-900 mb-3">Historial de comandas cobradas</h2>
+        <div id="historialList" class="space-y-2"></div>
+        <div class="mt-4 flex items-center justify-between">
+            <button id="prevPage" class="btn btn-secondary" onclick="changePage(-1)">Anterior</button>
+            <span id="pageInfo" class="text-sm text-emerald-950"></span>
+            <button id="nextPage" class="btn btn-secondary" onclick="changePage(1)">Siguiente</button>
+        </div>
     </div>
 
-    <div id="addProductCard" class="panel add-product-panel min-h-[22rem]">
-        <h2 class="panel-title mb-3">Agregar productos a comanda</h2>
-        <div id="addProductEmptyState" class="min-h-[12rem] flex items-center justify-center text-center text-sm text-emerald-900 px-4">
-            Seleccioná una comanda para agregar productos.
+    <div id="cajaTab" class="hidden bg-white rounded-3xl border border-slate-200/70 shadow-sm p-6 min-w-0 space-y-4">
+        <div class="flex items-center justify-between gap-2 mb-1 flex-wrap">
+            <h2 class="text-lg font-semibold text-slate-900">Cierre de caja</h2>
+            <button class="btn btn-secondary" onclick="cerrarCaja()">Cerrar caja</button>
         </div>
-        <form id="newProductForm" class="grid gap-3">
-            <div class="field">
-                <label for="stockItem" class="field-label">Producto</label>
-                <select id="stockItem" class="app-input mt-1 w-full" required></select>
-            </div>
-            <div class="field">
-                <label for="productQty" class="field-label">Cantidad</label>
-                <input id="productQty" type="number" min="1" value="1" class="app-input mt-1 w-full" required>
-            </div>
-            <div class="field">
-                <label for="productNotes" class="field-label">Notas</label>
-                <input id="productNotes" class="app-input mt-1 w-full" placeholder="Notas">
-            </div>
-            <button class="btn btn-primary btn-add-comanda w-full">Agregar a comanda</button>
-        </form>
-    </div>
-
-    <div class="panel h-full flex flex-col min-h-[22rem] max-h-[calc(100vh-14rem)]">
-        <h2 id="selectedTitle" class="panel-title mb-3">Seleccione una comanda</h2>
-        <div id="productsList" class="space-y-3 flex-1 overflow-y-auto pr-1 min-h-[12rem]"></div>
-        <div class="orders-summary mt-3 pt-3 flex items-center justify-between gap-3">
-            <p id="selectedTotal" class="text-sm font-semibold text-emerald-950">Total: $ 0</p>
-            <div class="flex items-center gap-2">
-                                <button id="chargeBtn" class="hidden btn btn-primary btn-charge" onclick="cobrarComanda()">Cobrar</button>
-            </div>
-        </div>
+        <div id="cajaResumen" class="space-y-3 text-emerald-950"></div>
     </div>
 </div>
 
 <div id="newComandaModal" class="hidden fixed inset-0 z-50 p-4 sm:p-6 flex items-center justify-center">
     <div class="absolute inset-0 bg-emerald-950/45" onclick="closeComandaForm()"></div>
-    <div class="relative panel w-full max-w-xl !rounded-3xl">
-        <h2 class="panel-title mb-3">Nueva comanda</h2>
+    <div class="relative bg-white rounded-3xl border border-slate-200 shadow-xl w-full max-w-lg p-6">
+        <h2 class="text-lg font-semibold text-slate-900 mb-3">Nueva comanda</h2>
         <form id="newComandaForm" class="grid gap-3">
             <input id="comandaNombre" class="app-input" placeholder="Nombre del cliente" required>
             <input id="comandaDocumento" class="app-input" placeholder="Documento (opcional)">
@@ -72,29 +92,8 @@
         </form>
     </div>
 </div>
-
-<div id="historialTab" class="hidden panel">
-    <h2 class="panel-title mb-3">Historial de comandas cobradas</h2>
-    <div id="historialList" class="space-y-2"></div>
-    <div class="mt-4 flex items-center justify-between">
-        <button id="prevPage" class="btn btn-secondary" onclick="changePage(-1)">Anterior</button>
-        <span id="pageInfo" class="text-sm text-emerald-950"></span>
-        <button id="nextPage" class="btn btn-secondary" onclick="changePage(1)">Siguiente</button>
-    </div>
-</div>
-<div id="cajaTab" class="hidden panel space-y-4">
-    <div class="flex items-center justify-between gap-2 mb-1 flex-wrap">
-        <h2 class="panel-title">Cierre de caja</h2>
-        <div class="flex gap-2">
-            <button class="btn btn-secondary" onclick="cerrarCaja()">Cerrar caja</button>
-            
-        </div>
-    </div>
-    <div id="cajaResumen" class="space-y-3 text-emerald-950"></div>
-</div>
-</section>
-
 @endsection
+
 @section('scripts')
 <script>
 let state = { selectedComandaId: null, comandas: @json($comandas), activeTab: 'comandas', stock: [], historial: { data: [], current_page: 1, last_page: 1, total: 0 } };
@@ -103,6 +102,7 @@ const productsEl = document.getElementById('productsList');
 const titleEl = document.getElementById('selectedTitle');
 const chargeBtn = document.getElementById('chargeBtn');
 const totalEl = document.getElementById('selectedTotal');
+const summaryEl = document.getElementById('selectedSummary');
 const addProductForm = document.getElementById('newProductForm');
 const addProductEmptyState = document.getElementById('addProductEmptyState');
 
@@ -110,51 +110,50 @@ function renderComandas() {
  const visible = state.comandas;
  tablesEl.innerHTML = visible.map(c => {
     const totalMesa = c.productos.reduce((acc, p) => acc + ((Number(p.precio) || 0) * p.cantidad), 0);
-    return `<div class="table-card ${state.selectedComandaId===c.id?'active':''}">
-        <button class="table-card-select" onclick="selectComanda(${c.id})">
-            <p class="table-card-title">${c.nombre}</p>
-            <p class="table-card-meta">${c.productos.length} producto(s)</p>
-            <p class="table-card-total">${formatArs(totalMesa)}</p>
+    return `<article class="rounded-2xl border ${state.selectedComandaId===c.id ? 'border-emerald-300 bg-emerald-50/70' : 'border-slate-200 bg-white'} p-3">
+        <button class="w-full text-left space-y-1" onclick="selectComanda(${c.id})">
+            <p class="text-sm font-semibold text-slate-900">${c.nombre}</p>
+            <p class="text-xs text-slate-500">${c.productos.length} producto(s)</p>
+            <p class="text-sm font-bold text-emerald-900">${formatArs(totalMesa)}</p>
         </button>
-        <button class="btn btn-danger text-xs mt-2" onclick="deleteComanda(${c.id})">Quitar</button>
-    </div>`;
+        <button class="btn btn-danger btn-compact text-xs mt-2" onclick="deleteComanda(${c.id})">Quitar</button>
+    </article>`;
  }).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
  if(!comanda){
     titleEl.textContent='Seleccione una comanda';
-    productsEl.innerHTML=`<div class="min-h-[12rem] flex items-center justify-center text-center px-4"><div><p class="text-base font-semibold text-emerald-950">Seleccione una comanda</p><p class="mt-2 text-sm text-emerald-900">Elegí una comanda del panel izquierdo para ver sus productos y cobrar.</p></div></div>`;
+    productsEl.innerHTML=`<div class="rounded-2xl border border-slate-200 bg-slate-50 p-5 text-center"><p class="text-base font-semibold text-emerald-950">Seleccione una comanda</p><p class="mt-2 text-sm text-emerald-900">Elegí una comanda del panel izquierdo para ver sus productos y cobrar.</p></div>`;
     totalEl.textContent='Total: $ 0';
     chargeBtn.classList.add('hidden');
+    summaryEl.classList.add('hidden');
     addProductForm.classList.add('hidden');
     addProductEmptyState.classList.remove('hidden');
     return;
  }
- titleEl.textContent = `Productos de ${comanda.nombre}`;
+ titleEl.textContent = comanda.nombre;
  chargeBtn.classList.remove('hidden');
+ summaryEl.classList.remove('hidden');
  addProductForm.classList.remove('hidden');
  addProductEmptyState.classList.add('hidden');
  const totalComanda = comanda.productos.reduce((acc, p) => acc + ((Number(p.precio) || 0) * p.cantidad), 0);
  totalEl.textContent = `Total: ${formatArs(totalComanda)}`;
  productsEl.innerHTML = comanda.productos.length
-    ? comanda.productos.map(p=>`<div class="order-item">
-        <div class="order-item-head">
+    ? comanda.productos.map(p=>`<div class="rounded-2xl border border-slate-200 bg-slate-50 p-4">
+        <div class="flex items-start justify-between gap-3">
             <div class="min-w-0">
-                <p class="order-item-title truncate">${p.nombre}</p>
-                <p class="order-item-price">$${(Number(p.precio) || 0).toFixed(2)} c/u</p>
+                <p class="text-sm font-semibold text-slate-900 truncate">${p.nombre}</p>
+                <p class="text-xs text-slate-500 mt-1">$${(Number(p.precio) || 0).toFixed(2)} c/u</p>
             </div>
-            <p class="order-item-subtotal">$${((Number(p.precio) || 0) * p.cantidad).toFixed(2)}</p>
+            <p class="text-sm font-bold text-emerald-900">$${((Number(p.precio) || 0) * p.cantidad).toFixed(2)}</p>
         </div>
-        <div class="order-item-controls mt-2">
+        <div class="mt-3 grid grid-cols-1 sm:grid-cols-[96px_minmax(0,1fr)_auto] gap-2">
             <input type="number" min="1" value="${p.cantidad}" onchange="updateProducto(${p.id},{cantidad:this.value})" class="app-input text-sm">
             <input value="${p.notas??''}" onchange="updateProducto(${p.id},{notas:this.value})" class="app-input text-sm" placeholder="Notas">
-            <button class="btn btn-danger btn-product-delete btn-remove-comandera text-xs" title="Quitar producto" onclick="deleteProducto(${p.id})">Eliminar</button>
+            <button class="btn btn-danger btn-compact text-xs" title="Quitar producto" onclick="deleteProducto(${p.id})">Quitar</button>
         </div>
     </div>`).join('')
-    : `<div class="h-full min-h-[14rem] flex items-center justify-center">
-        <p class="text-sm text-emerald-900 text-center">Esta comanda no tiene productos aún.</p>
-      </div>`;
+    : `<p class="text-sm text-slate-500 text-center rounded-2xl border border-slate-200 bg-slate-50 p-5">Esta comanda no tiene productos aún.</p>`;
 }
-
 function renderHistorial() {
     const historialEl = document.getElementById('historialList');
     if (state.historial.data.length === 0) {
@@ -276,5 +275,6 @@ document.getElementById('newComandaForm').onsubmit=async(e)=>{e.preventDefault()
 
 refreshComandas();
 refreshStock();
+
 </script>
 @endsection
