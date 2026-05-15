@@ -43,21 +43,51 @@
     <section id="dbSection" class="hidden">
         <div class="app-chart-wrap">
             <h2 class="font-semibold mb-3">Base de Datos</h2>
-            <div class="flex flex-wrap gap-2 mb-3">
-                <button id="reloadTables" class="app-btn app-btn-pill">Actualizar tablas</button>
-                <button id="downloadDb" class="app-btn app-btn-pill">Descargar base completa</button>
-                <label class="app-btn app-btn-pill cursor-pointer">Cargar base completa
-                    <input id="uploadDb" type="file" accept="application/json" class="hidden">
-                </label>
-                <button id="deleteDb" class="app-btn app-btn-pill">Eliminar toda la base</button>
+            <div class="rounded-lg border border-neutral-300 bg-white/70 p-3 shadow-sm">
+                <div class="flex flex-wrap gap-2 mb-3">
+                    <button id="reloadTables" class="app-btn app-btn-pill">Actualizar tablas</button>
+                    <button id="downloadDb" class="app-btn app-btn-pill">Descargar base completa</button>
+                    <label class="app-btn app-btn-pill cursor-pointer">Cargar base completa
+                        <input id="uploadDb" type="file" accept="application/json" class="hidden">
+                    </label>
+                    <button id="deleteDb" class="app-btn app-btn-pill bg-red-700 text-white border-red-700 hover:bg-red-800">Eliminar toda la base</button>
+                </div>
+                <div class="mb-3">
+                    <input id="tableSearch" type="search" class="app-input w-full md:w-80" placeholder="Buscar tabla...">
+                </div>
+                <div id="dbTables" class="rounded-lg border border-neutral-200 bg-white max-h-[60vh] overflow-y-auto"></div>
             </div>
-            <div id="dbTables" class="grid gap-2"></div>
+        </div>
+
+        <div id="uploadTableModal" class="fixed inset-0 hidden items-center justify-center z-50 bg-black/40 p-4">
+            <div class="w-full max-w-md rounded-xl bg-white p-4 shadow-xl">
+                <h3 class="font-semibold text-lg">Cargar tabla</h3>
+                <p id="uploadTableText" class="text-sm text-neutral-700 mt-1"></p>
+                <input id="uploadTableInput" type="file" accept="application/json" class="app-input w-full mt-3">
+                <div class="flex justify-end gap-2 mt-4">
+                    <button class="app-btn app-btn-pill" onclick="closeModal('uploadTableModal')">Cancelar</button>
+                    <button id="confirmUploadTable" class="app-btn app-btn-pill">Confirmar carga</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="deleteTableModal" class="fixed inset-0 hidden items-center justify-center z-50 bg-black/40 p-4">
+            <div class="w-full max-w-md rounded-xl bg-white p-4 shadow-xl">
+                <h3 class="font-semibold text-lg">Confirmar eliminación</h3>
+                <p id="deleteTableText" class="text-sm text-neutral-700 mt-1"></p>
+                <p class="text-sm text-red-700 mt-2">Esta acción no se puede deshacer.</p>
+                <div class="flex justify-end gap-2 mt-4">
+                    <button class="app-btn app-btn-pill" onclick="closeModal('deleteTableModal')">Cancelar</button>
+                    <button id="confirmDeleteTable" class="app-btn app-btn-pill bg-red-700 text-white border-red-700 hover:bg-red-800">Eliminar</button>
+                </div>
+            </div>
         </div>
     </section>
 </div>
 @endsection
 @section('scripts')
 <script>
+const dbState = { all: [], filtered: [], selectedTable: null };
 function switchSection(section) {
     const config = document.getElementById('configSection');
     const db = document.getElementById('dbSection');
@@ -78,30 +108,98 @@ function switchSection(section) {
 }
 async function loadTables() {
     const container = document.getElementById('dbTables');
-    container.innerHTML = '<p>Cargando tablas...</p>';
+    container.innerHTML = '<p class="p-3">Cargando tablas...</p>';
     const response = await fetch('/admin/base-datos/tablas');
     if (!response.ok) {
-        container.innerHTML = '<p>No se pudieron cargar las tablas.</p>';
+        container.innerHTML = '<p class="p-3">No se pudieron cargar las tablas.</p>';
         return;
     }
     const tables = await response.json();
-    if (!tables.length) {
-        container.innerHTML = '<p>No hay tablas para administrar.</p>';
+    const now = new Date();
+    dbState.all = tables.map((table) => ({
+        table,
+        records: 0,
+        updatedAt: now,
+    }));
+    applyTableFilter();
+    await Promise.all(dbState.all.map(async (item) => {
+        try {
+            const detail = await fetch(`/admin/base-datos/tabla/${encodeURIComponent(item.table)}/descargar`);
+            if (!detail.ok) return;
+            const payload = await detail.json();
+            const rows = Array.isArray(payload.rows) ? payload.rows : [];
+            item.records = rows.length;
+            const last = rows.map((row) => row.updated_at || row.created_at).filter(Boolean).sort().at(-1);
+            item.updatedAt = last ? new Date(last) : null;
+        } catch (_) {}
+    }));
+    applyTableFilter();
+}
+
+function formatDate(date) {
+    if (!date || Number.isNaN(date.getTime?.())) return 'Sin datos';
+    return new Intl.DateTimeFormat('es-AR', { dateStyle: 'short', timeStyle: 'short' }).format(date);
+}
+
+function applyTableFilter() {
+    const query = document.getElementById('tableSearch').value.trim().toLowerCase();
+    dbState.filtered = dbState.all.filter(({ table }) => table.toLowerCase().includes(query));
+    renderTables();
+}
+
+function renderTables() {
+    const container = document.getElementById('dbTables');
+    if (!dbState.filtered.length) {
+        container.innerHTML = '<p class="p-3 text-neutral-700">No hay tablas para mostrar.</p>';
         return;
     }
-    container.innerHTML = tables.map((table) => `
-        <article class="rounded-lg border border-neutral-300 bg-neutral-100 p-3">
-            <div class="font-semibold mb-2">${table}</div>
-            <div class="flex flex-wrap gap-2">
-                <button class="app-btn app-btn-pill" onclick="downloadTable('${table}')">Descargar</button>
-                <label class="app-btn app-btn-pill cursor-pointer">Cargar
-                    <input type="file" accept="application/json" class="hidden" onchange="uploadTable('${table}', event)">
-                </label>
-                <button class="app-btn app-btn-pill" onclick="deleteTable('${table}')">Eliminar</button>
-            </div>
-        </article>
-    `).join('');
+    container.innerHTML = `
+        <div class="hidden md:grid grid-cols-[2fr_1fr_1.4fr_auto] px-3 py-2 border-b border-neutral-200 bg-neutral-50 text-xs font-semibold uppercase tracking-wide text-neutral-600">
+            <div>Tabla</div><div>Registros</div><div>Última actualización</div><div class="text-right">Acciones</div>
+        </div>
+        ${dbState.filtered.map(({ table, records, updatedAt }) => `
+            <article class="border-b last:border-b-0 border-neutral-200 p-3">
+                <div class="hidden md:grid md:grid-cols-[2fr_1fr_1.4fr_auto] md:items-center gap-2">
+                    <div class="font-medium">${table}</div>
+                    <div>${records} registros</div>
+                    <div class="text-sm text-neutral-700">${formatDate(updatedAt)}</div>
+                    <div class="flex justify-end gap-1">
+                        <button class="app-btn app-btn-pill text-xs px-3 py-1" onclick="downloadTable('${table}')">Descargar</button>
+                        <button class="app-btn app-btn-pill text-xs px-3 py-1 border-amber-600 text-amber-700" onclick="openUploadTableModal('${table}')">Cargar</button>
+                        <button class="app-btn app-btn-pill text-xs px-3 py-1 bg-red-700 text-white border-red-700 hover:bg-red-800" onclick="openDeleteTableModal('${table}')">Eliminar</button>
+                    </div>
+                </div>
+                <div class="md:hidden">
+                    <div class="flex items-center justify-between gap-2">
+                        <div><div class="font-medium">${table}</div><div class="text-xs text-neutral-600">${records} registros · ${formatDate(updatedAt)}</div></div>
+                        <div class="flex gap-1">
+                            <button class="app-btn app-btn-pill text-xs px-2 py-1" onclick="downloadTable('${table}')">⬇</button>
+                            <button class="app-btn app-btn-pill text-xs px-2 py-1 border-amber-600 text-amber-700" onclick="openUploadTableModal('${table}')">⬆</button>
+                            <button class="app-btn app-btn-pill text-xs px-2 py-1 bg-red-700 text-white border-red-700 hover:bg-red-800" onclick="openDeleteTableModal('${table}')">🗑</button>
+                        </div>
+                    </div>
+                </div>
+            </article>
+        `).join('')}
+    `;
 }
+
+function openModal(id) { document.getElementById(id).classList.remove('hidden'); document.getElementById(id).classList.add('flex'); }
+function closeModal(id) { document.getElementById(id).classList.add('hidden'); document.getElementById(id).classList.remove('flex'); }
+
+function openUploadTableModal(table) {
+    dbState.selectedTable = table;
+    document.getElementById('uploadTableText').textContent = `Seleccioná un archivo para cargar en la tabla "${table}".`;
+    document.getElementById('uploadTableInput').value = '';
+    openModal('uploadTableModal');
+}
+
+function openDeleteTableModal(table) {
+    dbState.selectedTable = table;
+    document.getElementById('deleteTableText').textContent = `Se eliminarán todos los registros de "${table}".`;
+    openModal('deleteTableModal');
+}
+
 async function downloadTable(table) {
     const response = await fetch(`/admin/base-datos/tabla/${encodeURIComponent(table)}/descargar`);
     if (!response.ok) return alert('No se pudo descargar la tabla.');
@@ -112,8 +210,7 @@ async function downloadTable(table) {
     a.download = `${table}.json`;
     a.click();
 }
-async function uploadTable(table, event) {
-    const file = event.target.files?.[0];
+async function uploadTable(table, file) {
     if (!file) return;
     const text = await file.text();
     const parsed = JSON.parse(text);
@@ -125,9 +222,9 @@ async function uploadTable(table, event) {
     });
     if (!response.ok) return alert('No se pudo cargar la tabla.');
     alert(`Tabla ${table} cargada.`);
+    loadTables();
 }
 async function deleteTable(table) {
-    if (!confirm(`¿Eliminar todos los registros de ${table}?`)) return;
     const response = await fetch(`/admin/base-datos/tabla/${encodeURIComponent(table)}`, {
         method: 'DELETE',
         headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}'},
@@ -158,9 +255,11 @@ async function uploadDb(event) {
     });
     if (!response.ok) return alert('No se pudo cargar la base de datos.');
     alert('Base de datos cargada.');
+    loadTables();
 }
 async function deleteDb() {
     if (!confirm('¿Eliminar todos los registros de toda la base de datos?')) return;
+    if (!confirm('Confirmación final: esta acción eliminará toda la base y no se puede deshacer.')) return;
     const response = await fetch('/admin/base-datos', {
         method: 'DELETE',
         headers: {'X-CSRF-TOKEN': '{{ csrf_token() }}'},
@@ -199,6 +298,19 @@ document.getElementById('reloadTables').addEventListener('click', loadTables);
 document.getElementById('downloadDb').addEventListener('click', downloadDb);
 document.getElementById('uploadDb').addEventListener('change', uploadDb);
 document.getElementById('deleteDb').addEventListener('click', deleteDb);
+document.getElementById('tableSearch').addEventListener('input', applyTableFilter);
+document.getElementById('confirmUploadTable').addEventListener('click', async () => {
+    const file = document.getElementById('uploadTableInput').files?.[0];
+    if (!dbState.selectedTable || !file) return alert('Seleccioná un archivo.');
+    await uploadTable(dbState.selectedTable, file);
+    closeModal('uploadTableModal');
+});
+document.getElementById('confirmDeleteTable').addEventListener('click', async () => {
+    if (!dbState.selectedTable) return;
+    await deleteTable(dbState.selectedTable);
+    closeModal('deleteTableModal');
+    loadTables();
+});
 document.getElementById('savePhone').addEventListener('click', async () => {
     const telefono_local = document.getElementById('telefonoLocal').value.trim();
     const admin_alias = document.getElementById('adminAlias').value.trim();
