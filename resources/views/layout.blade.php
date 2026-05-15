@@ -57,7 +57,7 @@
         @endif
     </nav>
 </header>
-<main class="{{ request()->path() === '/' ? 'w-full p-0' : 'mx-auto max-w-[78rem] w-full px-4 py-4 md:pb-14 lg:pb-20' }} flex-1 app-main-content">
+<main class="{{ request()->path() === '/' ? 'w-full p-0' : 'mx-auto max-w-7xl w-full px-4 pt-3 pb-8 md:pt-4 md:pb-12 lg:pb-16' }} flex-1 app-main-content">
     @yield('content')
 </main>
 

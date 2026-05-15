@@ -1,16 +1,18 @@
 @extends('layouts.internal')
 @section('title', 'Comandas')
 @section('internal_title', 'Sistema de comandas')
+@section('internal_subtitle', 'Administrá comandas activas, historial y cierre de caja')
 
-@section('internal_content')
-<section class="dashboard-tabs-shell">
-<div class="app-segmented-control dashboard-tabs-header">
+@section('internal_tabs')
+<div class="app-segmented-control">
     <button id="tabComandas" class="app-segment-btn app-segment-btn-active" onclick="switchTab('comandas')">Comandas</button>
     <button id="tabHistorial" class="app-segment-btn" onclick="switchTab('historial')">Historial</button>
     <button id="tabCaja" class="app-segment-btn" onclick="switchTab('caja')">Cierre de Caja</button>
 </div>
+@endsection
 
-<div class="dashboard-tabs-body">
+@section('internal_content')
+<section>
 <div id="comandasTab" class="orders-layout">
     <div class="panel h-full flex flex-col">
         <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
@@ -86,7 +88,6 @@
         </div>
     </div>
     <div id="cajaResumen" class="space-y-3 text-emerald-950"></div>
-</div>
 </div>
 </section>
 
