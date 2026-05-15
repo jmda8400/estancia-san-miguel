@@ -3,12 +3,14 @@
 @section('internal_title', 'Sistema de comandas')
 
 @section('internal_content')
-<div class="mb-3 app-segmented-control">
+<section class="dashboard-tabs-shell">
+<div class="app-segmented-control dashboard-tabs-header">
     <button id="tabComandas" class="app-segment-btn app-segment-btn-active" onclick="switchTab('comandas')">Comandas</button>
     <button id="tabHistorial" class="app-segment-btn" onclick="switchTab('historial')">Historial</button>
     <button id="tabCaja" class="app-segment-btn" onclick="switchTab('caja')">Cierre de Caja</button>
 </div>
 
+<div class="dashboard-tabs-body">
 <div id="comandasTab" class="orders-layout">
     <div class="panel h-full flex flex-col">
         <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
@@ -85,6 +87,8 @@
     </div>
     <div id="cajaResumen" class="space-y-3 text-emerald-950"></div>
 </div>
+</div>
+</section>
 
 @endsection
 @section('scripts')

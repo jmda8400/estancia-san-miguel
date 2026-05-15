@@ -4,11 +4,13 @@
 
 @section('internal_content')
 <section class="stock-view mx-auto w-full max-w-[78rem] space-y-4">
-<div class="stock-tabs app-segmented-control">
+<div class="dashboard-tabs-shell">
+<div class="stock-tabs app-segmented-control dashboard-tabs-header">
     <button id="tabStock" class="app-segment-btn app-stock-tab app-segment-btn-active" onclick="switchTab('stock')">Stock</button>
     <button id="tabHistorial" class="app-segment-btn app-stock-tab" onclick="switchTab('historial')">Historial</button>
 </div>
 
+<div class="dashboard-tabs-body">
 <div id="stockTab" class="app-card app-stock-card">
     <div class="app-stock-table-wrap">
     <table class="w-full text-sm app-list-table">
@@ -56,6 +58,8 @@
         <span id="stockPageInfo" class="text-sm text-emerald-950"></span>
         <button id="stockNextPage" class="app-btn app-btn-pill" onclick="changeStockHistoryPage(1)">Siguiente</button>
     </div>
+</div>
+</div>
 </div>
 </section>
 
