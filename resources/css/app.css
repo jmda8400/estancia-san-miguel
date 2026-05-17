@@ -851,8 +851,8 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
 @layer components {
     .orders-layout {
         display: grid;
-        grid-template-columns: 380px minmax(480px, 1fr) 420px;
-        gap: 24px;
+        grid-template-columns: minmax(320px, 1fr) minmax(420px, 1.15fr);
+        gap: 18px;
         align-items: start;
     }
 
@@ -927,7 +927,36 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
         font-size: 0.72rem;
     }
 
-    .add-product-panel { align-self: start; }
+    .add-product-panel {
+        align-self: start;
+        grid-column: 1 / -1;
+    }
+
+    .comanda-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 60;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    .comanda-modal-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(13, 22, 17, 0.55);
+    }
+
+    .comanda-modal-card {
+        position: relative;
+        width: min(100%, 34rem);
+        border-radius: 24px;
+        border: 1px solid #d9e6de;
+        background: #ffffff;
+        padding: 1.25rem;
+        box-shadow: 0 20px 38px rgba(16, 34, 27, 0.22);
+    }
 
     .order-item {
         border-radius: 24px;
@@ -1055,13 +1084,7 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
     }
 
     @media (max-width: 1280px) {
-        .orders-layout {
-            grid-template-columns: minmax(300px, 360px) minmax(420px, 1fr);
-        }
-
-        .add-product-panel {
-            grid-column: 1 / -1;
-        }
+        .orders-layout { grid-template-columns: minmax(290px, 1fr) minmax(380px, 1.1fr); }
     }
 
     @media (max-width: 1100px) {
@@ -1073,6 +1096,8 @@ body.frontpage.page-loaded .frontpage-preloader { display: none; }
         .panel { padding: 18px; border-radius: 18px; }
         .tables-grid { grid-template-columns: 1fr; }
         .order-item-controls { grid-template-columns: 1fr; }
+        .comanda-modal { padding: .75rem; }
+        .comanda-modal-card { width: 100%; border-radius: 18px; padding: 1rem; }
     }
 }
 

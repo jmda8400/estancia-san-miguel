@@ -51,19 +51,21 @@
         </form>
     </div>
 </div>
-
-<div id="addComandaCard" class="panel add-product-panel hidden mt-3">
-    <h2 class="panel-title mb-3">Nueva comanda</h2>
-    <form id="newComandaForm" class="grid gap-3">
-        <input id="comandaNombre" class="app-input" placeholder="Nombre del cliente" required>
-        <input id="comandaDocumento" class="app-input" placeholder="Documento (opcional)">
-        <input id="comandaTelefono" class="app-input" placeholder="Teléfono (opcional)">
-        <input id="comandaDetalle" class="app-input" placeholder="Detalle adicional (opcional)">
-        <div class="flex gap-2">
-            <button type="button" class="btn btn-secondary w-full" onclick="closeComandaForm()">Cancelar</button>
-            <button class="btn btn-primary w-full">Guardar comanda</button>
-        </div>
-    </form>
+<div id="addComandaModal" class="comanda-modal hidden" role="dialog" aria-modal="true" aria-labelledby="addComandaTitle">
+    <div class="comanda-modal-overlay" onclick="closeComandaForm()"></div>
+    <div class="comanda-modal-card">
+        <h2 id="addComandaTitle" class="panel-title mb-3">Nueva comanda</h2>
+        <form id="newComandaForm" class="grid gap-3">
+            <input id="comandaNombre" class="app-input" placeholder="Nombre del cliente" required>
+            <input id="comandaDocumento" class="app-input" placeholder="Documento (opcional)">
+            <input id="comandaTelefono" class="app-input" placeholder="Teléfono (opcional)">
+            <input id="comandaDetalle" class="app-input" placeholder="Detalle adicional (opcional)">
+            <div class="flex gap-2">
+                <button type="button" class="btn btn-secondary w-full" onclick="closeComandaForm()">Cancelar</button>
+                <button class="btn btn-primary w-full">Guardar comanda</button>
+            </div>
+        </form>
+    </div>
 </div>
 
 <div id="historialTab" class="hidden panel">
@@ -184,8 +186,8 @@ window.switchTab = (tab) => {
 };
 
 window.selectComanda=(id)=>{state.selectedComandaId=id;renderComandas();}
-window.openComandaForm=()=>document.getElementById('addComandaCard').classList.remove('hidden');
-window.closeComandaForm=()=>{document.getElementById('addComandaCard').classList.add('hidden');document.getElementById('newComandaForm').reset();};
+window.openComandaForm=()=>document.getElementById('addComandaModal').classList.remove('hidden');
+window.closeComandaForm=()=>{document.getElementById('addComandaModal').classList.add('hidden');document.getElementById('newComandaForm').reset();};
 
 async function refreshComandas(){
  const c = await fetch('/comandas/data');
