@@ -65,7 +65,7 @@ function ticketLogoDataUri(): ?string
     return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path));
 }
 
-function guardarComprobante58mm(object $comanda, $productos, float $subtotal, float $total, string $telefono): string
+function guardarComprobante58mm(object $comanda, $productos, float $total, string $telefono): string
 {
     $tzNow = now()->setTimezone('America/Argentina/Buenos_Aires');
     $dir = storage_path('app/public/comprobantes');
@@ -76,7 +76,6 @@ function guardarComprobante58mm(object $comanda, $productos, float $subtotal, fl
     $pdf = Pdf::loadView('pdf.comprobante-comanda', [
         'comanda' => $comanda,
         'productos' => $productos,
-        'subtotal' => $subtotal,
         'total' => $total,
         'telefono' => $telefono,
         'ars' => fn (float $importe) => formatearMonedaArs($importe),
@@ -131,9 +130,13 @@ function paginateCollection($items, int $page = 1, int $perPage = 10): array
     ];
 }
 
-function resumenCierreCaja(int $comandasPage = 1, int $productosPage = 1, int $cierresPage = 1): array
+function resumenCierreCaja(int $comandasPage = 1, int $productosPage = 1, int $cierresPage = 1, bool $soloPendientes = true): array
 {
-    $historial = DB::table('comandas_historial')->orderByDesc('cobrada_en')->get();
+    $historialQuery = DB::table('comandas_historial')->orderByDesc('cobrada_en');
+    if ($soloPendientes) {
+        $historialQuery->whereNull('cierre_caja_id');
+    }
+    $historial = $historialQuery->get();
     $historialIds = $historial->pluck('id');
     $productos = $historialIds->isEmpty() ? collect() : DB::table('productos_historial as ph')
         ->leftJoin('stock as s', 's.producto', '=', 'ph.nombre')
@@ -356,30 +359,74 @@ Route::middleware(RequireLogin::class)->group(function () {
             'observaciones' => 'nullable|string|max:500',
             'movimientos' => 'nullable|array',
         ]);
-        $cierre = resumenCierreCaja();
-        $efectivoEsperado = (float) $payload['caja_inicial'] + (float) $cierre['total_cobrado'];
-        $diferencia = (float) $payload['efectivo_contado'] - $efectivoEsperado;
-        $id = DB::table('cierres_caja')->insertGetId([
-            'total_cobrado' => $cierre['total_cobrado'],
-            'comandas_cobradas' => $cierre['comandas_cobradas'],
-            'productos_cobrados' => $cierre['productos_cobrados'],
-            'comandas_abiertas' => $cierre['comandas_abiertas'],
-            'turno' => $payload['turno'],
-            'responsable' => $payload['responsable'],
-            'caja_inicial' => $payload['caja_inicial'],
-            'efectivo_esperado' => $efectivoEsperado,
-            'efectivo_contado' => $payload['efectivo_contado'],
-            'diferencia_efectivo' => $diferencia,
-            'observaciones' => $payload['observaciones'] ?? null,
-            'detalle' => json_encode([...$cierre, 'movimientos' => $payload['movimientos'] ?? []]),
-            'created_at' => now(),
-            'updated_at' => now(),
-        ]);
+
+        $dataCierre = DB::transaction(function () use ($payload) {
+            $comandas = DB::table('comandas_historial')
+                ->whereNull('cierre_caja_id')
+                ->orderByDesc('cobrada_en')
+                ->lockForUpdate()
+                ->get();
+
+            $historialIds = $comandas->pluck('id');
+            $productos = $historialIds->isEmpty() ? collect() : DB::table('productos_historial as ph')
+                ->leftJoin('stock as s', 's.producto', '=', 'ph.nombre')
+                ->whereIn('ph.comanda_historial_id', $historialIds)
+                ->select('ph.*', 's.precio')
+                ->get();
+
+            $totalCobrado = round($productos->sum(fn ($p) => ((float) ($p->precio ?? 0)) * (int) $p->cantidad), 2);
+            $comandasCobradas = $comandas->count();
+            $productosCobrados = (int) $productos->sum('cantidad');
+
+            $mediosPago = collect($payload['movimientos'] ?? [])->filter(fn ($m) => is_array($m) || is_object($m));
+            $totalEfectivoPeriodo = (float) $mediosPago
+                ->filter(fn ($m) => strtolower((string) data_get($m, 'medio', data_get($m, 'name', ''))) === 'efectivo')
+                ->sum(fn ($m) => (float) data_get($m, 'monto', data_get($m, 'amount', 0)));
+
+            $efectivoEsperado = (float) $payload['caja_inicial'] + $totalEfectivoPeriodo;
+            $diferencia = (float) $payload['efectivo_contado'] - $efectivoEsperado;
+
+            $resumen = [
+                'total_cobrado' => $totalCobrado,
+                'comandas_cobradas' => $comandasCobradas,
+                'productos_cobrados' => $productosCobrados,
+                'comandas_abiertas' => DB::table('comandas')->count(),
+                'efectivo_periodo' => $totalEfectivoPeriodo,
+            ];
+
+            $id = DB::table('cierres_caja')->insertGetId([
+                'total_cobrado' => $resumen['total_cobrado'],
+                'comandas_cobradas' => $resumen['comandas_cobradas'],
+                'productos_cobrados' => $resumen['productos_cobrados'],
+                'comandas_abiertas' => $resumen['comandas_abiertas'],
+                'turno' => $payload['turno'],
+                'responsable' => $payload['responsable'],
+                'caja_inicial' => $payload['caja_inicial'],
+                'efectivo_esperado' => $efectivoEsperado,
+                'efectivo_contado' => $payload['efectivo_contado'],
+                'diferencia_efectivo' => $diferencia,
+                'observaciones' => $payload['observaciones'] ?? null,
+                'detalle' => json_encode([...$resumen, 'movimientos' => $payload['movimientos'] ?? []]),
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+
+            if ($historialIds->isNotEmpty()) {
+                DB::table('comandas_historial')->whereIn('id', $historialIds)->update([
+                    'cierre_caja_id' => $id,
+                    'updated_at' => now(),
+                ]);
+            }
+
+            return [$id, [...$resumen, ...$payload, 'efectivo_esperado' => $efectivoEsperado, 'diferencia_efectivo' => $diferencia]];
+        });
+
+        [$id, $cierre] = $dataCierre;
         $file = 'cierre-caja-' . now()->format('Ymd-His') . '.pdf';
         $dir = storage_path('app/public/comprobantes');
         if (!is_dir($dir)) { mkdir($dir, 0775, true); }
         $pdf = Pdf::loadView('pdf.cierre-caja', [
-            'cierre' => [...$cierre, ...$payload, 'diferencia_efectivo' => $diferencia],
+            'cierre' => $cierre,
             'ars' => fn (float $importe) => formatearMonedaArs($importe),
             'logoDataUri' => ticketLogoDataUri(),
         ])->setPaper([0, 0, 226.77, 1400], 'portrait');
@@ -455,7 +502,7 @@ Route::middleware(RequireLogin::class)->group(function () {
         $subtotal = $productos->sum(fn ($p) => ((float) ($p->precio ?? 0)) * (int) $p->cantidad);
         $total = $subtotal;
         $telefonoLocal = obtenerConfiguracion('telefono_local', '+54 9 11 0000-0000');
-        $pdfPath = guardarComprobante58mm($comanda, $productos, $subtotal, $total, $telefonoLocal);
+        $pdfPath = guardarComprobante58mm($comanda, $productos, $total, $telefonoLocal);
 
         $historialId = DB::table('comandas_historial')->insertGetId([
             'comanda_id' => $comanda->id,
@@ -502,8 +549,7 @@ Route::middleware(RequireLogin::class)->group(function () {
         return view('tickets.comprobante', [
             'comanda' => $comanda,
             'productos' => $productos,
-            'subtotal' => $subtotal,
-            'descuento' => $descuento,
+                'descuento' => $descuento,
             'total' => $total,
             'telefono' => obtenerConfiguracion('telefono_local'),
                 'ars' => fn (float $importe) => formatearMonedaArs($importe),
