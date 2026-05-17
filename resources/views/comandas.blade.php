@@ -81,13 +81,9 @@
         <h2 class="panel-title">Cierre de caja</h2>
         <div class="flex gap-2">
             <button class="btn btn-secondary" onclick="abrirCierreCajaPanel()">Cerrar caja</button>
-            
         </div>
     </div>
-    <div id="cajaResumen" class="space-y-3 text-emerald-950"></div>
-</div>
-<div id="cierreCajaModal" class="hidden fixed inset-0 z-50 bg-slate-900/45 px-3 py-4 sm:px-6 overflow-y-auto">
-    <div class="mx-auto mt-6 sm:mt-12 w-full max-w-2xl rounded-2xl border border-emerald-200 bg-white p-4 sm:p-6 shadow-xl space-y-3">
+    <div id="cierreCajaPanel" class="hidden rounded-2xl border border-emerald-200 bg-white p-4 sm:p-6 shadow-sm space-y-3">
         <h3 class="text-lg font-semibold text-emerald-950">Confirmar cierre de caja</h3>
         <div id="cierreCajaAbiertasWarn" class="hidden rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"></div>
         <div class="grid gap-2 sm:grid-cols-2">
@@ -110,6 +106,7 @@
         </div>
         <p id="cierreCajaEstado" class="text-sm text-emerald-900"></p>
     </div>
+    <div id="cajaResumen" class="space-y-3 text-emerald-950"></div>
 </div>
 
 @endsection
@@ -255,9 +252,9 @@ async function refreshCaja() {
 }
 window.abrirCierreCajaPanel = () => {
  const caja = state.cajaResumen || {};
- const ahora = new Date();
- document.getElementById('cierreFecha').value = `Fecha del cierre: ${ahora.toLocaleDateString()}`;
- document.getElementById('cierreHora').value = `Hora del cierre: ${ahora.toLocaleTimeString()}`;
+ const fechaServidor = caja.fecha_hora_servidor ? new Date(caja.fecha_hora_servidor) : new Date();
+ document.getElementById('cierreFecha').value = `Fecha del cierre: ${fechaServidor.toLocaleDateString()}`;
+ document.getElementById('cierreHora').value = `Hora del cierre: ${fechaServidor.toLocaleTimeString()}`;
  document.getElementById('cierreResponsable').value = `Responsable: ${responsableAutenticado || 'No autenticado'}`;
  document.getElementById('cierreTotalCobrado').value = `Total cobrado del día: ${formatArs(caja.total_cobrado || 0)}`;
  document.getElementById('cierreComandasCobradas').value = `Comandas cobradas: ${caja.comandas_cobradas || 0}`;
@@ -272,12 +269,12 @@ window.abrirCierreCajaPanel = () => {
  } else {
    document.getElementById('cierreCajaAbiertasWarn').classList.add('hidden');
  }
- document.getElementById('cierreCajaModal').classList.remove('hidden');
+ document.getElementById('cierreCajaPanel').classList.remove('hidden');
  document.getElementById('cierreCajaEstado').textContent = '';
 };
 
 window.cancelarCierreCajaModal = () => {
- document.getElementById('cierreCajaModal').classList.add('hidden');
+ document.getElementById('cierreCajaPanel').classList.add('hidden');
  document.getElementById('cierreCajaEstado').textContent = '';
 };
 
