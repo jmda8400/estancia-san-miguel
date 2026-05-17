@@ -4,6 +4,7 @@ use App\Http\Middleware\RequireLogin;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 function comandasConProductos()
 {
@@ -53,6 +54,17 @@ function obtenerGaleriaImagenes()
         ->get(['id', 'titulo', 'categoria', 'ruta']);
 }
 
+function ticketLogoDataUri(): ?string
+{
+    $path = public_path('logo.png');
+    if (!file_exists($path)) {
+        return null;
+    }
+
+    $mime = mime_content_type($path) ?: 'image/png';
+    return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path));
+}
+
 function guardarComprobante58mm(object $comanda, $productos, float $subtotal, float $total, string $telefono): string
 {
     $tzNow = now()->setTimezone('America/Argentina/Buenos_Aires');
@@ -61,60 +73,19 @@ function guardarComprobante58mm(object $comanda, $productos, float $subtotal, fl
         mkdir($dir, 0775, true);
     }
 
-    $adminAlias = obtenerConfiguracion('admin_alias');
-    $adminAliasQrUrl = $adminAlias ? ('https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=' . urlencode($adminAlias)) : null;
+    $pdf = Pdf::loadView('pdf.comprobante-comanda', [
+        'comanda' => $comanda,
+        'productos' => $productos,
+        'subtotal' => $subtotal,
+        'total' => $total,
+        'telefono' => $telefono,
+        'ars' => fn (float $importe) => formatearMonedaArs($importe),
+        'logoDataUri' => ticketLogoDataUri(),
+        'fecha' => $tzNow,
+    ])->setPaper([0, 0, 226.77, 1200], 'portrait');
 
-    $lines = [
-        'ESTANCIA SAN MIGUEL',
-        'COMPROBANTE',
-        'Fecha: ' . $tzNow->format('d/m/Y H:i'),
-        'Comanda: ' . $comanda->id,
-        'Cliente: ' . ($comanda->nombre ?? '-'),
-        str_repeat('-', 32),
-    ];
-    foreach ($productos as $item) {
-        $lineTotal = ((float) ($item->precio ?? 0)) * (int) $item->cantidad;
-        $lines[] = $item->cantidad . 'x ' . $item->nombre;
-        $lines[] = formatearMonedaArs($lineTotal);
-    }
-    $lines[] = str_repeat('-', 32);
-    $lines[] = 'Subtotal: ' . formatearMonedaArs($subtotal);
-    $lines[] = 'Total: ' . formatearMonedaArs($total);
-    $lines[] = 'Tel: ' . $telefono;
-    if ($adminAlias) {
-        $lines[] = 'Alias: ' . $adminAlias;
-    }
-    if ($adminAliasQrUrl) {
-        $lines[] = 'QR: ' . $adminAliasQrUrl;
-    }
-    return guardarPdf58mmDesdeLineas($lines, 'comprobante-' . $tzNow->format('Ymd-His') . '-comanda-' . $comanda->id . '.pdf');
-}
-
-function guardarPdf58mmDesdeLineas(array $lineas, string $filename): string
-{
-    $esc = fn (string $t) => str_replace(['\\', '(', ')'], ['\\\\', '\\(', '\\)'], $t);
-    $content = "BT\n/F1 8 Tf\n";
-    $y = 800;
-    foreach ($lineas as $linea) {
-        $content .= "1 0 0 1 18 {$y} Tm (" . $esc(mb_substr($linea, 0, 42)) . ") Tj\n";
-        $y -= 14;
-    }
-    $content .= "ET";
-    $len = strlen($content);
-    $pdf = "%PDF-1.4\n";
-    $offsets = [];
-    $offsets[] = strlen($pdf); $pdf .= "1 0 obj << /Type /Catalog /Pages 2 0 R >> endobj\n";
-    $offsets[] = strlen($pdf); $pdf .= "2 0 obj << /Type /Pages /Kids [3 0 R] /Count 1 >> endobj\n";
-    $offsets[] = strlen($pdf); $pdf .= "3 0 obj << /Type /Page /Parent 2 0 R /MediaBox [0 0 164 842] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >> endobj\n";
-    $offsets[] = strlen($pdf); $pdf .= "4 0 obj << /Length {$len} >> stream\n{$content}\nendstream endobj\n";
-    $offsets[] = strlen($pdf); $pdf .= "5 0 obj << /Type /Font /Subtype /Type1 /BaseFont /Helvetica >> endobj\n";
-    $xref = strlen($pdf);
-    $pdf .= "xref\n0 6\n0000000000 65535 f \n";
-    foreach ($offsets as $off) $pdf .= sprintf("%010d 00000 n \n", $off);
-    $pdf .= "trailer << /Size 6 /Root 1 0 R >>\nstartxref\n{$xref}\n%%EOF";
-    $dir = storage_path('app/public/comprobantes');
-    if (!is_dir($dir)) mkdir($dir, 0775, true);
-    file_put_contents($dir . DIRECTORY_SEPARATOR . $filename, $pdf);
+    $filename = 'comprobante-' . $tzNow->format('Ymd-His') . '-comanda-' . $comanda->id . '.pdf';
+    file_put_contents($dir . DIRECTORY_SEPARATOR . $filename, $pdf->output());
     return 'storage/comprobantes/' . $filename;
 }
 
@@ -405,22 +376,15 @@ Route::middleware(RequireLogin::class)->group(function () {
             'updated_at' => now(),
         ]);
         $file = 'cierre-caja-' . now()->format('Ymd-His') . '.pdf';
-        $path = guardarPdf58mmDesdeLineas([
-            'ESTANCIA SAN MIGUEL',
-            'CIERRE DE CAJA',
-            'Fecha: ' . now()->setTimezone('America/Argentina/Buenos_Aires')->format('d/m/Y H:i'),
-            str_repeat('-', 32),
-            'Total cobrado: ' . formatearMonedaArs((float) $cierre['total_cobrado']),
-            'Comandas cobradas: ' . $cierre['comandas_cobradas'],
-            'Productos cobrados: ' . $cierre['productos_cobrados'],
-            'Comandas abiertas: ' . $cierre['comandas_abiertas'],
-            str_repeat('-', 32),
-            'Turno: ' . $payload['turno'],
-            'Responsable: ' . $payload['responsable'],
-            'Caja inicial: ' . formatearMonedaArs((float) $payload['caja_inicial']),
-            'Efectivo contado: ' . formatearMonedaArs((float) $payload['efectivo_contado']),
-            'Diferencia: ' . formatearMonedaArs($diferencia),
-        ], $file);
+        $dir = storage_path('app/public/comprobantes');
+        if (!is_dir($dir)) { mkdir($dir, 0775, true); }
+        $pdf = Pdf::loadView('pdf.cierre-caja', [
+            'cierre' => [...$cierre, ...$payload, 'diferencia_efectivo' => $diferencia],
+            'ars' => fn (float $importe) => formatearMonedaArs($importe),
+            'logoDataUri' => ticketLogoDataUri(),
+        ])->setPaper([0, 0, 226.77, 1400], 'portrait');
+        file_put_contents($dir . DIRECTORY_SEPARATOR . $file, $pdf->output());
+        $path = 'storage/comprobantes/' . $file;
         return response()->json(['id' => $id, 'comprobante_path' => $path]);
     });
 
