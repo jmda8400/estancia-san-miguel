@@ -6,11 +6,12 @@
 @page { margin: 0; size: 58mm auto; }
 body { margin: 0; padding: 0; background: #fff; color: #000; font-family: "DejaVu Sans Mono", "Courier New", monospace; font-size: 9px; }
 .ticket { width: 53mm; margin: 0 auto; padding: 2.5mm; }
+.ticket, .ticket * { color: #000 !important; }
 .center { text-align: center; }
 .ticket-logo { display: block; margin: 0 auto 1.5mm; max-width: 24mm; max-height: 12mm; filter: grayscale(1) contrast(1.2); }
 .sep { border-top: 1px dashed #000; margin: 1.8mm 0; }
 .ticket-table { width: 100%; border-collapse: collapse; }
-.ticket-table td { padding: 0; }
+.ticket-table td { padding: 0; color: #000 !important; }
 td.label { text-align: left; width: 68%; }
 td.value { text-align: right; width: 32%; white-space: nowrap; }
 .title { font-size: 11px; font-weight: 700; }

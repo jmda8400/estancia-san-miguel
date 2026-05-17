@@ -34,6 +34,15 @@
             <div class="grid md:grid-cols-2 gap-3">
                 <input id="telefonoLocal" class="app-input w-full" placeholder="Número de teléfono">
                 <input id="adminAlias" class="app-input w-full md:col-span-2" placeholder="Alias de administración (para QR en comprobantes)">
+                <h3 class="font-semibold md:col-span-2 mt-2">Datos de pago para comprobantes</h3>
+                <input id="paymentAlias" class="app-input w-full" placeholder="Alias">
+                <input id="paymentCbu" class="app-input w-full" placeholder="CBU">
+                <input id="paymentHolder" class="app-input w-full" placeholder="Titular de la cuenta (opcional)">
+                <input id="paymentBank" class="app-input w-full" placeholder="Banco (opcional)">
+                <label class="md:col-span-2 flex items-center gap-2">
+                    <input id="showPaymentQr" type="checkbox">
+                    <span>Mostrar QR en comprobantes</span>
+                </label>
                 <button id="savePhone" class="app-btn app-btn-pill md:col-span-2">Guardar configuración de ticket</button>
             </div>
             <p class="text-xs mt-2 text-neutral-700">Se imprimirá en: <code>storage/app/public/comprobantes</code></p>
@@ -290,7 +299,7 @@ async function renderAdminCharts() { /* unchanged below */
     el.innerHTML = `<article class="rounded-lg border border-neutral-300 bg-neutral-100 p-3"><div class="app-chart-scroll"><svg viewBox="0 0 ${width} ${height}" class="app-chart-svg" role="img" aria-label="Fluctuación de stock por producto en el tiempo">${gridLines}<line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" class="app-chart-axis"></line><line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" class="app-chart-axis"></line>${lines.map((line) => `<polyline points="${line.polyline}" fill="none" stroke="${line.color}" stroke-width="2.5"></polyline>`).join('')}${lines.map((line) => line.points.map((point) => `<circle cx="${point.x}" cy="${point.y}" r="3" fill="${line.color}"><title>${line.producto} · ${point.fecha}: ${point.cantidad}</title></circle>`).join('')).join('')}${xLabels}</svg></div><div class="app-chart-legend">${lines.map((line) => `<div><span class="inline-block h-2 w-6 mr-2 align-middle" style="background:${line.color}"></span>${line.producto}</div>`).join('')}</div></article>`;
 }
 function setRange(days) { const end = new Date(); const start = new Date(); start.setDate(end.getDate() - (days - 1)); document.getElementById('startDate').value = start.toISOString().slice(0, 10); document.getElementById('endDate').value = end.toISOString().slice(0, 10); }
-async function loadPhoneConfig(){ const response = await fetch('/admin/configuracion'); const data = await response.json(); document.getElementById('telefonoLocal').value = data.telefono_local || ''; document.getElementById('adminAlias').value = data.admin_alias || ''; }
+async function loadPhoneConfig(){ const response = await fetch('/admin/configuracion'); const data = await response.json(); document.getElementById('telefonoLocal').value = data.telefono_local || ''; document.getElementById('adminAlias').value = data.admin_alias || ''; document.getElementById('paymentAlias').value = data.payment_alias || ''; document.getElementById('paymentCbu').value = data.payment_cbu || ''; document.getElementById('paymentHolder').value = data.payment_holder || ''; document.getElementById('paymentBank').value = data.payment_bank || ''; document.getElementById('showPaymentQr').checked = Boolean(data.show_payment_qr); }
 
 document.getElementById('sectionConfig').addEventListener('click', () => switchSection('config'));
 document.getElementById('sectionDb').addEventListener('click', () => switchSection('db'));
@@ -314,9 +323,18 @@ document.getElementById('confirmDeleteTable').addEventListener('click', async ()
 document.getElementById('savePhone').addEventListener('click', async () => {
     const telefono_local = document.getElementById('telefonoLocal').value.trim();
     const admin_alias = document.getElementById('adminAlias').value.trim();
+    const payment_alias = document.getElementById('paymentAlias').value.trim();
+    const payment_cbu = document.getElementById('paymentCbu').value.trim();
+    const payment_holder = document.getElementById('paymentHolder').value.trim();
+    const payment_bank = document.getElementById('paymentBank').value.trim();
+    const show_payment_qr = document.getElementById('showPaymentQr').checked;
     if (!telefono_local) return alert('Ingrese un teléfono válido.');
-    const response = await fetch('/admin/configuracion/telefono', { method: 'PUT', headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'}, body: JSON.stringify({ telefono_local, admin_alias }) });
-    if (!response.ok) return alert('No se pudo guardar la configuración.');
+    if (show_payment_qr && !payment_alias && !payment_cbu) return alert('Para mostrar QR debe cargar Alias o CBU.');
+    const response = await fetch('/admin/configuracion/telefono', { method: 'PUT', headers: {'Content-Type': 'application/json', 'X-CSRF-TOKEN': '{{ csrf_token() }}'}, body: JSON.stringify({ telefono_local, admin_alias, payment_alias, payment_cbu, payment_holder, payment_bank, show_payment_qr }) });
+    if (!response.ok) {
+        const err = await response.json().catch(() => ({}));
+        return alert(err.message || 'No se pudo guardar la configuración.');
+    }
     alert('Configuración guardada.');
 });
 setRange(30); loadPhoneConfig(); renderAdminCharts();
