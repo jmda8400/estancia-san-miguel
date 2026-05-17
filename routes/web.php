@@ -65,6 +65,26 @@ function ticketLogoDataUri(): ?string
     return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path));
 }
 
+function qrPagoDataUri(?string $contenido): ?string
+{
+    $contenido = trim((string) $contenido);
+    if ($contenido === '') {
+        return null;
+    }
+
+    $url = 'https://api.qrserver.com/v1/create-qr-code/?format=png&size=220x220&margin=1&ecc=M&data=' . urlencode($contenido);
+    try {
+        $png = @file_get_contents($url);
+        if (!$png) {
+            return null;
+        }
+
+        return 'data:image/png;base64,' . base64_encode($png);
+    } catch (\Throwable $e) {
+        return null;
+    }
+}
+
 function guardarComprobante58mm(object $comanda, $productos, float $total, string $telefono): string
 {
     $tzNow = now()->setTimezone('America/Argentina/Buenos_Aires');
@@ -72,6 +92,13 @@ function guardarComprobante58mm(object $comanda, $productos, float $total, strin
     if (!is_dir($dir)) {
         mkdir($dir, 0775, true);
     }
+
+    $alias = obtenerConfiguracion('payment_alias');
+    $cbu = obtenerConfiguracion('payment_cbu');
+    $showPaymentQr = obtenerConfiguracion('show_payment_qr', '0') === '1';
+    $paymentValue = $alias ?: $cbu;
+    $paymentLabel = $alias ? 'Alias' : 'CBU';
+    $qrDataUri = $showPaymentQr && $paymentValue ? qrPagoDataUri($paymentValue) : null;
 
     $pdf = Pdf::loadView('pdf.comprobante-comanda', [
         'comanda' => $comanda,
@@ -81,6 +108,9 @@ function guardarComprobante58mm(object $comanda, $productos, float $total, strin
         'ars' => fn (float $importe) => formatearMonedaArs($importe),
         'logoDataUri' => ticketLogoDataUri(),
         'fecha' => $tzNow,
+        'paymentQrDataUri' => $qrDataUri,
+        'paymentLabel' => $paymentLabel,
+        'paymentValue' => $paymentValue,
     ])->setPaper([0, 0, 226.77, 1200], 'portrait');
 
     $filename = 'comprobante-' . $tzNow->format('Ymd-His') . '-comanda-' . $comanda->id . '.pdf';
@@ -611,19 +641,35 @@ Route::middleware(RequireLogin::class)->group(function () {
     Route::get('/admin/configuracion', fn () => [
         'telefono_local' => obtenerConfiguracion('telefono_local', '+54 9 11 0000-0000'),
         'admin_alias' => obtenerConfiguracion('admin_alias'),
-        'transfer_cbu' => obtenerConfiguracion('transfer_cbu'),
-        'transfer_account_holder' => obtenerConfiguracion('transfer_account_holder'),
-        'transfer_account_tax_id' => obtenerConfiguracion('transfer_account_tax_id'),
+        'payment_alias' => obtenerConfiguracion('payment_alias'),
+        'payment_cbu' => obtenerConfiguracion('payment_cbu'),
+        'payment_holder' => obtenerConfiguracion('payment_holder'),
+        'payment_bank' => obtenerConfiguracion('payment_bank'),
+        'show_payment_qr' => obtenerConfiguracion('show_payment_qr', '0') === '1',
     ]);
     Route::put('/admin/configuracion/telefono', function (Request $r) {
         $data = $r->validate([
             'telefono_local' => 'required|string|max:50',
             'admin_alias' => 'nullable|string|max:80',
+            'payment_alias' => 'nullable|string|max:120',
+            'payment_cbu' => 'nullable|string|max:40',
+            'payment_holder' => 'nullable|string|max:120',
+            'payment_bank' => 'nullable|string|max:120',
+            'show_payment_qr' => 'nullable|boolean',
         ]);
+
+        if (($data['show_payment_qr'] ?? false) && empty(trim((string) ($data['payment_alias'] ?? ''))) && empty(trim((string) ($data['payment_cbu'] ?? '')))) {
+            return response()->json(['message' => 'Para mostrar QR debe cargar Alias o CBU.'], 422);
+        }
 
         $configuraciones = [
             'telefono_local' => $data['telefono_local'],
             'admin_alias' => $data['admin_alias'] ?? null,
+            'payment_alias' => $data['payment_alias'] ?? null,
+            'payment_cbu' => $data['payment_cbu'] ?? null,
+            'payment_holder' => $data['payment_holder'] ?? null,
+            'payment_bank' => $data['payment_bank'] ?? null,
+            'show_payment_qr' => ($data['show_payment_qr'] ?? false) ? '1' : '0',
         ];
 
         foreach ($configuraciones as $clave => $valor) {
