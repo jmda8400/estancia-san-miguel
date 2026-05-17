@@ -30,7 +30,8 @@ function obtenerConfiguracion(string $clave, ?string $default = null): ?string
 
 function formatearMonedaArs(float $importe): string
 {
-    return '$' . number_format($importe, 2, ',', '.');
+    $decimales = fmod(abs($importe), 1.0) > 0.00001 ? 2 : 0;
+    return '$' . number_format($importe, $decimales, ',', '.');
 }
 
 
