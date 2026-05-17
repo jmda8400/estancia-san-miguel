@@ -86,27 +86,38 @@
         </div>
     </div>
     <div id="cajaResumen" class="space-y-3 text-emerald-950"></div>
-<div id="cierreCajaPanel" class="hidden rounded-xl border border-emerald-300 bg-emerald-50 p-4 space-y-3">
-    <h3 class="font-semibold text-emerald-950">Confirmar cierre de caja</h3>
-    <p class="text-sm text-emerald-800">Completá los datos para generar el comprobante de cierre.</p>
-    <div class="grid md:grid-cols-3 gap-2">
-        <input id="cierreTurno" class="app-input" placeholder="Turno" value="Noche">
-        <input id="cierreResponsable" class="app-input" placeholder="Responsable" value="Caja">
-        <input id="cierreObservaciones" class="app-input" placeholder="Observaciones (opcional)">
-    </div>
-    <div class="flex gap-2">
-        <button class="btn btn-secondary" onclick="cancelarCierreCajaPanel()">Cancelar</button>
-        <button class="btn btn-primary" onclick="confirmarCierreCaja()">Confirmar cierre</button>
-    </div>
-    <p id="cierreCajaEstado" class="text-sm text-emerald-900"></p>
 </div>
-
+<div id="cierreCajaModal" class="hidden fixed inset-0 z-50 bg-slate-900/45 px-3 py-4 sm:px-6 overflow-y-auto">
+    <div class="mx-auto mt-6 sm:mt-12 w-full max-w-2xl rounded-2xl border border-emerald-200 bg-white p-4 sm:p-6 shadow-xl space-y-3">
+        <h3 class="text-lg font-semibold text-emerald-950">Confirmar cierre de caja</h3>
+        <div id="cierreCajaAbiertasWarn" class="hidden rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-900"></div>
+        <div class="grid gap-2 sm:grid-cols-2">
+            <input id="cierreFecha" class="app-input bg-slate-100" readonly>
+            <input id="cierreHora" class="app-input bg-slate-100" readonly>
+            <input id="cierreResponsable" class="app-input bg-slate-100" readonly>
+            <input id="cierreTotalCobrado" class="app-input bg-slate-100" readonly>
+            <input id="cierreComandasCobradas" class="app-input bg-slate-100" readonly>
+            <input id="cierreProductosCobrados" class="app-input bg-slate-100" readonly>
+            <input id="cierreEfectivoEsperado" class="app-input bg-slate-100" readonly>
+            <input id="cierreEfectivoContado" class="app-input" placeholder="Efectivo contado">
+        </div>
+        <div id="cierreDiferenciaWrap" class="hidden rounded-xl border p-3 text-sm">
+            <strong>Diferencia:</strong> <span id="cierreDiferencia"></span>
+        </div>
+        <textarea id="cierreObservaciones" class="app-input" placeholder="Observaciones (opcional)"></textarea>
+        <div class="flex gap-2">
+            <button class="btn btn-secondary w-full" onclick="cancelarCierreCajaModal()">Cancelar</button>
+            <button class="btn btn-primary w-full" onclick="confirmarCierreCaja()">Confirmar cierre</button>
+        </div>
+        <p id="cierreCajaEstado" class="text-sm text-emerald-900"></p>
+    </div>
 </div>
 
 @endsection
 @section('scripts')
 <script>
 let state = { selectedComandaId: null, comandas: @json($comandas), activeTab: 'comandas', stock: [], historial: { data: [], current_page: 1, last_page: 1, total: 0 }, caja: { comandas_page: 1, productos_page: 1, cierres_page: 1 } };
+const responsableAutenticado = @json(session('logged_in') ? env('ADMIN_USERNAME', 'Administrador') : null);
 const tablesEl = document.getElementById('tables');
 const productsEl = document.getElementById('productsList');
 const titleEl = document.getElementById('selectedTitle');
@@ -237,29 +248,56 @@ async function refreshCaja() {
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Productos cobrados:</strong> ${caja.productos_cobrados}</div>
             <div class="rounded-xl border border-emerald-200 bg-emerald-50 p-3"><strong>Comandas abiertas:</strong> ${caja.comandas_abiertas}</div>
         </div>
-        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Control de efectivo</h3><div class="grid md:grid-cols-2 gap-2"><input id='cajaInicial' class='app-input' placeholder='Caja inicial'><input id='efectivoContado' class='app-input' placeholder='Efectivo contado'></div><div id='efectivoEsperadoTxt' class='mt-2 text-sm'>Efectivo esperado: $ 0</div><div id='diferenciaTxt' class='text-sm'>Diferencia: $ 0</div></div>
+        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Control de efectivo</h3><div id='efectivoEsperadoTxt' class='mt-2 text-sm'>Efectivo esperado: ${formatArs(caja.total_cobrado)}</div><div class='text-xs text-emerald-700 mt-1'>El cierre diario usa automáticamente fecha y hora del servidor.</div></div>
         <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Productos vendidos</h3><table class='w-full text-sm'><tr><th class='text-left'>Producto</th><th>Cant.</th><th class='text-right'>Total</th></tr>${(caja.productos_vendidos?.data||[]).map(p=>`<tr><td>${p.producto}</td><td class='text-center'>${p.cantidad}</td><td class='text-right'>${formatArs(p.total)}</td></tr>`).join('')}</table><div class='flex justify-between mt-2'><button class='btn btn-secondary text-xs' ${caja.productos_vendidos.current_page<=1?'disabled':''} onclick="changeCajaPage('productos',-1)">Anterior</button><span class='text-xs'>${caja.productos_vendidos.current_page}/${caja.productos_vendidos.last_page}</span><button class='btn btn-secondary text-xs' ${caja.productos_vendidos.current_page>=caja.productos_vendidos.last_page?'disabled':''} onclick="changeCajaPage('productos',1)">Siguiente</button></div></div>
         <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Comandas incluidas</h3><table class='w-full text-sm'><tr><th class='text-left'>Comanda</th><th>Hora</th><th class='text-right'>Total</th></tr>${(caja.comandas_incluidas?.data||[]).map(c=>`<tr><td>${c.nombre}</td><td>${new Date(c.cobrada_en).toLocaleTimeString()}</td><td class='text-right'>${formatArs(c.total)}</td></tr>`).join('')}</table><div class='flex justify-between mt-2'><button class='btn btn-secondary text-xs' ${caja.comandas_incluidas.current_page<=1?'disabled':''} onclick="changeCajaPage('comandas',-1)">Anterior</button><span class='text-xs'>${caja.comandas_incluidas.current_page}/${caja.comandas_incluidas.last_page}</span><button class='btn btn-secondary text-xs' ${caja.comandas_incluidas.current_page>=caja.comandas_incluidas.last_page?'disabled':''} onclick="changeCajaPage('comandas',1)">Siguiente</button></div></div>
-        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Historial de cierres</h3>${(caja.historial_cierres?.data||[]).map(c=>`<div class='flex justify-between text-sm border-b py-1'><span>${new Date(c.created_at).toLocaleString()} · ${c.turno||'-'} · ${c.responsable||'-'}</span><span>${formatArs(c.total_cobrado)} / Dif: ${formatArs(c.diferencia_efectivo||0)}</span></div>`).join('')}<div class='flex justify-between mt-2'><button class='btn btn-secondary text-xs' ${caja.historial_cierres.current_page<=1?'disabled':''} onclick="changeCajaPage('cierres',-1)">Anterior</button><span class='text-xs'>${caja.historial_cierres.current_page}/${caja.historial_cierres.last_page}</span><button class='btn btn-secondary text-xs' ${caja.historial_cierres.current_page>=caja.historial_cierres.last_page?'disabled':''} onclick="changeCajaPage('cierres',1)">Siguiente</button></div></div>`;
+        <div class="rounded-xl border border-emerald-200 p-3"><h3 class="font-semibold mb-2">Historial de cierres</h3>${(caja.historial_cierres?.data||[]).map(c=>`<div class='flex justify-between text-sm border-b py-1'><span>${new Date(c.created_at).toLocaleString()} · ${c.responsable||'-'}</span><span>${formatArs(c.total_cobrado)} / Dif: ${formatArs(c.diferencia_efectivo||0)}</span></div>`).join('')}<div class='flex justify-between mt-2'><button class='btn btn-secondary text-xs' ${caja.historial_cierres.current_page<=1?'disabled':''} onclick="changeCajaPage('cierres',-1)">Anterior</button><span class='text-xs'>${caja.historial_cierres.current_page}/${caja.historial_cierres.last_page}</span><button class='btn btn-secondary text-xs' ${caja.historial_cierres.current_page>=caja.historial_cierres.last_page?'disabled':''} onclick="changeCajaPage('cierres',1)">Siguiente</button></div></div>`;
+    state.cajaResumen = caja;
 }
 window.abrirCierreCajaPanel = () => {
- document.getElementById('cierreCajaPanel').classList.remove('hidden');
+ const caja = state.cajaResumen || {};
+ const ahora = new Date();
+ document.getElementById('cierreFecha').value = `Fecha del cierre: ${ahora.toLocaleDateString()}`;
+ document.getElementById('cierreHora').value = `Hora del cierre: ${ahora.toLocaleTimeString()}`;
+ document.getElementById('cierreResponsable').value = `Responsable: ${responsableAutenticado || 'No autenticado'}`;
+ document.getElementById('cierreTotalCobrado').value = `Total cobrado del día: ${formatArs(caja.total_cobrado || 0)}`;
+ document.getElementById('cierreComandasCobradas').value = `Comandas cobradas: ${caja.comandas_cobradas || 0}`;
+ document.getElementById('cierreProductosCobrados').value = `Productos cobrados: ${caja.productos_cobrados || 0}`;
+ document.getElementById('cierreEfectivoEsperado').value = `Efectivo esperado: ${formatArs(caja.total_cobrado || 0)}`;
+ document.getElementById('cierreEfectivoContado').value = '';
+ document.getElementById('cierreObservaciones').value = '';
+ if ((caja.comandas_abiertas || 0) > 0) {
+   const warn = document.getElementById('cierreCajaAbiertasWarn');
+   warn.textContent = `Atención: hay ${caja.comandas_abiertas} comandas abiertas.`;
+   warn.classList.remove('hidden');
+ } else {
+   document.getElementById('cierreCajaAbiertasWarn').classList.add('hidden');
+ }
+ document.getElementById('cierreCajaModal').classList.remove('hidden');
  document.getElementById('cierreCajaEstado').textContent = '';
 };
 
-window.cancelarCierreCajaPanel = () => {
- document.getElementById('cierreCajaPanel').classList.add('hidden');
+window.cancelarCierreCajaModal = () => {
+ document.getElementById('cierreCajaModal').classList.add('hidden');
  document.getElementById('cierreCajaEstado').textContent = '';
 };
 
 window.confirmarCierreCaja = async () => {
  const estadoEl = document.getElementById('cierreCajaEstado');
+ const caja = state.cajaResumen || {};
+ const efectivoContadoValue = document.getElementById('cierreEfectivoContado')?.value;
+ if (efectivoContadoValue === '') { estadoEl.textContent = 'Debes ingresar el efectivo contado para confirmar el cierre.'; return; }
+ const efectivoContado = Number(efectivoContadoValue);
+ const diferencia = efectivoContado - Number(caja.total_cobrado || 0);
+ const difWrap = document.getElementById('cierreDiferenciaWrap');
+ difWrap.className = `rounded-xl border p-3 text-sm ${diferencia === 0 ? 'border-emerald-300 bg-emerald-50 text-emerald-900' : 'border-amber-300 bg-amber-50 text-amber-900'}`;
+ document.getElementById('cierreDiferencia').textContent = formatArs(diferencia);
+ difWrap.classList.remove('hidden');
  estadoEl.textContent = 'Procesando cierre...';
  const payload = {
-  caja_inicial: Number(document.getElementById('cajaInicial')?.value||0),
-  efectivo_contado: Number(document.getElementById('efectivoContado')?.value||0),
-  turno: document.getElementById('cierreTurno')?.value || 'Noche',
-  responsable: document.getElementById('cierreResponsable')?.value || 'Caja',
+  caja_inicial: 0,
+  efectivo_contado: efectivoContado,
+  responsable: responsableAutenticado || 'Caja',
   observaciones: document.getElementById('cierreObservaciones')?.value || ''
  };
  const res = await fetch('/comandas/cierre/cerrar',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify(payload)});
@@ -267,6 +305,7 @@ window.confirmarCierreCaja = async () => {
  const data = await res.json();
  estadoEl.textContent = 'Caja cerrada correctamente.';
  if (data.comprobante_path) window.open('/' + data.comprobante_path, '_blank');
+ cancelarCierreCajaModal();
  refreshCaja();
 };
 

@@ -191,7 +191,7 @@ function resumenCierreCaja(int $comandasPage = 1, int $productosPage = 1, int $c
     })->values()->sortByDesc('total')->values();
 
     $historialCierres = DB::table('cierres_caja')
-        ->select('id', 'created_at', 'turno', 'responsable', 'total_cobrado', 'diferencia_efectivo')
+        ->select('id', 'created_at', 'responsable', 'total_cobrado', 'diferencia_efectivo')
         ->orderByDesc('created_at')
         ->get();
     return [
@@ -384,8 +384,7 @@ Route::middleware(RequireLogin::class)->group(function () {
         $payload = $request->validate([
             'caja_inicial' => 'required|numeric|min:0',
             'efectivo_contado' => 'required|numeric|min:0',
-            'turno' => 'required|string|max:100',
-            'responsable' => 'required|string|max:100',
+            'responsable' => 'nullable|string|max:100',
             'observaciones' => 'nullable|string|max:500',
             'movimientos' => 'nullable|array',
         ]);
@@ -413,7 +412,7 @@ Route::middleware(RequireLogin::class)->group(function () {
                 ->filter(fn ($m) => strtolower((string) data_get($m, 'medio', data_get($m, 'name', ''))) === 'efectivo')
                 ->sum(fn ($m) => (float) data_get($m, 'monto', data_get($m, 'amount', 0)));
 
-            $efectivoEsperado = (float) $payload['caja_inicial'] + $totalEfectivoPeriodo;
+            $efectivoEsperado = $totalCobrado;
             $diferencia = (float) $payload['efectivo_contado'] - $efectivoEsperado;
 
             $resumen = [
@@ -429,8 +428,8 @@ Route::middleware(RequireLogin::class)->group(function () {
                 'comandas_cobradas' => $resumen['comandas_cobradas'],
                 'productos_cobrados' => $resumen['productos_cobrados'],
                 'comandas_abiertas' => $resumen['comandas_abiertas'],
-                'turno' => $payload['turno'],
-                'responsable' => $payload['responsable'],
+                'turno' => 'Diario',
+                'responsable' => $payload['responsable'] ?? null,
                 'caja_inicial' => $payload['caja_inicial'],
                 'efectivo_esperado' => $efectivoEsperado,
                 'efectivo_contado' => $payload['efectivo_contado'],
