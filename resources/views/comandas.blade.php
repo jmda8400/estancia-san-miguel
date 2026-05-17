@@ -14,57 +14,56 @@
         <div class="flex items-center justify-between gap-2 flex-wrap mb-3">
             <h2 class="panel-title">Comandas</h2>
             <div class="flex items-center gap-2 flex-wrap">
-                <button class="btn btn-secondary text-xs sm:text-sm" onclick="openComandaForm()">+ Agregar comanda</button>
-                
+                <button id="toggleComandaFormBtn" class="btn btn-secondary text-xs sm:text-sm" onclick="openComandaForm()">+ Agregar comanda</button>
             </div>
         </div>
-        <div id="tables" class="tables-grid flex-1 min-h-[20rem] max-h-[calc(100vh-16rem)] overflow-y-auto pr-1"></div>
-    </div>
-
-    <div class="panel h-full flex flex-col min-h-[30rem] max-h-[calc(100vh-14rem)]">
-        <h2 id="selectedTitle" class="panel-title mb-3">Seleccione una mesa</h2>
-        <div id="productsList" class="space-y-3 flex-1 overflow-y-auto pr-1 min-h-[16rem]"></div>
-        <div class="orders-summary mt-3 pt-3 flex items-center justify-between gap-3">
-            <p id="selectedTotal" class="text-sm font-semibold text-emerald-950">Total: $ 0</p>
-            <div class="flex items-center gap-2">
-                                <button id="chargeBtn" class="hidden btn btn-primary btn-charge" onclick="cobrarComanda()">Cobrar</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="addProductCard" class="panel add-product-panel hidden">
-        <h2 class="panel-title mb-3">Agregar productos a comanda</h2>
-        <form id="newProductForm" class="grid gap-3">
-            <div class="field">
-                <label for="stockItem" class="field-label">Producto</label>
-                <select id="stockItem" class="app-input mt-1 w-full" required></select>
-            </div>
-            <div class="field">
-                <label for="productQty" class="field-label">Cantidad</label>
-                <input id="productQty" type="number" min="1" value="1" class="app-input mt-1 w-full" required>
-            </div>
-            <div class="field">
-                <label for="productNotes" class="field-label">Notas</label>
-                <input id="productNotes" class="app-input mt-1 w-full" placeholder="Notas">
-            </div>
-            <button class="btn btn-primary btn-add-comanda w-full">Agregar a comanda</button>
-        </form>
-    </div>
-</div>
-<div id="addComandaModal" class="comanda-modal hidden" role="dialog" aria-modal="true" aria-labelledby="addComandaTitle">
-    <div class="comanda-modal-overlay" onclick="closeComandaForm()"></div>
-    <div class="comanda-modal-card">
-        <h2 id="addComandaTitle" class="panel-title mb-3">Nueva comanda</h2>
-        <form id="newComandaForm" class="grid gap-3">
+        <form id="newComandaForm" class="hidden mb-3 rounded-2xl border border-emerald-200 bg-white p-3 shadow-sm grid gap-2">
             <input id="comandaNombre" class="app-input" placeholder="Nombre del cliente" required>
             <input id="comandaDocumento" class="app-input" placeholder="Documento (opcional)">
             <input id="comandaTelefono" class="app-input" placeholder="Teléfono (opcional)">
             <input id="comandaDetalle" class="app-input" placeholder="Detalle adicional (opcional)">
             <div class="flex gap-2">
                 <button type="button" class="btn btn-secondary w-full" onclick="closeComandaForm()">Cancelar</button>
-                <button class="btn btn-primary w-full">Guardar comanda</button>
+                <button class="btn btn-primary w-full">Guardar</button>
             </div>
         </form>
+        <div id="tables" class="tables-grid flex-1 min-h-[20rem] max-h-[calc(100vh-16rem)] overflow-y-auto pr-1"></div>
+    </div>
+
+    <div class="panel h-full flex flex-col min-h-[30rem] max-h-[calc(100vh-14rem)]">
+        <h2 id="selectedTitle" class="panel-title mb-3">Seleccione una mesa</h2>
+        <div id="productsList" class="space-y-3 flex-1 overflow-y-auto pr-1 min-h-[16rem]"></div>
+        <div id="addProductCard" class="hidden mt-3 rounded-2xl border border-emerald-200 bg-white p-3 shadow-sm space-y-2">
+            <div class="flex items-center justify-between gap-2">
+                <h3 class="text-sm font-semibold text-emerald-950">Agregar productos a comanda</h3>
+                <button id="toggleProductFormBtn" type="button" class="btn btn-secondary text-xs" onclick="toggleProductForm()">+ Agregar producto</button>
+            </div>
+            <form id="newProductForm" class="hidden grid gap-2">
+                <div class="grid gap-2 md:grid-cols-[minmax(0,1fr)_8rem]">
+                    <div class="field">
+                        <label for="stockItem" class="field-label">Producto</label>
+                        <select id="stockItem" class="app-input mt-1 w-full" required></select>
+                    </div>
+                    <div class="field">
+                        <label for="productQty" class="field-label">Cantidad</label>
+                        <input id="productQty" type="number" min="1" value="1" class="app-input mt-1 w-full" required>
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="productNotes" class="field-label">Notas</label>
+                    <input id="productNotes" class="app-input mt-1 w-full" placeholder="Notas">
+                </div>
+                <div class="flex justify-end">
+                    <button class="btn btn-primary btn-add-comanda">Agregar a comanda</button>
+                </div>
+            </form>
+        </div>
+        <div class="orders-summary mt-3 pt-3 flex items-center justify-between gap-3">
+            <p id="selectedTotal" class="text-sm font-semibold text-emerald-950">Total: $ 0</p>
+            <div class="flex items-center gap-2">
+                                <button id="chargeBtn" class="hidden btn btn-primary btn-charge" onclick="cobrarComanda()">Cobrar</button>
+            </div>
+        </div>
     </div>
 </div>
 
@@ -138,7 +137,7 @@ function renderComandas() {
     </div>`;
  }).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
- if(!comanda){titleEl.textContent='Seleccione una comanda'; productsEl.innerHTML=''; totalEl.textContent='Total: $ 0'; chargeBtn.classList.add('hidden'); document.getElementById('addProductCard').classList.add('hidden'); return;}
+ if(!comanda){titleEl.textContent='Seleccione una comanda'; productsEl.innerHTML=''; totalEl.textContent='Total: $ 0'; chargeBtn.classList.add('hidden'); document.getElementById('addProductCard').classList.add('hidden'); document.getElementById('newProductForm').classList.add('hidden'); return;}
  titleEl.textContent = `Productos de ${comanda.nombre}`;
  chargeBtn.classList.remove('hidden');
  document.getElementById('addProductCard').classList.remove('hidden');
@@ -186,7 +185,6 @@ function renderHistorial() {
 window.switchTab = (tab) => {
     state.activeTab = tab;
     document.getElementById('comandasTab').classList.toggle('hidden', tab !== 'comandas');
-    document.getElementById('addProductCard').classList.toggle('hidden', tab !== 'comandas');
     document.getElementById('historialTab').classList.toggle('hidden', tab !== 'historial');
     document.getElementById('cajaTab').classList.toggle('hidden', tab !== 'caja');
     document.getElementById('tabComandas').className = `app-internal-tab-btn ${tab === 'comandas' ? 'app-btn-active' : ''}`;
@@ -197,8 +195,9 @@ window.switchTab = (tab) => {
 };
 
 window.selectComanda=(id)=>{state.selectedComandaId=id;renderComandas();}
-window.openComandaForm=()=>document.getElementById('addComandaModal').classList.remove('hidden');
-window.closeComandaForm=()=>{document.getElementById('addComandaModal').classList.add('hidden');document.getElementById('newComandaForm').reset();};
+window.openComandaForm=()=>{document.getElementById('newComandaForm').classList.remove('hidden');document.getElementById('comandaNombre').focus();};
+window.closeComandaForm=()=>{document.getElementById('newComandaForm').classList.add('hidden');document.getElementById('newComandaForm').reset();};
+window.toggleProductForm=()=>{const f=document.getElementById('newProductForm');f.classList.toggle('hidden');};
 
 async function refreshComandas(){
  const c = await fetch('/comandas/data');
