@@ -31,15 +31,12 @@
     </div>
 
     <div class="panel h-full flex flex-col min-h-[30rem] max-h-[calc(100vh-14rem)]">
-        <h2 id="selectedTitle" class="panel-title mb-3">Seleccione una mesa</h2>
-        <div id="productsList" class="space-y-3 flex-1 overflow-y-auto pr-1 min-h-[16rem]"></div>
-        <div id="addProductCard" class="hidden mt-3 rounded-2xl border border-emerald-200 bg-white p-3 shadow-sm space-y-2">
-            <div class="flex items-center justify-between gap-2">
-                <h3 class="text-sm font-semibold text-emerald-950">Agregar productos a comanda</h3>
-                <button id="toggleProductFormBtn" type="button" class="btn btn-secondary text-xs" onclick="toggleProductForm()">+ Agregar producto</button>
-            </div>
-            <form id="newProductForm" class="hidden grid gap-2">
-                <div class="grid gap-2 md:grid-cols-[minmax(0,1fr)_8rem]">
+        <h2 id="selectedTitle" class="panel-title mb-2">Seleccione una mesa</h2>
+        <div id="productsList" class="space-y-2 overflow-y-auto pr-1 min-h-[9rem]"></div>
+        <div id="addProductCard" class="hidden mt-2 rounded-2xl border border-emerald-200 bg-white p-3 shadow-sm space-y-2">
+            <h3 class="text-sm font-semibold text-emerald-950">Agregar producto</h3>
+            <form id="newProductForm" class="grid gap-2">
+                <div class="grid gap-2 md:grid-cols-[minmax(0,1fr)_6.5rem] md:items-end">
                     <div class="field">
                         <label for="stockItem" class="field-label">Producto</label>
                         <select id="stockItem" class="app-input mt-1 w-full" required></select>
@@ -53,7 +50,7 @@
                     <label for="productNotes" class="field-label">Notas</label>
                     <input id="productNotes" class="app-input mt-1 w-full" placeholder="Notas">
                 </div>
-                <div class="flex justify-end">
+                <div class="flex justify-end pt-1">
                     <button class="btn btn-primary btn-add-comanda">Agregar a comanda</button>
                 </div>
             </form>
@@ -134,7 +131,7 @@ function renderComandas() {
     </div>`;
  }).join('');
  const comanda = state.comandas.find(c=>c.id===state.selectedComandaId);
- if(!comanda){titleEl.textContent='Seleccione una comanda'; productsEl.innerHTML=''; totalEl.textContent='Total: $ 0'; chargeBtn.classList.add('hidden'); document.getElementById('addProductCard').classList.add('hidden'); document.getElementById('newProductForm').classList.add('hidden'); return;}
+ if(!comanda){titleEl.textContent='Seleccione una comanda'; productsEl.innerHTML=''; totalEl.textContent='Total: $ 0'; chargeBtn.classList.add('hidden'); document.getElementById('addProductCard').classList.add('hidden'); return;}
  titleEl.textContent = `Productos de ${comanda.nombre}`;
  chargeBtn.classList.remove('hidden');
  document.getElementById('addProductCard').classList.remove('hidden');
@@ -155,8 +152,8 @@ function renderComandas() {
             <button class="btn btn-danger btn-product-delete btn-remove-comandera text-xs" title="Quitar producto" onclick="deleteProducto(${p.id})">Eliminar</button>
         </div>
     </div>`).join('')
-    : `<div class="h-full min-h-[14rem] flex items-center justify-center">
-        <p class="text-sm text-emerald-900 text-center">Esta comanda no tiene productos aún.</p>
+    : `<div class="rounded-xl border border-emerald-100 bg-emerald-50/30 px-3 py-2">
+        <p class="text-sm text-emerald-900">Esta comanda no tiene productos aún.</p>
       </div>`;
 }
 
@@ -194,7 +191,6 @@ window.switchTab = (tab) => {
 window.selectComanda=(id)=>{state.selectedComandaId=id;renderComandas();}
 window.openComandaForm=()=>{document.getElementById('newComandaForm').classList.remove('hidden');document.getElementById('comandaNombre').focus();};
 window.closeComandaForm=()=>{document.getElementById('newComandaForm').classList.add('hidden');document.getElementById('newComandaForm').reset();};
-window.toggleProductForm=()=>{const f=document.getElementById('newProductForm');f.classList.toggle('hidden');};
 
 async function refreshComandas(){
  const c = await fetch('/comandas/data');
