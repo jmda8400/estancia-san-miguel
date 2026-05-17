@@ -199,6 +199,7 @@ function resumenCierreCaja(int $comandasPage = 1, int $productosPage = 1, int $c
         'comandas_cobradas' => $comandasIncluidas->count(),
         'productos_cobrados' => (int) $productos->sum('cantidad'),
         'comandas_abiertas' => DB::table('comandas')->count(),
+        'fecha_hora_servidor' => now()->toIso8601String(),
         'productos_vendidos' => paginateCollection($productosVendidos, $productosPage, 10),
         'comandas_incluidas' => paginateCollection($comandasIncluidas, $comandasPage, 10),
         'historial_cierres' => paginateCollection($historialCierres, $cierresPage, 10),
