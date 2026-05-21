@@ -69,27 +69,23 @@ function ticketLogoDataUri(): ?string
     if (function_exists('imagecreatefromstring') && function_exists('imagepng')) {
         $image = @imagecreatefromstring($raw);
         if ($image !== false) {
-            imagefilter($image, IMG_FILTER_GRAYSCALE);
-            imagefilter($image, IMG_FILTER_CONTRAST, -100);
-
             $width = imagesx($image);
             $height = imagesy($image);
-            for ($y = 0; $y < $height; $y++) {
-                for ($x = 0; $x < $width; $x++) {
-                    $rgb = imagecolorat($image, $x, $y);
-                    $r = ($rgb >> 16) & 0xFF;
-                    $g = ($rgb >> 8) & 0xFF;
-                    $b = $rgb & 0xFF;
-                    $luma = (int) round(($r * 0.299) + ($g * 0.587) + ($b * 0.114));
-                    $bw = $luma > 170 ? 255 : 0;
-                    $color = imagecolorallocate($image, $bw, $bw, $bw);
-                    imagesetpixel($image, $x, $y, $color);
-                }
-            }
+
+            $canvas = imagecreatetruecolor($width, $height);
+            $white = imagecolorallocate($canvas, 255, 255, 255);
+            imagefilledrectangle($canvas, 0, 0, $width, $height, $white);
+            imagealphablending($canvas, true);
+            imagesavealpha($canvas, false);
+            imagecopy($canvas, $image, 0, 0, 0, 0, $width, $height);
+
+            imagefilter($canvas, IMG_FILTER_GRAYSCALE);
 
             ob_start();
-            imagepng($image);
+            imagepng($canvas);
             $processed = ob_get_clean();
+            imagedestroy($canvas);
+
             imagedestroy($image);
 
             if ($processed !== false) {
@@ -470,7 +466,7 @@ Route::middleware(RequireLogin::class)->group(function () {
                 'productos_cobrados' => $resumen['productos_cobrados'],
                 'comandas_abiertas' => $resumen['comandas_abiertas'],
                 'turno' => 'Diario',
-                'responsable' => $payload['responsable'] ?? null,
+                'responsable' => !empty($payload['responsable']) ? $payload['responsable'] : 'Diego Lopez',
                 'caja_inicial' => $payload['caja_inicial'],
                 'efectivo_esperado' => $efectivoEsperado,
                 'efectivo_contado' => $payload['efectivo_contado'],
@@ -488,18 +484,23 @@ Route::middleware(RequireLogin::class)->group(function () {
                 ]);
             }
 
-            return [$id, [...$resumen, ...$payload, 'efectivo_esperado' => $efectivoEsperado, 'diferencia_efectivo' => $diferencia]];
+            return [$id, [...$resumen, ...$payload, 'efectivo_esperado' => $efectivoEsperado, 'diferencia_efectivo' => $diferencia, 'responsable' => (!empty($payload['responsable']) ? $payload['responsable'] : 'Diego Lopez')]];
         });
 
         [$id, $cierre] = $dataCierre;
         $file = 'cierre-caja-' . now()->format('Ymd-His') . '.pdf';
         $dir = storage_path('app/public/comprobantes');
         if (!is_dir($dir)) { mkdir($dir, 0775, true); }
+        $fechaCierre = now()->setTimezone('America/Argentina/Buenos_Aires');
+        $itemsCount = 8;
+        $paperHeight = min(1200, max(260, 180 + ($itemsCount * 26)));
         $pdf = Pdf::loadView('pdf.cierre-caja', [
             'cierre' => $cierre,
             'ars' => fn (float $importe) => formatearMonedaArs($importe),
             'logoDataUri' => ticketLogoDataUri(),
-        ])->setPaper([0, 0, 226.77, 1400], 'portrait');
+            'fecha' => $fechaCierre,
+            'responsable' => $cierre['responsable'] ?? 'Diego Lopez',
+        ])->setPaper([0, 0, 164.41, $paperHeight], 'portrait');
         file_put_contents($dir . DIRECTORY_SEPARATOR . $file, $pdf->output());
         $path = 'storage/comprobantes/' . $file;
         return response()->json(['id' => $id, 'comprobante_path' => $path]);
