@@ -30,11 +30,11 @@
         <div id="tables" class="tables-grid flex-1 min-h-[20rem] max-h-[calc(100vh-16rem)] overflow-y-auto pr-1"></div>
     </div>
 
-    <div class="panel h-full flex flex-col min-h-[30rem] max-h-[calc(100vh-14rem)]">
-        <div class="comanda-detail-card flex flex-col flex-1 min-h-0 rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
+    <div class="panel h-full flex flex-col min-h-[30rem]">
+        <div class="comanda-detail-card rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
         <h2 id="selectedTitle" class="panel-title mb-2">Seleccione una mesa</h2>
-        <div id="productsList" class="space-y-2 overflow-y-auto pr-1 min-h-[9rem] flex-1"></div>
-        <div id="addProductCard" class="hidden mt-2 rounded-2xl border border-emerald-200 bg-white p-3 shadow-sm space-y-2">
+        <div id="productsList" class="comanda-products-list space-y-2 min-h-[9rem]"></div>
+        <div id="addProductCard" class="hidden comanda-add-product-card rounded-2xl border border-emerald-200 bg-white p-3 space-y-2">
             <h3 class="text-sm font-semibold text-emerald-950">Agregar producto</h3>
             <form id="newProductForm" class="grid gap-2">
                 <div class="grid gap-2 md:grid-cols-[minmax(0,1fr)_6.5rem] md:items-end">
@@ -56,7 +56,7 @@
                 </div>
             </form>
         </div>
-        <div class="comanda-detail-footer mt-3 pt-3 flex items-center justify-between gap-3">
+        <div class="comanda-detail-footer">
             <p id="selectedTotal" class="text-sm font-semibold text-emerald-950">Total: $ 0</p>
             <div class="flex items-center gap-2">
                                 <button id="chargeBtn" class="hidden btn btn-primary btn-charge" onclick="cobrarComanda()">Cobrar</button>
