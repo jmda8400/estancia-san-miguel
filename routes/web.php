@@ -61,8 +61,51 @@ function ticketLogoDataUri(): ?string
         return null;
     }
 
-    $mime = mime_content_type($path) ?: 'image/png';
-    return 'data:' . $mime . ';base64,' . base64_encode(file_get_contents($path));
+    $raw = @file_get_contents($path);
+    if ($raw === false) {
+        return null;
+    }
+
+    if (!function_exists('imagecreatefromstring')) {
+        $mime = mime_content_type($path) ?: 'image/png';
+        return 'data:' . $mime . ';base64,' . base64_encode($raw);
+    }
+
+    $source = @imagecreatefromstring($raw);
+    if ($source === false) {
+        $mime = mime_content_type($path) ?: 'image/png';
+        return 'data:' . $mime . ';base64,' . base64_encode($raw);
+    }
+
+    $width = imagesx($source);
+    $height = imagesy($source);
+    $mono = imagecreatetruecolor($width, $height);
+    imagealphablending($mono, false);
+    imagesavealpha($mono, true);
+    $transparent = imagecolorallocatealpha($mono, 255, 255, 255, 127);
+    imagefill($mono, 0, 0, $transparent);
+    $black = imagecolorallocate($mono, 0, 0, 0);
+
+    for ($x = 0; $x < $width; $x++) {
+        for ($y = 0; $y < $height; $y++) {
+            $rgba = imagecolorsforindex($source, imagecolorat($source, $x, $y));
+            if (($rgba['alpha'] ?? 0) >= 120) {
+                continue;
+            }
+            $luma = (int) round(($rgba['red'] * 0.299) + ($rgba['green'] * 0.587) + ($rgba['blue'] * 0.114));
+            if ($luma < 160) {
+                imagesetpixel($mono, $x, $y, $black);
+            }
+        }
+    }
+
+    ob_start();
+    imagepng($mono);
+    $png = ob_get_clean();
+    imagedestroy($source);
+    imagedestroy($mono);
+
+    return $png ? 'data:image/png;base64,' . base64_encode($png) : null;
 }
 
 function qrPagoDataUri(?string $contenido): ?string
@@ -100,6 +143,9 @@ function guardarComprobante58mm(object $comanda, $productos, float $total, strin
     $paymentLabel = $alias ? 'Alias' : 'CBU';
     $qrDataUri = $showPaymentQr && $paymentValue ? qrPagoDataUri($paymentValue) : null;
 
+    $itemsCount = max(1, count($productos));
+    $paperHeight = min(2000, max(420, 360 + ($itemsCount * 34) + (!empty($qrDataUri) ? 220 : 0)));
+
     $pdf = Pdf::loadView('pdf.comprobante-comanda', [
         'comanda' => $comanda,
         'productos' => $productos,
@@ -111,7 +157,7 @@ function guardarComprobante58mm(object $comanda, $productos, float $total, strin
         'paymentQrDataUri' => $qrDataUri,
         'paymentLabel' => $paymentLabel,
         'paymentValue' => $paymentValue,
-    ])->setPaper([0, 0, 226.77, 1200], 'portrait');
+    ])->setPaper([0, 0, 226.77, $paperHeight], 'portrait');
 
     $filename = 'comprobante-' . $tzNow->format('Ymd-His') . '-comanda-' . $comanda->id . '.pdf';
     file_put_contents($dir . DIRECTORY_SEPARATOR . $filename, $pdf->output());
