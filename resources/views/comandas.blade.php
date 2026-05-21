@@ -31,8 +31,9 @@
     </div>
 
     <div class="panel h-full flex flex-col min-h-[30rem] max-h-[calc(100vh-14rem)]">
+        <div class="comanda-detail-card flex flex-col flex-1 min-h-0 rounded-2xl border border-emerald-200 bg-white p-4 shadow-sm">
         <h2 id="selectedTitle" class="panel-title mb-2">Seleccione una mesa</h2>
-        <div id="productsList" class="space-y-2 overflow-y-auto pr-1 min-h-[9rem]"></div>
+        <div id="productsList" class="space-y-2 overflow-y-auto pr-1 min-h-[9rem] flex-1"></div>
         <div id="addProductCard" class="hidden mt-2 rounded-2xl border border-emerald-200 bg-white p-3 shadow-sm space-y-2">
             <h3 class="text-sm font-semibold text-emerald-950">Agregar producto</h3>
             <form id="newProductForm" class="grid gap-2">
@@ -51,15 +52,16 @@
                     <input id="productNotes" class="app-input mt-1 w-full" placeholder="Notas">
                 </div>
                 <div class="flex justify-end pt-1">
-                    <button class="btn btn-primary btn-add-comanda">Agregar a comanda</button>
+                    <button class="btn btn-primary btn-add-comanda">Agregar producto</button>
                 </div>
             </form>
         </div>
-        <div class="orders-summary mt-3 pt-3 flex items-center justify-between gap-3">
+        <div class="comanda-detail-footer mt-3 pt-3 flex items-center justify-between gap-3">
             <p id="selectedTotal" class="text-sm font-semibold text-emerald-950">Total: $ 0</p>
             <div class="flex items-center gap-2">
                                 <button id="chargeBtn" class="hidden btn btn-primary btn-charge" onclick="cobrarComanda()">Cobrar</button>
             </div>
+        </div>
         </div>
     </div>
 </div>
@@ -295,9 +297,8 @@ window.confirmarCierreCaja = async () => {
  const res = await fetch('/comandas/cierre/cerrar',{method:'POST',headers:{'Content-Type':'application/json','X-CSRF-TOKEN':'{{ csrf_token() }}'},body:JSON.stringify(payload)});
  if(!res.ok){ estadoEl.textContent = 'No se pudo cerrar caja. Verificá los datos e intentá nuevamente.'; return; }
  const data = await res.json();
- estadoEl.textContent = 'Caja cerrada correctamente.';
- if (data.comprobante_path) window.open('/' + data.comprobante_path, '_blank');
- cancelarCierreCajaModal();
+ const cierrePath = data.comprobante_path ? '/' + data.comprobante_path : '';
+ estadoEl.innerHTML = `Cierre de caja generado correctamente.${cierrePath ? ` <a href="${cierrePath}" target="_blank" class="underline font-semibold">Ver comprobante de cierre</a>` : ''}`;
  refreshCaja();
 };
 
